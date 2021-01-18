@@ -1,21 +1,341 @@
 # Introduction {#intro}
 
-You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods).
+The first introductory chapter gives an overview of simulation, what it is, what it can be used for, as well as some examples.
 
-Figures and tables with captions will be placed in `figure` and `table` environments, respectively.
+## What is simulation
 
-```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
-par(mar = c(4, 4, .1, .1))
-plot(pressure, type = 'b', pch = 19)
+A *simulation* is an imitation of the dynamics of a real-world process or system over time. Although simulation could potentially still be done "by hand", nowadays it almost always implicitly requires the use of a computer to create an artificial history of a system to draw inferences about its  characteristics and workings.
+
+The behavior of the system is studied by constructing a *simulation model*, which usually takes the form of a set of assumptions about the workings of the system. Once developed, a simulation model can be used for a variety of tasks, including:
+
+ - Investigate the behaviour of the system under a wide array of scenarios. This is also often referred to as "what-if" analyses;
+ 
+ - Changes to the system can be simulated before implementation to predict their impact in real-world;
+ 
+ - During the design stage of a system, meaning while it is being built, simulation can be used to guide its construction.
+ 
+Computer simulation has been used in a variety of domains, including manifacturing, health care, transport system, defense and management science, among many others.
+
+### A simple simulation model
+
+Suppose we decided to open a donut shop and are unsure about how many employees to hire to sell donuts to costumers. The operations of our little shop is the real-world system whose behavior we want to understand. Given that the shop is not operating yet, only a simulation model can provide us with insights. 
+
+We could of course devise models of different complexities, but for now suppose that we are happy with a simple model where we have the following elements:
+
+ - costumers that arrive at our shop at a particular rate;
+ 
+ - employees (of a number to be given as input) that take a specific time to serve costumers.
+ 
+Implicitly, we are completely disregarding the number of donuts available in our shop and assuming that we have an infinite availability of these. Of course, in a more complex simulation model we may want to also include this element to give a more realistic description of the system.
+
+### Why simulate? 
+
+An alternative approach to computer simulation is direct experimentation. In the bagel shop setting, we could wait for the shop to open and observe its workings by having a different number of employees on different days. Considered against real experimentation, simulation has the following advantages:
+
+ - It is *cheaper* to implement and does not require a disruption of the real-world system;
+ 
+ - It is *faster* to implement and time can be compressed or expanded to allow for a speed-up or a slow-down of the system of interest;
+ 
+ - It can be *replicated* multiple times and the workings of the systems can be observed a large number of times;
+ 
+ - It is *safe* since it does not require an actual disruption of the system;
+ 
+ - It is *ethical* and *legal* since it can implement changes in policies that would be unethical or illegal to do in real-world.
+ 
+Another alternative is to use a mathematical model representing the system. However, it is often infeasible, if not impossible, to come up with an exact mathematical model which can faithfully represent the system under study.
+
+## Types of simulations
+
+Before starting the construction of a simulation model, we need to decide upon the principal characteristics of that model. There are various choices to be made, which depend upon the system we are trying to understand.
+
+### Stochastic vs deterministic simulations
+
+A  model is *deterministic* if its behavior is entirely predictable. Given a set of inputs, the model will result in a unique set of outputs. A model is *stochastic* if it has random variables as inputs, and consequently also its outputs are random. 
+
+Consider the donut shop example. In a deterministic model we would for instance assume that a new customer arrives every 5 minutes and an employee takes 2 minutes to serve a customer. In a stochastic model we would on the other hand assume that the arrival times and the serving time follows some random variables: for instance, normal distributions with some mean and variance parameters. 
+
+In this course we will only consider stochastic simulation, but for illustration we consider now an example of a deterministic simulation. 
+
+A social media influencer decides to open a new page and her target is to reach 10k followers in 10 weeks. Given her past experience, she assumes that each week she will get 1.5k new followers that had never followed the page and of her current followers she believes 10\% will stop following the page each week. However, 20\% of those that the left the page in the past will join again each week. Will she reach her target?
+
+To answer this question we can construct a deterministic simulation. Let $F_t$ the number of followers at week $t$ and $U_t$ the number of users that are unfollowing the profile at week $t$. Then
+$$
+F_t = F_{t-1} + 1500 - L_{t} + R_{t}, \hspace{1cm} U_t= U_{t-1} + L_{t} - R_{t}
+$$
+where $L_{t}=0.1\cdot F_{t-1}$ is the number of unfollowers from time $t-1$ to time $t$, and $R_{t}=0.2\cdot U_{t-1}$ is the number of users that follow the page back from time $t-1$ to time $t$.
+
+To compute the number of followers after ten weeks we can use the R code below. It does not matter if you do not understand it now, we will review R coding in the next chapters.
+
+```{r}
+Ft <- Ut <- Lt <- Rt <- rep(0,11)
+for (i in 2:11){
+  Lt[i] <- 0.1*Ft[i-1]
+  Rt[i] <- 0.2*Ut[i-1]
+  Ut[i] <- Ut[i-1] + Lt[i] - Rt[i]
+  Ft[i] <- Ft[i-1] + 1500 - Lt[i] + Rt[i]
+}
+result <- data.frame("Followers" = Ft, "Total Unfollowers" = Ut,
+           "Weekly Unfollowers" = Ut, "Weekly Returns" = Rt)
 ```
 
-Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab).
+The dataframe `result` is reported in Table \@ref(tab:insta), showing that she will be able to hit her target of 10k followers since she will have 11619 followers. If we run again the simulation we will obtain the exact same results: there is no stochasticity/uncertainty about the outcome. 
 
-```{r nice-tab, tidy=FALSE}
+```{r insta, tidy=FALSE, echo = FALSE}
 knitr::kable(
-  head(iris, 20), caption = 'Here is a nice table!',
+  result, caption = 'Dataframe `result` from the social media deterministic simulation',
   booktabs = TRUE
 )
 ```
 
-You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015].
+The above application could be transformed into a stochastic simulation by allowing the rate at which she gets new followers, unfollowers etc. to be random variables of which we do not know the exact value.
+
+### Static vs dynamic simulations
+
+Simulation models that represent the system at a particular point in time only are called *static*. This type of simulations are often called as *Monte Carlo simulations* and will be the focus of later chapters. 
+
+*Dynamic* simulation models represent systems as they evolve over time. The simulation of the donut shop during its working hours is an example of a dynamic model.
+
+### Discrete vs continuous simulations
+
+Dynamic simulations can be further categorized into discrete or continuous.
+
+*Discrete* simulation models are such that the variables of interest change only at a discrete set of points in time. The number of people queuing in the donut shop is an example of a discrete simulation. The number of customers changes only when a new customer arrives or when a customer has been served. Figure 1.1 gives an illustration of the discrete nature of the number of customers queuing in the donut shop.
+
+```{r discrete, echo = FALSE,  fig.cap='Example of a discrete dynamic simulation', out.width='80%', fig.asp=.75, fig.align='center'}
+plot(seq(0,9,1),rep(1,10),type="l",lwd=2, xlim=c(0,34),ylim=c(0,4),xlab="Time",ylab ="Customers queuing")
+lines(9:10,c(2,2),lwd=2)
+lines(10:12,c(3,3,3),lwd=2)
+lines(12:26, rep(2,15),lwd=2)
+lines(26:30, rep(1,5),lwd =2)
+lines(30:34,rep(2,5),lwd=2)
+```
+
+Figure 1.1 further illustrates that for specific period of times the system does not change state, that is the number of customers queuing remains constant. It is therefore useless to inspect the system during those times where nothing changes. This prompts the way in which time is usually handled in dynamic discrete simulations, using the so-called *next-event technique*. The model is only examined and updated when the system is due to change. These changes are usually called *events*. Looking at Figure 1.1 at time zero there is an event: a customer arrives; at time nine another customer arrives; at time ten another customer arrives; at time twelve a customer is served; and so on. All these are examples of events.
+
+*Continuous* simulation models are such that the variables of interest change continuously over time. Suppose for instance a simulation model for a car journey was created where the interest is on the speed of the car throughout the journey. Then this would be a continuous simulation model. Figure 1.2 gives an illustration of this.
+
+```{r fig-cont, echo = FALSE,  fig.cap='Example of a discrete dynamic simulation', out.width='80%', fig.asp=.75, fig.align='center'}
+set.seed(2021)
+t <- 0:100  # time
+sig2 <- 0.05
+## first, simulate a set of random deviates
+x <- rnorm(n = length(t) - 1, sd = sqrt(sig2))
+## now compute their cumulative sum
+x <- c(0, cumsum(x))
+plot(t, x + 60, type = "l", lwd = 2, xlab= "Time", ylab = "Speed in km/h")
+```
+
+
+In later chapters we will focus on discrete simulations, which are usually called *discrete-event simulation*. Continuous simulations will not be discussed in these notes.
+
+
+
+## Elements of a simulation model
+
+We next introduce some terminology which we will need in the following.
+
+### Objects of the model
+
+There are two types of objects a simulation model is often made of:
+
+ - *Entities*: individual elements of the system that are being simulated and whose behavior is being explicitly tracked. Each entity can be individually identified;
+ 
+ - *Resources*: also individual elements of the system but they are not modelled individually. They are treated as countable items whose behavior is not tracked.
+ 
+Whether an element should be treated as an entity or as a resource is something that the modeller must decide and depends on the purpose of the simulation. Consider our simple donut shop. Clients will be most likely be resources since we are not really interested in what each of them do. Employees may either be considered as entities or resources: in the former case we want to track the amount of time each of them are working; in the latter the model would only be able to output an overview of how busy overall the employees are.
+
+### Organization of entities and resources
+
+ - *Attributes*: properties of objects (that is entities and resources). This is often used to control the behavior of the object. In our donut shop an attribute may be the state of an employee: whether she is busy or available. In a more comprehensive simulation, an attribute might be the type of donut a customer will buy (for instance, chocolate, vanilla or jam).
+ 
+ - *State*: collection of variables necessary to describe the system at any time point. In our donut shop, in the simplest case the necessary variables are number of customers queuing and number of busy employees. This fully characterizes the system.
+ 
+ - *List*: collection of entites or resources ordered in some logical fashion. For instance, the customers waiting in our shop may be ordered in the so-called ``fist-come, first-served" scheme, that is customers will be served in the order they arrived in the shop.
+
+### Operations of the objects
+
+During a simulation study, entities and resources will cooperate and therefore change state. The following terminology describe this as well as the flow of time:
+
+ - *Event*: instant of time where the state of the system changes. In the donut shop suppose that there are currently two customers being served. An event is when a customer has finished being served: the number of busy employees decreases by one and there is one less customer queuing.
+ 
+ - *Activity*: a time period of specified length which is known when it begins (although its length may be random). The time an employee takes to serve a customer is an example of an activity: this may be specified in terms of a random distribution.
+ 
+ - *Delay*: duration of time of unspecified length, which is not known until it ends. This is not specified by the modeller ahead of time but is determined by the conditions of the system. Very often this is one of the desired output of a simulation. For instance, a delay is the waiting time of a customer in the queue of our donut shop.
+ 
+ - *Clock*: variable representing simulated time.
+ 
+## The donut shop example
+
+Let's consider in more details the donut shop example and let's construct and implement our first simulation model. At this stage, you should not worry about the implementation details. These will be formalized in more details in later chapters.
+
+Let's make some assumptions:
+
+ - the queue in the shop is possibly infinite: whenever a customer arrives she will stay in the queue independent of how many customers are already queuing and she will wait until she is served.
+ 
+ - customers are served on a first-come, first-served basis.
+ 
+ - there are two employees. On average they take the same time to serve a customer. Whenever an employee is free, a customer is allocated to that employee. If both employees are free, either of the two starts serving a customer.
+ 
+The components of the simulation model are the following:
+
+ - **System state**: $N_C(t)$ number of customers waiting to be served at time $t$; $N_E(t)$ number of employees busy at time $t$.
+ 
+ - **Resources**: customers and employees;
+ 
+ - **Events**: arrival of a customer; service completion by an employee.
+ 
+ - **Activities**: time between a customer arrival and the next; service time by an employee.
+ 
+ - **Delay**: customers' waiting time in the queue until an employee is available.
+ 
+From an abstract point of view we have now defined all components of our simulation model. Before implementing, we need to choose the length of the activities. This is usually done using common sense, intuition or historical data. Suppose for instance that the time between the arrival of customers is modeled as an Exponential distribution with parameter 1/3 (that is on average a customer arrives every three minutes) and the service time is modeled as a continuous Uniform distribution between 1 and 5 (on average a service takes three minutes).
+
+With this information we can now implement the workings of our donut shop. It does not matter the specific code itself, we will learn about it in later chapters. At this stage it is only important to notice that we use the `simmer` package together with the functionalities of `magrittr`. We simulate our donut shop for two hours.
+
+```{r message = FALSE, warning = FALSE, results = "hide"}
+library(simmer)
+library(magrittr)
+set.seed(2021)
+
+env <-  simmer("donut shop")
+
+customer <- trajectory("customer") %>% seize("employee", 1) %>%
+  timeout(function() runif(1,1,5)) %>% release("employee", 1) 
+
+env %>%
+  add_resource("employee", 2) %>%
+  add_generator("customer", customer, function() rexp(1,1/3))
+
+env %>%
+  run(until=120)
+```
+
+The above code creates a simulation of the donut shop for two hours. Next we report some graphical summaries that describe how the system worked. 
+
+```{r donut, fig.cap = "Graphical summaries from the simulation of the donut shop", message = FALSE, warning = FALSE, fig.align='center'}
+library(simmer.plot)
+library(gridExtra)
+p1 <- plot(get_mon_resources(env), metric = "usage", items = "server",step = T)
+p2 <- plot(get_mon_arrivals(env), metric = "waiting_time")
+
+grid.arrange(p1,p2,ncol=2)
+```
+
+The left plot in Figure 1.3 reports the number of busy employees busy throughout the simulation. We can observe that often no employees were busy, but sometimes both of them are busy. The right plot in Figure 1.3 reports the waiting time of customers throughout the simulation. Most often customers do not wait in our shop and the largest waiting time is of about four minutes.
+
+Some observations:
+
+ - this is the result of a single simulation where inputs are random and described by a random variable (for instance, Poisson and Uniform). If we were to run the simulation again we would observe different results.
+ 
+ - given that we have built the simulation model, it is straightforward to change some of the inputs and observe the results under different conditions. For instance, we could investigate what would happen if we had only one employee. We could also investigate the use of different input parameters for the customer arrival times and the service times.
+ 
+## Simulating a little health center
+
+Consider now a slightly more complex example where we want to simulate the workings of a little health center. Patients arrive at the health center and are first visited by a nurse. Once they are visited by the nurse they have an actual consultation with a doctor. Once they are finished with the doctor, they meet the administrative staff to schedule a follow-up appointment.
+
+We make the following assumptions:
+
+ - as before we assume queues to be infinite and that patients do not leave the health center until they are served by the administrative staff;
+ 
+ - at all steps patients are visited using a first-come, first-served basis
+ 
+ - the health center has one nurse, two doctors and one administrative staff. The two doctors take on average the same time to visit a patient.
+ 
+The components of the simulation model are the following:
+
+ - **System state**:
+    - $Q_N(t)$: number of patients queuing to see the nurse;
+    
+    - $Q_D(t)$: number of patients queing to see a doctor; 
+    
+    - $Q_A(t)$: number of patients queuing to see the staff;
+    
+    - $N_N(t)$: number of nurses available to visit patients;
+    
+    - $N_D(t)$: number of doctors available to visit patients; 
+    
+    - $N_A(t)$: number of administrative staff available to visit patients.
+    
+  - **Resources**: patients, nurses, doctors and administrative staff;
+  
+  - **Events**: arrival of a patient, completion of nurse's visit, completation of doctor's visit, completion of administrative staff's visit.
+  
+  - **Activities**: time between the arrival of a patient and the next, visit's times of nurses, doctors and admin staff.
+  
+  - **Delay**: customers' waiting time for nurses, doctors and administrative staff
+    
+We further assume the following activities:
+
+ - Nurse visit times follow a Normal distribution with mean 15 and variance 1;
+ 
+ - Doctor visit times follow a Normal distribution with mean 20 and variance 1;
+ 
+ - Administrative staff visit times follow a Normal distribution with mean 5 and variance 1;
+
+ - Time between the arrival of patients is modeled as a Normal with mean 10 and variance 4.
+ 
+ 
+The model above can be implemented using the following code (we run the simulation for four hours). Again do not worry about it now!
+
+```{r results = 'hide', message = FALSE, warning = FALSE}
+set.seed(2021)
+env <- simmer("HealthCenter")
+
+patient <- trajectory("patients' path") %>%
+  seize("nurse", 1) %>%
+  timeout(function() rnorm(1, 15)) %>%
+  release("nurse", 1) %>%
+  seize("doctor", 1) %>%
+  timeout(function() rnorm(1, 20)) %>%
+  release("doctor", 1) %>%
+  seize("administration", 1) %>%
+  timeout(function() rnorm(1, 5)) %>%
+  release("administration", 1)
+
+env %>%
+  add_resource("nurse", 1) %>%
+  add_resource("doctor", 2) %>%
+  add_resource("administration", 1) %>%
+  add_generator("patient", patient, function() rnorm(1, 10, 2))
+
+env %>% run(240)
+```
+ 
+Let's look at some summary statistics. 
+  
+```{r warning = FALSE, message = F, fig.cap = "Utilization of the resources in the health center", fig.align = "center"}
+plot(get_mon_resources(env), metric = "utilization")
+```
+
+Figure 1.4 shows the utilization of the different resources in the system. Nurses are most busy, doctors are overall fairly available, whilst the administration is more than half of the time available.
+
+```{r warning = FALSE, message = F, fig.cap = "Usage of the resources in the health center", fig.align = "center"}
+plot(get_mon_resources(env), metric = "usage", item = "server")
+```
+ 
+Figure 1.5 confirms this. We see that the usage of nurses is almost 1, whilst for doctors and administrative staff we are below the number of doctors and staff available. 
+
+```{r warning = FALSE, message = F, fig.cap = "Time spent in the health center", fig.align = "center"}
+plot(get_mon_arrivals(env), metric = "flow_time")
+```
+
+Last Figure 1.6 reports the average time spent by patients in the health center. We can see that as the simulation clock increases, patients spend more time in the health center. From the previous plots, we can deduce that in general patients wait for the nurse, who has been busy all the time during the simulation.
+
+
+## What's next
+
+The previous examples should have given you an idea of what a simulation model is and what you will be able to implement by the end of the course. However, it will take some time before we get to actually simulate systems. There are various skills that you will need to learn or revise before being able to implement simulation in R yourself. Specifically:
+
+ - first we will review the basics of R programming;
+ 
+ - we will then review basic elements of probability and statistics;
+ 
+ - we will discuss how randomness is implemented in programming languages and in R; 
+ 
+ - at this stage you will be able to implement your first simple simulations. In particular we will start with static simulation, also called *Monte Carlo* simulation
+ 
+ - we will then look at dynamic simulations as in the previous examples.
+ 
+ 
+ 
+ 

@@ -1,0 +1,632 @@
+# R programming
+
+R is a programming language most commonly used within the statistical and machine learning community. This chapter will review some of the elements of R programming that will be used in later chapters. Do not expect this chapter to be exhaustive or self-contained. It is intended to give a quick refresh of R for users that have at least some experience with this programming language. There are many topics and concepts which are fundamental but will not be reviewed in this chapter. However, you should aim to master the topics included in this chapter since they will appear again later on in these notes. There are many other resources if you want to have a more in-depth look into R programming.
+
+ - The books of Hadley Wickham are surely a great starting point and are all available [here](http://hadley.nz/). 
+ 
+ - If you are unsure on how to do something with R, Google it!!! The community of R users is so wide that surely someone else has already asked your same question.
+ 
+ - The R help is extremely useful and comprehensive. If you want to know more about a function, suppose it is called function, you can type `?function`.
+
+## Why R?
+
+As mentioned in the previous chapter, simulation is very often applied in many areas, for instance management science and engineering. Often a simulation is carried out using an Excel spreadsheet or using a specialised software whose only purpose is creating simulations. Historically, R has not been at the forefront of the implementation of simulation models, in particular of discrete-event simulations. Only recently, R packages implementing discrete-event simulation have appeared, most importantly the `simmer` R package that you will learn using in later chapters.
+
+These notes are intended to provide a unique view of simulation with specific implementation in the R programming language. Some of the strenght of R are:
+
+ - it is free, open-source and available in all major operating systems;
+ 
+ - the community of R users is huge, with many forums, sites and resources that give you practical support in developing your own code;
+ 
+ - a massive set of add-on packages to increase the capabalities of the basic R environment;
+ 
+ - functions to perform state-of-the-art statistical and machine-learning methods. Researchers sometimes create an associated R package to any article they publish so for others to use their methods;
+ 
+ - the integrated development environment RStudio provides a user-friendly environment to make the R programming experience more pleasing;
+ 
+ - powerful communication tools to create documents and presentations embedding R code and R output. As a matter of fact this very book is created in R!!!!
+ 
+## R basics
+
+So let's get started with R programming!
+
+### R as a calculator
+
+In its most basic usage, we can use R as a calculator. Basic algebraic operations can be carried out as you would expect. The symbol `+` is for sum, `-` for subtraction, `*` for multiplication and `/` for division. Here are some examples:
+
+```{r}
+4 + 2
+4 - 2
+4 * 2
+5 / 2
+```
+
+### Variable assignment
+
+In R the symbol `<-` is used to assign a quantity to a variable. For instance, `a <- 4` assigns the number `4` to the variable `a` and `b <- 3` assigns the number `3` to `b`. It is much more common to work with variables in programming. Basic operations can then be performed over variables.
+
+```{r}
+a <- 4
+b <- 3
+a + b
+a - b
+```
+
+Notice for example that the code `a <- 4` does not show us the value of the variable `a`. It only creates this assignment. If we want to print the value of a variable, we have to explictly type the name of the variable.
+
+```{r}
+a
+```
+
+### Data types
+
+In the previous examples we worked with numbers, but variables could be assigned other types of information. There are four basic types:
+
+ - *Logicals* or *Booleans*: corresponding to `TRUE` and `FALSE`, also abbreviated as `T` and `F` respectively;
+ 
+ - *Doubles*: real numbers;
+ 
+ - *Characters*: strings of text surrounded by `"` (for example `"hi"`) or by `'` (for example 'by');
+
+ - *Integers*: integer numbers. If you type an integer in R, as before 3 or 4, it will usually be stored as a double unless explicitly defined.
+ 
+Examples:
+```{r}
+a <- TRUE
+a
+b <- "hello"
+b
+```
+
+### Vectors 
+
+In all previous examples the variables included one element only. More generally we can define sequences of elements or so-called *vectors*. They can be defined with the command `c`, which stands for combine. 
+```{r}
+vec <- c(1,3,5,7)
+vec
+```
+
+So `vec` includes the sequence of numbers 1, 3, 5, 7. Notice that a vector can only include one data type. Consider the following:
+
+```{r}
+vec <- c(1, "hello", TRUE)
+vec
+```
+
+We created a variable `vec` where the first entry is a number, then a character string, then a Boolean. When we print `vec`, we get that its elements are `"1"`, `"hello"` and `"TRUE"`: it has transformed the number `1` into the string `"1"` and the Boolean `TRUE` into `"TRUE"`.
+
+### Matrices
+
+Matrices are tables of elements that are organized in rows and columns. You can think of them as an arrangement of vectors into a table. Matrices must have the same data type in all its entries, as for vectors. Matrices can be constructed in multiple ways. One way is by stacking vectors into a matrix row-by-row with the command `rbind`. Consider the following example.
+```{r}
+row1 <- c(1,2,3)
+row2 <- c(4,5,6)
+row3 <- c(7,8,9)
+mat <- rbind(row1,row2,row3)
+mat
+```
+
+So first we created vectors `row1 = (1,2,3)`, `row2 = (4,5,6)` and `row3 = (7,8,9)` and then organizing them together into the matrix `mat`. 
+
+The following code follows the same procedure but now organizes vectors by columns instead using the command `cbind`.
+```{r}
+col1 <- c(1,2,3)
+col2 <- c(4,5,6)
+col3 <- c(7,8,9)
+mat <- cbind(col1,col2,col3)
+mat
+```
+
+Last, there is also a command called `matrix` to create a matrix. It takes a vector, defined using the command `c` and stores its entries into a matrix of `nrow` rows and `ncol` columns. Consider the following example.
+
+```{r}
+vec <- c(1,2,3,4,5,6,7,8,9)
+mat <- matrix(vec, nrow = 3, ncol = 3)
+mat
+```
+
+So first we created a vector `vec` with numbers from 1 to 9 and then stored them in a matrix with 3 rows and 3 columns. Number are stored by column: the first element of `vec` is in entry (1,1), the second element of `vec` is in entry (2,1), and so on.
+
+### Dataframes
+
+Dataframes are very similar as matrices, they are tables organized in rows and columns. However, different to matrices they can have columns with different data types. They can be created with the command `data.frame`.
+
+```{r}
+data <- data.frame(X1 = c(1,2,3), X2 = c(TRUE,FALSE,FALSE),
+                   X3 = c("male","male","female"))
+data
+```
+
+The dataframe `data` includes three columns: the first column `X1` of numbers, the second column `X2` of Boolean and the third column `X3` of characters. Dataframes are the objects that are most commonly used in real world data analysis.
+
+### `NULL` and `NA`
+
+The expression `NA` is used in R to denote a missing value. Consider the following example.
+
+```{r}
+vec <- c(3, NA, 5)
+vec
+```
+Although the second element of `vec` is the expression `NA`, R recognizes that it is used for missing value and therefore the elements 3 and 5 are still considered numbers: indeed they are not printed as `"3"` and `"5"`.
+
+`NULL` is an additional datatype. This can have various uses. For instance, it is associated to a vector with no entries.
+
+```{r}
+c()
+```
+
+## Accessing and manipulating variables 
+
+Now that we have described the main objects we will work with in R, we can discuss how to access specific information.
+
+### Accessing a single element
+
+Given a vector `vec` we can access its i-th entry with `vec[i]`.
+
+```{r}
+vec <- c(1,3,5)
+vec[2]
+```
+
+For a matrix or a dataframe we need to specify the associated row and column. If we have a matrix `mat` we can access the element in entry (i,j) with `mat[i,j]`.
+
+```{r}
+mat <- matrix(c(1,2,3,4,5,6,7,8,9), ncol=3, nrow =3)
+mat[1,3]
+```
+
+
+
+### Acessing multiple entries
+
+To access multiple entries we can on the other hand define a vector of indexes of the elements we want to access. Consider the following examples:
+
+```{r}
+vec <- c(1,3,5)
+vec[c(1,2)]
+```
+
+The above code accesses the first two entries of the vector `vec`. To do this we had to define a vector using `c(1,2)` stating the entries we wanted to look at. For matrices consider:
+
+```{r}
+mat <- matrix(c(1,2,3,4,5,6,7,8,9), ncol=3, nrow =3)
+mat[c(1,2),c(2,3)]
+```
+
+The syntax is very similar as before. We defined to index vectors, one for the rows and one for columns. The two statements `c(1,2)` and `c(2,3)` are separated by a comma to denote that the first selects the first and second row, whilst the second selects the second and third column.
+
+If one wants to access full rows or full columns, the argument associated to rows or columns is left blank. Consider the following examples.
+
+```{r}
+mat <- matrix(c(1,2,3,4,5,6,7,8,9), ncol=3, nrow =3)
+mat[1,]
+mat[,c(1,2)]
+```
+
+The code `mat[1,]` selects the first full row of `mat`. The code `mat[,c(1,2)]` selects the first and second column of `mat`. Notice that the comma has always to be included!
+
+To access multiple entries it is often useful to define sequences of number quickly. The following command defines the sequence of integer numbers from 1 to 9.
+
+```{r}
+1:9
+```
+
+More generally, one can define sequences of numbers using `seq` (see `?seq`).
+
+### Accessing entries with logical operators
+
+If we want to access elements of an object based on a condition it is often easier to use logical operators. This means comparing entries using the comparisons you would usually use in mathematical reasoning, for instance being equal to, or being larger to. The syntax is as follows:
+
+ - `==` to check equality (notice the two equal signs)
+ 
+ - `!=` to check non-equality
+
+ - `>` bigger to 
+  
+ - `>=` bigger or equal to
+ 
+ - `<` less to
+ 
+ - `<=` less or equal to
+ 
+Let's see some examples.
+
+```{r}
+vec <- c(2,3,4,5,6)
+vec > 4
+```
+
+We constructed a vector `vec` and check which entries were larger than 4. The output is a Boolean vector with the same number of entries as `vec` where only the last two entries are `TRUE`. Similarly,
+
+```{r}
+vec <- c(2,3,4,5,6)
+vec == 4
+```
+
+has a `TRUE` in the third entry only.
+
+So if we were to be interested in returning the elements of `vec` that are larger than 4 we could use the code
+
+```{r}
+vec <- c(2,3,4,5,6)
+vec[vec > 4]
+```
+
+So we have a vector with only elements 5 and 6.
+
+### Manipulating dataframes
+
+We have seen in the previous section that dataframes are special types of matrices where columns can include a different data type. For this reason they have special way to manipulate and access their entries.
+
+First, specific columns of a dataframe can be accessed using its name and the `$` sign as follows.
+
+```{r}
+data <- data.frame(X1 = c(1,2,3), X2 = c(TRUE,FALSE,FALSE),
+                   X3 = c("male","male","female"))
+data$X1
+data$X3
+```
+So using the name of the dataframe `data` followed by `$` and then the name of the column, for instance `X1`, we access that specific column of the dataframe.
+
+Second, we can use the `$` sign to add new columns to a dataframe. Consider the following code.
+
+```{r}
+data <- data.frame(X1 = c(1,2,3), X2 = c(TRUE,FALSE,FALSE),
+                   X3 = c("male","male","female"))
+data$X4 <- c("yes","no","no")
+data
+```
+
+`data` now includes a fourth column called `X4` coinciding to the vector `c("yes","no","no")`.
+
+Third, we can select specific rows of a dataframe using the command `subset`. Consider the following example.
+
+```{r}
+data <- data.frame(X1 = c(1,2,3), X2 = c(TRUE,FALSE,FALSE),
+                   X3 = c("male","male","female"))
+subset(data, X1 <= 2)
+```
+
+The above code returns the rows of `data` such that `X1` is less or equal to 2. More complex rules to subset a dataframe can be combined using the and operator `&` and the or operator `|`. Let's see an example.
+
+```{r}
+data <- data.frame(X1 = c(1,2,3), X2 = c(TRUE,FALSE,FALSE),
+                   X3 = c("male","male","female"))
+subset(data, X1 <= 2 & X2 == TRUE)
+```
+
+So the above code selects the rows such that `X1` is less or equal to 2 and `X2` is `TRUE`. This is the case only for the first row of `data`.
+
+### Information about objects
+
+Here is a list of functions which are often useful to get information about objects in R.
+
+ - `length` returns the number of entries in a vector.
+ 
+ - `dim` returns the number of rows and columns of a matrix or a dataframe
+ 
+ - `unique` returns the unique elements of a vector or the unique rows of a matrix or a dataframe.
+ 
+ - `head` returns the first entries of a vector or the first rows of a matrix or a dataframe
+ 
+ - `order` returns a re-ordering of a vector or a data.frame in ascending order.
+ 
+Let's see some examples.
+
+```{r}
+vec <- c(4,2,7,5,5)
+length(vec)
+unique(vec)
+order(vec)
+```
+
+`length` gives the number of elements of `vec`, `unique` returns the different values in `vec` (so 5 is not repeated), `order` returns in entry i the ordering of the i-th entry of `vec`. So the first entry of `order(vec)`  is 2 since 4 is the second-smallest entry of `vec`.
+
+```{r}
+data <- data.frame(X1 = c(1,2,3,4), X2 = c(TRUE,FALSE,FALSE,FALSE),
+                   X3 = c("male","male","female","female"))
+dim(data)
+```
+
+So `dim` tells us that `data` has four rows and three columns.
+
+
+## Loops and conditions
+
+This section reviews two of the most basic elements of any programming language: `if` statements and `cycles` or `loops`. 
+
+### `if` statements
+
+The basic form of an `if` statement in R is as follows:
+
+```{r, eval= F}
+if(condition){true_action}
+```
+
+Condition must return a Boolean, either `TRUE` or `FALSE`. If `TRUE` then the code follows the code within the curly brackets and performs the `true_action`. If `condition` is `FALSE` the code does nothing. 
+
+It is more customary to also give a chunk of code for the case `condition`  is `FALSE`. This can be achieved with `else`.
+
+```{r eval = F}
+if(condition){true_action} else {false_action}
+```
+
+Let's see an example.
+
+```{r}
+a <- 5
+if (a < 2){"hello"} else {"goodbye"}
+```
+
+The variable `a` is assigned the number 5. Then we impose a condition: if `a` is less than 2, we print the text `"hello"`, otherwise `"goodbye"` is printed. Since `a <- 5` the code prints correctly `"goodbye"`. On the other hand if `a` were assigned `1`.
+
+
+```{r}
+a <- 1
+if (a < 2){"hello"} else {"goodbye"}
+```
+
+### `ifelse`
+
+`if` works when checking a single element and the condition returns either `TRUE` or `FALSE`. The command `ifelse` can be used to quickly check a condition over all elements of a vector. Consider the following example.
+
+```{r}
+vec <- c(1, 3, 5, 7, 9)
+ifelse(vec > 5, "bigger", "smaller")
+```
+
+`vec` contains the values 1, 3, 5, 7, 9 and the `condition` is if an elemenent of `vec` is larger than 5. If `TRUE` the code returns the string `bigger` and otherwise returns `smaller`. The code above returns therefore a vector of the same length of `vec` including either the string `bigger` or the string `smaller`.
+
+### Loops
+
+`for` loops are used to iterate over items in a vector. They have the following skeleton:
+
+```{r eval = F}
+for(item in vector) {perform_action}
+```
+
+For each `item` in `vector`, `perform_action` is performed once and the value of `item` is updated each time.
+
+Here is an example.
+
+```{r}
+for (i in c(1,2,3)){
+  print(i)
+}
+```
+
+Item is the variable `i` (it is costumary to use just a letter) and at each step `i` is set equal to a value in the vector `c(1,2,3)`. At each of these iterations, the command `print(i)`, which simply returns the value that `i` takes is called. Indeed we say that the output is the sequence of numbers 1, 2, 3. 
+
+## Functions
+
+Functions are chunks of code that are given a name so that they can be easily used multiple times. Perhaps without realising it, you have used functions already many times!
+
+### Defining your own function
+
+A function is composed of the following elements:
+
+ - a name: in R functions are objects just like vectors or matrices and they are given a name.
+ 
+ - arguments: these are objects that will be used within the function.
+ 
+ - body: a chunk of code which is run within the function.
+ 
+ - output: an object that the function returns.
+
+
+Let's consider an example.
+
+```{r}
+my.function <- function(x,y){
+  z <- x + y
+  return(z)
+}
+```
+
+The above function computes the sum of two numbers `x` and `y`. Let's call it.
+
+```{r}
+my.function(2,3)
+```
+
+The sum between 2 and 3 is indeed 5.
+
+Let's look at the code line by line. In the first line, we assigned a function using the command `function` to an object called `my.function`. `my.function` has two arguments called `x` and `y`.  Then there is an opening curly bracket `{`. The last line of code has a closing curly bracket `}`: whatever is in between the two brackets is a chunk of code which is run when the function is run. The second line computes a new variable called `z` which stores the sum of `x` and `y`. The third line of code tells us that the function should return `z` as output.
+
+Let's consider a slightly more complicated function.
+
+```{r}
+new.function <- function(x,y){
+  z1 <- x^2
+  z2 <- z1 + y
+  return(z2)
+}
+```
+
+The `new.function` returns the sum between the square of the first input `x` and the second input `y`. Let's call the function.
+
+```{r}
+new.function(2,3)
+new.function(3,2)
+```
+
+Notice that `new.function(2,3)` is different from `new.function(3,2)`: indeed in the fist case the sum between 2^2 and 3 is computed, whilst in the second the sum between 3^2 and 2 is computed. Furthermore, that the variable `z1` exists only within the function: when you call the function the output does not create a variable `z1`. The output does not create either a variable `z2` it simply returns the value that is stored in `z2`, which can the be assigned as in the following example.
+
+```{r}
+value <- new.function(2,3)
+value
+```
+
+We stored in `value` the output of `new.function(2,3)`.
+
+An equivalent way to write `new.function` is as follows:
+
+```{r}
+new.function <- function(x,y){
+  x^2 + y
+}
+new.function(2,3)
+```
+
+The output is the same. We did not create any variable within the function and we did not explicitly use the `return` command. R understands that the last line of code is what the function should return.
+
+
+### Calling functions
+
+In R functions can be called in various ways. Before we have seen function calls as
+
+```{r eval = F}
+new.function(2,3)
+```
+
+How did it work?
+
+ - The function `new.function` has a first argument `x` and a second argument `y`.
+ 
+ - R matched the first argument in `new.function(2,3)` to `x`, that is `x=2`, and the second argument to `y`, that is `y=3`.
+ 
+We could have also been more explicity and state what `x` and `y` were.
+
+```{r}
+new.function(x=2, y=3)
+```
+
+So now explicitly we state that the input `x` of `new.function` is 2 and that the input `y` is 3. Notice that the two ways of specifying inputs give the exact same results.
+
+
+### Mathematical and statistical functions
+
+The number of functions available in R is massive and it would be impossible to mention them all. Here I just give you a list of mathematical and statistical functions that we may use in the following.
+
+ - `exp` computes the exponential of the entries of an object
+ 
+ - `log` computes the logarithm of the entries of an object 
+ 
+ - `sqrt` computes the square root of the entries of an
+ 
+ - `sum` computes the sum of the entries of an object
+ 
+ - `abs` computes the absolute value of the entries of an object
+ 
+ - `mean` computes the mean of the entries of an object
+ 
+ - `sd` computes the standard deviation of the entries of an object
+ 
+ - `var` computes the variance of the entries of an object
+
+
+## The `apply` family of functions
+
+One of the biggest limitation of R is that it is slow in performing cycles. For this reason, one should aim at avoiding as much as possible to use of loops.
+
+There are various functions which are designed to help you in avoiding these loops and they are in the family of so called `apply` functions. There are many of these but we will only see two here.
+
+### The function `apply`
+
+Consider the following code.
+
+```{r}
+x <- matrix(c(1:9), ncol=3 , nrow = 3)
+y <- c()
+for (i in 1:3){
+  y[i] <- sum(x[i,])
+}
+y
+```
+
+The code first defines a matrix `x` and an empty vector `y` (recall that this is bad practice, but for this example it does not matter). Then there is a `for` cycle which assigns to the i-th entry of `y` the sum of the entries of the i-th row of `x`. So the vector `y` includes the row-totals.
+
+For this simple example the `for` cycle is extremely quick, but this is just to illustrate how we can replace it using the `apply` function.
+
+```{r}
+apply(x, 1, sum)
+```
+
+Let's look at the above code. The first input of `apply` is the object we want to operate upon, in this case the matrix `x`. The second input specifies if the operation has to act over the rows of the matrix (input equal to 1) or over the columns (input equal to 2). The third input is the operation we want to use, in this case `sum`. 
+
+Beside being faster, the above code is also a lot more compact than using a for loop. 
+
+The following example computes the mean of each column of `x`.
+
+```{r}
+apply(x, 2, mean)
+```
+
+### The function `sapply`
+
+Consider again our function `new.function` which computes the sum of the squared of a number `x` with another number `y`.
+
+```{r}
+new.function <- function(x,y){ x^2 + y}
+```
+
+Suppose that we want to compute such a sum for all numbers `x` from 1 to 10. Suppose that `y` is chosen as 2. We can achieve this with a `for` cycle as follows.
+
+```{r}
+x <- 1:10
+z <- c()
+for (i in 1:10){
+  z[i] <- new.function(x[i],2)
+}
+z
+```
+
+The function `sapply` can be used for this specific purpose.
+
+```{r}
+x <- 1:10
+sapply(x,new.function, y=2)
+```
+
+The first argument of `sapply` is a vector of values we want to use as input of a function. The second argument is the function we want to apply multiple times. If the function has more than one input we can then specify what their value is, in this specific case `y=2`. 
+
+Notice that a function can also be defined within `sapply`.
+
+```{r}
+x <- 1:10
+sapply(x, function(i) i^2 + 2)
+```
+
+So we defined the vector `x` and we want to apply the function defined within `sapply` multiple times: once for each entry in the vector `x`.
+
+
+## The pipe operator
+
+In practice we often have to call functions in a sequence. Suppose for example you have a vector of numbers. Of those numbers you would like to first compute the absolute value. Then you would like to compute the logarithm of those absolute values. Last you would like to compute the mean of those numbers. In standard R we can write this as
+
+```{r}
+x <- -5:-1
+mean(log(abs(x)))
+```
+
+Such nested code where we apply multiple functions over the same line of code becomes cluttered and difficult to read. 
+
+For this reason the package `magrittr` introduces the so-called pipe operator `%>%` which makes the above code much more readable. Consider the same example using the pipe operator.
+
+```{r warning = FALSE}
+library(magrittr)
+x <- -5:-1
+x %>% abs() %>% log() %>% mean()
+```
+
+The above code can be seen as follows: consider the vector `x` and apply the function `abs` over its entries. Then apply the function `log` over the resulting vector and last apply the function `mean`.
+
+The code is equivalent to standard R but it is simpler to read. So sometimes it is preferrable to code using pipes instead of standard R syntax.
+
+
+## Plotting
+
+R has great plotting capabilities. Details about plotting functions and a discussion of when different representations are most appropriate are beyond the scope of these notes. This is just to provide you with a list of functions:
+
+ - `barplot` creates a barplot: notice that you first need to construct a so-called contingency table using the function `table`.
+ 
+ - `hist` creates an histogram;
+ 
+ - `boxplot` creates a boxplot;
+ 
+ - `plot` creates a scatterplot;
+ 
+There are many functions to customize such plots, and again details can be found in the references given. A package which is often used to create nice data visualization is `ggplot2`.
+
+
+
