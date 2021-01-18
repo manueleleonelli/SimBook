@@ -18,7 +18,7 @@ These notes are intended to provide a unique view of simulation with specific im
  
  - the community of R users is huge, with many forums, sites and resources that give you practical support in developing your own code;
  
- - a massive set of add-on packages to increase the capabalities of the basic R environment;
+ - a massive set of add-on packages to increase the capabilities of the basic R environment;
  
  - functions to perform state-of-the-art statistical and machine-learning methods. Researchers sometimes create an associated R package to any article they publish so for others to use their methods;
  
@@ -395,7 +395,7 @@ for (i in c(1,2,3)){
 }
 ```
 
-Item is the variable `i` (it is costumary to use just a letter) and at each step `i` is set equal to a value in the vector `c(1,2,3)`. At each of these iterations, the command `print(i)`, which simply returns the value that `i` takes is called. Indeed we say that the output is the sequence of numbers 1, 2, 3. 
+Item is the variable `i` (it is costumary to use just a letter) and at each step `i` is set equal to a value in the vector `c(1,2,3)`. At each of these iterations, the command `print(i)`, which simply returns the value that `i` takes is called. Indeed we see that the output is the sequence of numbers 1, 2, 3. 
 
 ## Functions
 
@@ -485,7 +485,7 @@ How did it work?
  
  - R matched the first argument in `new.function(2,3)` to `x`, that is `x=2`, and the second argument to `y`, that is `y=3`.
  
-We could have also been more explicity and state what `x` and `y` were.
+We could have also been more explicit and state what `x` and `y` were.
 
 ```{r}
 new.function(x=2, y=3)
