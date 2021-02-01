@@ -117,7 +117,7 @@
 
 \title{Simulation and Modelling to Understand Change}
 \author{Manuele Leonelli}
-\date{2021-01-18}
+\date{2021-02-01}
 
 \begin{document}
 \maketitle
@@ -616,7 +616,7 @@ These notes are intended to provide a unique view of simulation with specific im
 \item
   the community of R users is huge, with many forums, sites and resources that give you practical support in developing your own code;
 \item
-  a massive set of add-on packages to increase the capabalities of the basic R environment;
+  a massive set of add-on packages to increase the capabilities of the basic R environment;
 \item
   functions to perform state-of-the-art statistical and machine-learning methods. Researchers sometimes create an associated R package to any article they publish so for others to use their methods;
 \item
@@ -1322,7 +1322,7 @@ Here is an example.
 ## [1] 3
 \end{verbatim}
 
-Item is the variable \texttt{i} (it is costumary to use just a letter) and at each step \texttt{i} is set equal to a value in the vector \texttt{c(1,2,3)}. At each of these iterations, the command \texttt{print(i)}, which simply returns the value that \texttt{i} takes is called. Indeed we say that the output is the sequence of numbers 1, 2, 3.
+Item is the variable \texttt{i} (it is costumary to use just a letter) and at each step \texttt{i} is set equal to a value in the vector \texttt{c(1,2,3)}. At each of these iterations, the command \texttt{print(i)}, which simply returns the value that \texttt{i} takes is called. Indeed we see that the output is the sequence of numbers 1, 2, 3.
 
 \hypertarget{functions}{%
 \section{Functions}\label{functions}}
@@ -1458,7 +1458,7 @@ How did it work?
   R matched the first argument in \texttt{new.function(2,3)} to \texttt{x}, that is \texttt{x=2}, and the second argument to \texttt{y}, that is \texttt{y=3}.
 \end{itemize}
 
-We could have also been more explicity and state what \texttt{x} and \texttt{y} were.
+We could have also been more explicit and state what \texttt{x} and \texttt{y} were.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1668,7 +1668,1286 @@ There are many functions to customize such plots, and again details can be found
 \hypertarget{probability-basics}{%
 \chapter{Probability Basics}\label{probability-basics}}
 
-We describe our methods in this chapter.
+Our final aim is to be able to mimic real-world systems as close as possible. In most scenarios we will not know with certainty how things unfold. For instance, we will rarely know the times at which customers enter a shop or the time it will take an employee to complete a task. Let's think again at the donut shop example. The time it takes an employee to serve a costumer depends on the time it takes the customer to specify the order, the number and types of donuts requested, the type of payment etc. To an external observer all these possible causes of variation of serving times appear to be random and due to chance: they cannot be predicted with certainty.
+
+For this reason we will in general assume a probabilistic model for the various components of a simulation. This chapter gives a review of possible models as well as their characteristics.
+
+\hypertarget{discrete-random-variables}{%
+\section{Discrete Random Variables}\label{discrete-random-variables}}
+
+We start introducing discrete random variables. Here we will not enter in all the mathematical details and some concepts will be introduced only intuitively. However, some mathematical details will be given for some concepts.
+
+In order to introduce discrete random variables, let's inspect each of the words:
+
+\begin{itemize}
+\item
+  \emph{variable}: this means that there is some process that takes some value. It is a synonym of function as you have studied in other mathematics classes.
+\item
+  \emph{random}: this means that the variable takes values according to some probability distribution.
+\item
+  \emph{discrete}: this refers to the possible values that the variable can take. In this case it is a countable (possibly infinite) set of values.
+\end{itemize}
+
+In general we denote a random variable as \(X\) and its possible values as \(\mathbb{X}=\{x_1,x_2,x_3,\dots\}\). The set \(\mathbb{X}\) is called the sample space of \(X\). In real-life we do not know which value in the set \(\mathbb{X}\) the random variable will take.
+
+Let's consider some examples.
+
+\begin{itemize}
+\item
+  The number of donuts sold in a day in a shop is a discrete random variable which can take values \(\{0,1,2,3,\dots\}\), that is the non-negative integers. In this case the number of possible values is infinite.
+\item
+  The outcome of a COVID-19 test can be either positive or negative but in advance we do not know which one. So this can be denoted as a discrete random variable taking values in \(\{negative,positive\}\). It is customary to denote the elements of the sample space \(\mathbb{X}\) as numbers. For instance, we could let \(negative = 0\) and \(positive = 1\) and the sample space would be \(\mathbb{X}=\{0,1\}\).
+\item
+  The number shown on the face of a dice once thrown is a discrete random variable taking values in \(\mathbb{X}=\{1,2,3,4,5,6\}\).
+\end{itemize}
+
+\hypertarget{probability-mass-function}{%
+\subsection{Probability Mass Function}\label{probability-mass-function}}
+
+The outcome of a discrete random variable is in general unknown, but we want to associate to each outcome, that is to each element of \(\mathbb{X}\), a number describing its likelihood. Such a number is called a probability and it is in general denoted as \(P\).
+
+The \emph{probability mass function} (or pmf) of a random variable \(X\) with sample space \(\mathbb{X}\) is defined as
+\[
+p(x)=P(X=x), \hspace{1cm} \mbox{for all } x\in\mathbb{X}
+\]
+So for any outcome \(x\in\mathbb{X}\) the pmf describes the likelihood of that outcome happening.
+
+Recall that pmfs must obey two conditions:
+
+\begin{itemize}
+\item
+  \(p(x)\geq 0\) for all \(x\in\mathbb{X}\);
+\item
+  \(\sum_{x\in\mathbb{X}}p(x)=1\).
+\end{itemize}
+
+So the pmf associated to each outcome is a non-negative number such that the sum of all these numbers is equal to one.
+
+Let's consider an example at this stage. Suppose a biased dice is thrown such that the numbers 3 and 6 are twice as likely to appear than the other numbers. A pmf describing such a situation is the following:
+
+\begin{longtable}[]{@{}ccccccc@{}}
+\toprule
+\(x\) & 1 & 2 & 3 & 4 & 5 & 6 \\ \addlinespace
+\midrule
+\endhead
+\(p(x)\) & 1/8 & 1/8 & 2/8 & 1/8 & 1/8 & 2/8 \\ \addlinespace
+\bottomrule
+\end{longtable}
+
+It is apparent that all numbers \(p(x)\) are non-negative and that their sum is equal to 1: so \(p(x)\) is a pmf. Figure \ref{fig:disc-pmf} gives a graphical visualization of such a pmf.
+
+\begin{figure}
+\centering
+\includegraphics{SimBook_files/figure-latex/disc-pmf-1.pdf}
+\caption{\label{fig:disc-pmf}PMF for the biased dice example}
+\end{figure}
+
+\hypertarget{cumulative-distribution-function}{%
+\subsection{Cumulative Distribution Function}\label{cumulative-distribution-function}}
+
+Whilst you should have been already familiar with the concept of pmf, the next concept may appear to be new. However, you have actually used it multiple times when computing Normal probabilities with the tables.
+
+We now define what is usually called the \emph{cumulative distribution function} (or cdf) of a random variable \(X\). The cdf of \(X\) at the point \(x\in\mathbb{X}\) is
+\[
+F(x) = P(X \leq x) = \sum_{y \leq x} p(y)
+\]
+that is the probability that \(X\) is less or equal to \(x\) or equally the sum of the pmf of \(X\) for all values less than \(x\).
+
+Let's consider the dice example to illustrate the idea of cdf and consider the following values \(x\):
+
+\begin{itemize}
+\item
+  \(x=0\): we compute \(F(0) = P(X\leq 0 )= 0\) since \(X\) cannot take any values less or equal than zero;
+\item
+  \(x= 0.9\): we compute \(F(0.9)= P(X\leq 0.9) = 0\) using the same reasoning as before;
+\item
+  \(x = 1\): we compute \(F(1)= P(X\leq 1) = P(X=1) = 1/8\) since \(X\) can take the value 1 with probability 1/8;
+\item
+  \(x = 1.5\): we compute \(F(1.5) = P(X\leq 1.5) = P(X=1) = 1/8\) using the same reasoning as before;
+\item
+  \(x = 3.2\): we compute \(F(3.2)=P(X\leq 3.2)=P(X=1)+ P(X=2) + P(X=3)=1/8 + 1/8 + 2/8 = 0.5\) since \(X\) can take the values 1, 2 and 3 which are less than 3.2;
+\end{itemize}
+
+We can compute in a similar way the cdf for any value \(x\). A graphical visualization of the resulting CDF is given in Figure \ref{fig:disc-cdf}.
+
+\begin{figure}
+\centering
+\includegraphics{SimBook_files/figure-latex/disc-cdf-1.pdf}
+\caption{\label{fig:disc-cdf}CDF for the biased dice example}
+\end{figure}
+
+The plot highlights some properties of CDFs which can proved hold in general for any discrete CDF:
+
+\begin{itemize}
+\item
+  it is a step function which is also non-decreasing;
+\item
+  on the left-hand-side it takes the value 0;
+\item
+  on the right-hand-side it takes the value 1.
+\end{itemize}
+
+\hypertarget{summaries}{%
+\subsection{Summaries}\label{summaries}}
+
+The pmf and the cdf fully characterize a discrete random variable \(X\). Often however we want to compress that information into a single number which still retains some aspect of the distribution of \(X\).
+
+The \emph{expectation} or \emph{mean} of a random variable \(X\) denoted as \(E(X)\) is defined as
+\[
+E(X)=\sum_{x\in\mathbb{X}}xp(x)
+\]
+The expectation can be interpreted as the mean value of a large number of observations from the random variable \(X\). Consider again the example of the biased dice. The expectation is
+\[
+E(X)=1\cdot1/8 + 2\cdot1/8 + 3\cdot 2/8 + 4\cdot 1/8 + 5\cdot 1/8 + 6\cdot 2/8 = 3.75
+\]
+So if we were to throw the dice a large number of time, we would expect the average of the number shown to be 3.75.
+
+The \emph{median} of the random variable \(X\) denoted as \(m(X)\) is defined as the value \(x\) such that \(P(X\leq x)\) is larger or equal to 0.5 and \(P(X\geq x)\) is larger or equal to 0.5. It is defined as the middle value of the distribution. For the dice example the median is the value 3: indeed \(P(X\leq 3 ) = P(X=1)+P(X=2)+P(X=3)=0.5 \geq 0.5\) and \(P(X\geq 3) = P(X=3) + P(X=4) + P(X=5) + P(X=6) = 0.75 \geq 0.5\).
+
+The \emph{mode} of the random variable \(X\) is the value \(x\) such that \(p(x)\) is largest: it is the value of the random variable which is expected to happen most frequently. Notice that the mode may not be unique: in that case we say that the distribution of \(X\) is bimodal. The example of the biased dice as an instance of a bimodal distribution: the values 3 and 6 are the equally likely and they have the largest pmf.
+
+The above three summaries are measures of \emph{centrality}: they describe the central tendency of \(X\). Next we consider measures of \emph{variability}: such measures will quantify the spread or the variation of the possible values of \(X\) around the mean.
+
+The \emph{variance} of the discrete random variable \(X\) is the expectation of the squared difference between the random variable and its mean. Formally it is defined as
+\[
+V(X)=E((X-E(X))^2)=\sum_{x\in\mathbb{X}}(x-E(X))^2p(x)
+\]
+In general we will not compute variance by hand. The following R code computes the variance of the random variable associated to the biased dice.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}} \DecValTok{1}\SpecialCharTok{:}\DecValTok{6}  \CommentTok{\# outcomes of X}
+\NormalTok{px }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\SpecialCharTok{/}\DecValTok{8}\NormalTok{,}\DecValTok{1}\SpecialCharTok{/}\DecValTok{8}\NormalTok{,}\DecValTok{2}\SpecialCharTok{/}\DecValTok{8}\NormalTok{,}\DecValTok{1}\SpecialCharTok{/}\DecValTok{8}\NormalTok{,}\DecValTok{1}\SpecialCharTok{/}\DecValTok{8}\NormalTok{,}\DecValTok{2}\SpecialCharTok{/}\DecValTok{8}\NormalTok{)  }\CommentTok{\# pmf of X}
+\NormalTok{Ex }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(x}\SpecialCharTok{*}\NormalTok{px)  }\CommentTok{\# Expectation of X}
+\NormalTok{Vx }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((x}\SpecialCharTok{{-}}\NormalTok{Ex)}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{px)  }\CommentTok{\# Variance of X}
+\NormalTok{Vx}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2.9375
+\end{verbatim}
+
+The \emph{standard deviation} of the discrete random variable \(X\) is the square root of \(V(X)\).
+
+\hypertarget{notable-discrete-variables}{%
+\section{Notable Discrete Variables}\label{notable-discrete-variables}}
+
+In the previous section we gave a generic definition of discrete random variables and discussed the conditions that a pmf must obey. We considered the example of a biased dice and constructed a pmf for that specific example.
+
+There are situations that often happen in practice: for instance the case of experiments with binary outcomes. For such cases random variables with specific pmfs are given a name and their properties are well known and studied.
+
+In this section we will consider three such distributions: Bernoulli, Binomial and Poisson.
+
+\hypertarget{bernoulli-distribution}{%
+\subsection{Bernoulli Distribution}\label{bernoulli-distribution}}
+
+Consider an experiment or a real-world system where there can only be two outcomes:
+
+\begin{itemize}
+\item
+  a toss of a coin: heads or tails;
+\item
+  the result of a COVID test: positive or negative;
+\item
+  the status of a machine: broken or working;
+\end{itemize}
+
+By default one outcome happens with some probability, that we denote as \(\theta\in [0,1]\) and the other with probability \(1-\theta\).
+
+Such a situation is in general modeled using the so-called \emph{Bernoulli distribution} with parameter \(\theta\). One outcome is associated to the number 1 (usually referred to as sucess) and the other is associated to the number 0 (usually referred to as failure). So \(P(X=1)=p(1)=\theta\) and \(P(X=0)=p(0)=1-\theta\).
+
+The above pmf can be more coincisely written as
+\[
+p(x)=\left\{
+\begin{array}{ll}
+\theta^x(1-\theta)^{1-x}, & x=0,1\\
+0, & \mbox{otherwise}
+\end{array}
+\right.
+\]
+The mean and variance of the Bernoulli distribution can be easily computed as
+\[
+E(X)=0\cdot(1-\theta)+ 1\cdot\theta=\theta,
+\]
+and
+\[
+V(X)=(0-\theta)^2(1-\theta)+(1-\theta)^2\theta=\theta^2(1-\theta)+(1-\theta)^2\theta=\cdots = \theta(1-\theta)
+\]
+
+Figure \ref{fig:bernoulli} reports the pmf and the cdf of a Bernoulli random variable with parameter 0.3.
+
+\begin{figure}
+\centering
+\includegraphics{SimBook_files/figure-latex/bernoulli-1.pdf}
+\caption{\label{fig:bernoulli}PMF (left) and CDF (right) of a Bernoulli random variable with parameter 0.3}
+\end{figure}
+
+\hypertarget{binomial-distribution}{%
+\subsection{Binomial Distribution}\label{binomial-distribution}}
+
+The Bernoulli random variable is actually a very special case of the so-called \emph{Binomial} random variable. Consider experiments of the type discussed for Bernoullis: coin tosses, COVID tests etc. Now suppose that instead of having just one trial, each of these experiments are repeated multiple times. Consider the following assumptions:
+
+\begin{itemize}
+\item
+  each experiment is repeated \(n\) times;
+\item
+  each time there is a probability of success \(\theta\);
+\item
+  the outcome of each experiment is independent of the others.
+\end{itemize}
+
+Let's think of tossing a coin \(n\) times. Then we would expect that the probability of showing heads is the same for all tosses and that the result of previous tosses does not affect others. So this situation appears to meet the above assumptions and can be modeled by what we call a Binomial random variable.
+
+Formally, the random variable \(X\) is a Binomial random variable with parameters \(n\) and \(\theta\) if it denotes the number of successes of \(n\) independent Bernoulli random variables, all with parameter \(\theta\).
+
+The pmf of a Binomial random variable with parameters \(n\) and \(\theta\) can be written as:
+\[
+p(x)=\left\{
+\begin{array}{ll}
+\binom{n}{x}\theta^{x}(1-\theta)^{n-x}, & x = 0,1,\dots,n\\
+0, & \mbox{otherwise}
+\end{array}
+\right.
+\]
+Let's try and understand the formula by looking term by term.
+
+\begin{itemize}
+\item
+  if \(X=x\) there are \(x\) successes and each success has probability \(\theta\) - so \(\theta^x\) counts the overall probability of successes
+\item
+  if \(X=x\) there are \(n-x\) failures and each failure has probability \(1-\theta\) - so \((1-\theta)^{n-x}\) counts the overall probability of failures
+\item
+  failures and successes can appear according to many orders. To see this, suppose that \(x=1\): there is only one success out of \(n\) trials. This could have been the first attempt, the second attempt or the \(n\)-th attempt. The term \(\binom{n}{x}\) counts all possible ways the outcome \(x\) could have happened.
+\end{itemize}
+
+The Bernoulli distribution can be seen as a special case of the Binomial where the parameter \(n\) is fixed to 1.
+
+We will not show why this is the case but the expectation and the variance of the Binomial random variable with parameters \(n\) and \(\theta\) can be derived as
+\[
+E(X)=np, \hspace{2cm} V(X)=np(1-p)
+\]
+The formulae for the Bernoulli can be retrieved by setting \(n=1\).
+
+Figure \ref{fig:binom} shows the pmf of two Binomial distributions both with parameter \(n=10\) and with \(\theta=0.3\) (left) and \(\theta=0.8\). For the case \(\theta=0.3\) we can see that it is more likely that there are a small number of successes, whilst for \(\theta=0.8\) a large number of successes is more likely.
+
+\begin{figure}
+\centering
+\includegraphics{SimBook_files/figure-latex/binom-1.pdf}
+\caption{\label{fig:binom}PMF of a Binomial random variable with parameters n = 10 and theta = 0.3 (left) and theta = 0.8 (right)}
+\end{figure}
+
+R provides a straightforward implementation of the Binomial distribution through the functions \texttt{dbinom} for the pmf and \texttt{pbinom} for the cdf. They require three arguments:
+
+\begin{itemize}
+\item
+  first argument is the value at which to compute the pmf or the cdf;
+\item
+  \texttt{size} is the parameter \(n\) of the Binomial;
+\item
+  \texttt{prob} is the parameter \(\theta\) of the Binomial.
+\end{itemize}
+
+So for instance
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dbinom}\NormalTok{(}\DecValTok{3}\NormalTok{, }\AttributeTok{size =} \DecValTok{10}\NormalTok{, }\AttributeTok{prob =} \FloatTok{0.5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1171875
+\end{verbatim}
+
+returns \(P(X=3)=p(3)\) for a Binomial random variable with parameter \(n=10\) and \(\theta = 0.5\).
+
+Similarly,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{pbinom}\NormalTok{(}\DecValTok{8}\NormalTok{, }\AttributeTok{size =} \DecValTok{20}\NormalTok{, }\AttributeTok{prob =} \FloatTok{0.2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.9900182
+\end{verbatim}
+
+returns \(P(X\leq 8) = F(8)\) for a Binomial random variable with parameter \(n=20\) and \(\theta = 0.2\).
+
+\hypertarget{poisson-distribution}{%
+\subsection{Poisson Distribution}\label{poisson-distribution}}
+
+The last class of discrete random variables we discuss is the so-called \emph{Poisson} distribution. Whilst for Bernoulli and Binomial we had an interpretation of why the pmf took its specific form by associating it to independent binary experiments each with an equal probability of success, for the Poisson there is no such an interpretation.
+
+A discrete random variable \(X\) has a Poisson distribution with parameter \(\lambda\) if its pmf is
+\[
+p(x)=\left\{
+\begin{array}{ll}
+\frac{e^{-\lambda}\lambda^x}{x!}, & x = 0,1,2,3,\dots\\
+0, & \mbox{otherwise}
+\end{array}
+\right.
+\]
+where \(\lambda > 0\).
+
+So the sample space of a Poisson random variable is the set of all non-negative integers.
+
+One important characteristic of the Poisson distribution is that its mean and variance are equal to the parameter \(\lambda\), that is
+\[
+E(X)= V(X) = \lambda.
+\]
+
+Figure @ref\{fig:poisson\} gives an illustration of the form of the pmf of the Poisson distribution for two parameter choices: \(\lambda=1\) (left) and \(\lambda = 4\) (right). The x-axis is shown until \(x=10\) but recall that the Poisson is defined over all non-negative integers. For the case \(\lambda=1\) we can see that the outcomes 0 and 1 have the largest probability - recall that \(E(X)=0\). For the case \(\lambda = 4\) the outcomes \(x = 2,3,4,5\) have the largest probability.
+
+\begin{figure}
+\centering
+\includegraphics{SimBook_files/figure-latex/poisson-1.pdf}
+\caption{\label{fig:poisson}PMF of a Poisson random variable with parameter 1 (left) and 4 (right)}
+\end{figure}
+
+R provides a straightforward implementation of the Poisson distribution through the functions \texttt{dpois} for the pmf and \texttt{ppois} for the cdf. They require three arguments:
+
+\begin{itemize}
+\item
+  first argument is the value at which to compute the pmf or the cdf;
+\item
+  \texttt{lambda} is the parameter \(\lambda\) of the Poisson;
+\end{itemize}
+
+So for instance
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dpois}\NormalTok{(}\DecValTok{3}\NormalTok{, }\AttributeTok{lambda =} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.06131324
+\end{verbatim}
+
+returns \(P(X=3)=p(3)\) for a Poisson random variable with parameter \(\lambda = 1\).
+
+Similarly,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ppois}\NormalTok{(}\DecValTok{8}\NormalTok{, }\AttributeTok{lambda =} \DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.9786366
+\end{verbatim}
+
+returns \(P(X\leq 8) = F(8)\) for a Poisson random variable with parameter \(\lambda = 4\).
+
+\hypertarget{some-examples}{%
+\subsection{Some Examples}\label{some-examples}}
+
+We next consider two examples to see in practice the use of the Binomial and Poisson distributions.
+
+\hypertarget{probability-of-marriage}{%
+\subsubsection{Probability of Marriage}\label{probability-of-marriage}}
+
+A recent survey indicated that 82\% of single women aged 25 years old will be married in their lifetime. Compute
+
+\begin{itemize}
+\item
+  the probability of at most 3 women will be married in a sample of 20;
+\item
+  the probability of at least 90 women will be married in sample of 100;
+\item
+  the probability of two or three women in a sample of 20 will never be married.
+\end{itemize}
+
+The above situation can be modeled by a Binomial random variable where the parameter \(n\) depends on the question and \(\theta = 0.82\).
+
+The first question requires us to compute \(P(X\leq 3)= F(3)\) where \(X\) is Binomial with parameters \(n=20\) and \(\theta =0.82\). Using R
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{pbinom}\NormalTok{(}\DecValTok{3}\NormalTok{, }\AttributeTok{size =} \DecValTok{10}\NormalTok{, }\AttributeTok{prob =} \FloatTok{0.82}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.0004400767
+\end{verbatim}
+
+The second question requires us to compute \(P(X\geq 90)\) where \(X\) is a Binomial random variable with parameters \(n=100\) and \(\theta = 0.82\). Notice that
+\[
+P(X\geq 90) = 1 - P(X< 90) = 1 - P(X\leq 89) = 1 - F(89).
+\]
+Using R
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{pbinom}\NormalTok{(}\DecValTok{89}\NormalTok{, }\AttributeTok{size =} \DecValTok{100}\NormalTok{,  }\AttributeTok{prob =} \FloatTok{0.82}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.02003866
+\end{verbatim}
+
+For the third question, notice that saying two women out of 20 will never be married is equal to 18 out of 20 will be married. Therefore we need to compute \(P(X=17) + P(X=18)= p(17) + p(18)\) where \(X\) is a Binomial random variable with parameters \(n=20\) and \(\theta = 0.82\). Using R
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sum}\NormalTok{(}\FunctionTok{dbinom}\NormalTok{(}\DecValTok{17}\SpecialCharTok{:}\DecValTok{18}\NormalTok{, }\AttributeTok{size =} \DecValTok{20}\NormalTok{, }\AttributeTok{prob =} \FloatTok{0.82}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.4007631
+\end{verbatim}
+
+\hypertarget{the-bad-stuntman}{%
+\subsubsection{The Bad Stuntman}\label{the-bad-stuntman}}
+
+A stuntman injures himself an average of three times a year. Use the Poisson probability formula to calculate the probability that he will be injured:
+
+\begin{itemize}
+\item
+  4 times a year
+\item
+  Less than twice this year.
+\item
+  More than three times this year.
+\end{itemize}
+
+The above situation can be modeled as a Poisson distribution \(X\) with parameter \(\lambda = 3\).
+
+The first question requires us to compute \(P(X=4)\) which using R can be computed as
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dpois}\NormalTok{(}\DecValTok{4}\NormalTok{, }\AttributeTok{lambda =}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1680314
+\end{verbatim}
+
+The second question requires us to compute \(P(X<2) = P(X=0)+P(X=1)= F(1)\) which using R can be computed as
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ppois}\NormalTok{(}\DecValTok{1}\NormalTok{,}\AttributeTok{lambda=}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1991483
+\end{verbatim}
+
+The third question requires us to compute \(P(X>3) = 1 - P(X\leq 2) = 1 - F(2)\) which using R can be computed as
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{ppois}\NormalTok{(}\DecValTok{2}\NormalTok{, }\AttributeTok{lambda =} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.5768099
+\end{verbatim}
+
+\hypertarget{continuous-random-variables}{%
+\section{Continuous Random Variables}\label{continuous-random-variables}}
+
+Our attention now turns to continuous random variables. These are in general more technical and less intuitive than discrete ones. You should not worry about all the technical details, since these are in general not important, and focus on the interpretation.
+
+A continuous random variable \(X\) is a random variable whose sample space \(\mathbb{X}\) is an interval or a collection of intervals. In general \(\mathbb{X}\) may coincide with the set of real numbers \(\mathbb{R}\) or some subset of it. Examples of continuous random variables:
+
+\begin{itemize}
+\item
+  the pressure of a tire of a car: it can be any positive real number;
+\item
+  the current temperature in the city of Madrid: it can be any real number;
+\item
+  the height of the students of Simulation and Modeling to understand change: it can be any real number.
+\end{itemize}
+
+Whilst for discrete random variables we considered summations over the elements of \(\mathbb{X}\), i.e.~\(\sum_{x\in\mathbb{X}}\), for continuous random variables we need to consider integrals over appropriate intervals.
+
+You should be more or less familiar with these from previous studies of calculus. But let's give an example. Consider the function \(f(x)=x^2\) computing the squared of a number \(x\). Suppose we are interested in this function between the values -1 and 1, which is plotted by the red line in Figure \ref{fig:x-sq}. Consider the so-called integral \(\int_{-1}^{1}x^2dx\): this coincides with the area delimited by the function and the x-axis. In Figure \ref{fig:x-sq} the blue area is therefore equal to \(\int_{-1}^{1}x^2dx\).
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/x-sq-1} 
+
+}
+
+\caption{Plot of the squared function and the area under its curve}\label{fig:x-sq}
+\end{figure}
+
+We will not be interested in computing integrals ourselves, so if you do not know/remember how to do it, there is no problem!
+
+\hypertarget{probability-density-function}{%
+\subsection{Probability Density Function}\label{probability-density-function}}
+
+Discrete random variable are easy to work with in the sense that there exists a function, that we called probability mass function, such that \(p(x)=P(X=x)\), that is the value of that function in the point \(x\) is exactly the probability that \(X=x\).
+
+Therefore we may wonder if this is true for a continuous random variable too. Sadly, the answer is no and probabilities for continuous random variables are defined in a slightly more involved way.
+
+Let \(X\) be a continuous random variable with sample space \(\mathbb{X}\). The probability that \(X\) takes values in the interval \([a,b]\) is given by
+\[
+P(a\leq X \leq b) = \int_{a}^bf(x)dx
+\]
+where \(f(x)\) is called the \emph{probability density function} (pdf in short). Pdfs, just like pmfs must obey two conditions:
+
+\begin{itemize}
+\item
+  \(f(x)\geq 0\) for all \(x\in\mathbb{X}\);
+\item
+  \(\int_{x\in\mathbb{X}}f(x)dx=1\).
+\end{itemize}
+
+So in the discrete case the pmf is defined exactly as the probability. In the continuous case the pdf is the function such that its integral is the probability that random variable takes values in a specific interval.
+
+As a consequence of this definition notice that for any specific value \(x_0\in\mathbb{X}\), \(P(X=x_0)=0\) since
+\[
+\int_{x_0}^{x_0}f(x)dx = 0.
+\]
+
+Let's consider an example. The waiting time of customers of a donuts shop is believed to be random and to follow a random variable whose pdf is
+\[
+f(x) = \left\{
+\begin{array}{ll}
+\frac{1}{4}e^{-x/4}, & x\geq 0\\
+0, & \mbox{otherwise}
+\end{array}
+\right.
+\]
+
+The pdf is drawn in Figure \ref{fig:exp} by the red line. One can see that \(f(x)\geq 0\) for all \(x\geq 0\) and one could also compute that it integrates to one.
+
+Therefore the probability that the waiting time is between any two values \((a,b)\) can be computed as
+\[
+\int_a^b\frac{1}{4}e^{-x/4}dx.
+\]
+In particular if we were interested in the probability that the waiting time is between two and five minutes, corresponding to the shaded area in Figure \ref{fig:exp}, we could compute it as
+\[
+P(2<X<5)=\int_2^5f(x)dx=\int_{2}^5\frac{1}{4}e^{-x/4}dx= 0.32
+\]
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/exp-1} 
+
+}
+
+\caption{Probability density function for the waiting time in the donut shop example}\label{fig:exp}
+\end{figure}
+
+Notice that since \(P(X=x_0)=0\) for any \(x_0\in\mathbb{X}\), we also have that
+\[
+P(a\leq X \leq b)=P(a < X \leq b) = P(a\leq X < b) = P(a<X<b).
+\]
+
+\hypertarget{cumulative-distribution-function-1}{%
+\subsection{Cumulative Distribution Function}\label{cumulative-distribution-function-1}}
+
+For a continuous random variable \(X\) the cumulative distribution function (cdf) is equally defined as
+\[
+F(x) = P(X \leq x),
+\]
+where now
+\[
+P(X \leq x) = P(X < x) = \int_{-\infty}^xf(t)dt.
+\]
+so the summation is substituted by an integral.
+
+Let's consider again the donut shop example as an illustration. The cdf is defined as
+\[
+F(x)=\int_{-\infty}^xf(t)dt = \int_{-\infty}^x\frac{1}{4}e^{-x/4}.
+\]
+This integral can be solved and \(F(x)\) can be calculated as
+\[
+F(x)= 1- e^{-x/4},
+\]
+which is plotted in Figure \ref{fig:expcdf}.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/expcdf-1} 
+
+}
+
+\caption{Cumulative distribution function for the waiting time at the donut shop}\label{fig:expcdf}
+\end{figure}
+
+We can notice that the cdf has similar properties as in the discrete case: it is non-decreasing, on the left-hand side is zero and on the right-hand side tends to zero.
+
+\hypertarget{summaries-1}{%
+\subsection{Summaries}\label{summaries-1}}
+
+Just as for discrete random variables, we may want to summarize some features of a continuous random variable into a unique number. The same set of summaries exists for continuous random variables, which are almost exactly defined as in the discrete case (integrals are used instead of summations).
+
+\begin{itemize}
+\item
+  \emph{mean}: the mean of a continuous random variable \(X\) is defined as
+  \[
+   E(X) = \int_{-\infty}^{+\infty}xf(x)dx
+   \]
+\item
+  \emph{median}: the median of a continuous random variable \(X\) is defined as the value \(x\) such that \(P(X\leq x) = 0.5\) or equally \(F(x)=0.5\).
+\item
+  \emph{mode}: the mode of a continuous random variable \(X\) is defined the value \(x\) such that \(f(x)\) is largest.
+\item
+  \emph{variance}: the variance of a continuous random variable \(X\) is defined as
+  \[
+   V(X)=\int_{-\infty}^{+\infty}(x-E(X))^2f(x)dx
+   \]
+\item
+  \emph{standard deviation}: the standard deviation of a continuous random variable \(X\) is defined as \(\sqrt{V(X)}\).
+\end{itemize}
+
+\hypertarget{notable-continuous-distribution}{%
+\section{Notable Continuous Distribution}\label{notable-continuous-distribution}}
+
+As in the discrete case, there are some types of continuous random variables that are used frequently and therefore are given a name and their proprieties are well-studied.
+
+\hypertarget{uniform-distribution}{%
+\subsection{Uniform Distribution}\label{uniform-distribution}}
+
+The first, and simplest, continuous random variable we study is the so-called (continuous) \emph{uniform} distribution. We say that a random variable \(X\) is uniformly distributed on the interval \([a,b]\) if its pdf is
+\[
+f(x)=\left\{ 
+\begin{array}{ll}
+\frac{1}{b-a}, & a\leq x \leq b\\
+0, & \mbox{otherwise} 
+\end{array}
+\right.
+\]
+This is plotted in Figure \ref{fig:unipdf} for choices of parameters \(a=2\) and \(b=6\)
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/unipdf-1} 
+
+}
+
+\caption{Probability density function for a uniform random variable with parameters a = 2 and b = 6}\label{fig:unipdf}
+\end{figure}
+
+By looking at the pdf we see that it is a flat, constant line between the values \(a\) and \(b\). This implies that the probability that \(X\) takes values between two values \(x_0\) and \(x_1\) only dependens on the length of the interval \((x_0,x_1)\).
+
+Its cdf can be derived as
+\[
+F(x)=\left\{
+\begin{array}{ll}
+0, & x<a\\
+\frac{x-a}{b-a}, & a\leq x \leq b\\
+1, & x>b
+\end{array}
+\right.
+\]
+and this is plotted in Figure \ref{fig:unicdf}.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/unicdf-1} 
+
+}
+
+\caption{Cumulative distribution function for a uniform random variable with parameters a = 2 and b = 6}\label{fig:unicdf}
+\end{figure}
+
+The mean and variance of a uniform can be derived as
+\[
+E(X)=\frac{a+b}{2}, \hspace{1cm} V(X)=\frac{(b-a)^2}{12}.
+\]
+So the mean is equal to the middle point of the interval \((a,b)\).
+
+The uniform distribution will be fundamental in simulation. We will see that the starting point to simulate random numbers from any distribution will require the simulation of random numbers uniformly distributed between 0 and 1.
+
+R provides an implementation of the uniform random variable with the functions \texttt{dunif} and \texttt{punif} whose details are as follows:
+
+\begin{itemize}
+\item
+  the first argument is the value at which to compute the function;
+\item
+  the second argument, \texttt{min}, is the parameter \(a\), by default equal to zero;
+\item
+  the third argument, \texttt{max}, is the parameter \(b\), by default equal to one.
+\end{itemize}
+
+So for instance
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dunif}\NormalTok{(}\DecValTok{5}\NormalTok{, }\AttributeTok{min =} \DecValTok{2}\NormalTok{, }\AttributeTok{max =} \DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.25
+\end{verbatim}
+
+computes the pdf at the point 5 of a uniform random variable with parameters \(a=2\) and \(b=6\).
+
+Conversely,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{punif}\NormalTok{(}\FloatTok{0.5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.5
+\end{verbatim}
+
+computes the cdf at the point 0.5 of a uniform random variable with parameters \(a=0\) and \(b=1\).
+
+\hypertarget{exponential-distribution}{%
+\subsection{Exponential Distribution}\label{exponential-distribution}}
+
+The second class of continuous random variables we will study are the so-called \emph{exponential} random variables. We have actually already seen such a random variable in the donut shop example. More generally, we say that a continuous random variable \(X\) is exponential with parameter \(\lambda>0\) if its pdf is
+\[
+f(x) = \left\{
+\begin{array}{ll}
+\lambda e^{-\lambda x}, & x\geq 0\\
+0, & \mbox{otherwise}
+\end{array}
+\right.
+\]
+
+Figure \ref{fig:exppdf1} reports the pdf of exponential random variables for various choices of the parameter \(\lambda\).
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/exppdf1-1} 
+
+}
+
+\caption{Probability density function for exponential random variables}\label{fig:exppdf1}
+\end{figure}
+
+Exponential random variables are very often used in dynamic simulations since they are very often used to model interarrival times in process: for instance the time between arrivals of customers at the donut shop.
+
+Its cdf can be derived as
+\[
+F(x)=\left\{
+\begin{array}{ll}
+0, & x <0\\
+1-e^{-\lambda x}, & x\geq 0
+\end{array}
+\right.
+\]
+and is reported in Figure \ref{fig:expcdf1} for the same choices of parameters.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/expcdf1-1} 
+
+}
+
+\caption{Cumulative distribution function for exponential random variables}\label{fig:expcdf1}
+\end{figure}
+
+The mean and the variance of exponential random variables can be computed as
+
+\[
+E(X)=\frac{1}{\lambda}, \hspace{1cm} V(X)=\frac{1}{\lambda^2}
+\]
+
+R provides an implementation of the uniform random variable with the functions \texttt{dexp} and \texttt{pexp} whose details are as follows:
+
+\begin{itemize}
+\item
+  the first argument is the value at which to compute the function;
+\item
+  the second argument, \texttt{rate}, is the parameter \(\lambda\), by default equal to one;
+\end{itemize}
+
+So for instance
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dexp}\NormalTok{(}\DecValTok{2}\NormalTok{, }\AttributeTok{rate =} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.007436257
+\end{verbatim}
+
+computes the pdf at the point 2 of an exponential random variable with parameter \(\lambda =3\).
+
+Conversely
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{pexp}\NormalTok{(}\DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.9816844
+\end{verbatim}
+
+computes the cdf at the point 4 of an exponential random variable with parameter \(\lambda =1\).
+
+\hypertarget{normal-distribution}{%
+\subsection{Normal Distribution}\label{normal-distribution}}
+
+The last class of continuous random variables we consider is the so-called \emph{Normal} or \emph{Gaussian} random variable. They are the most used and well-known random variable in statistics and we will see why this is the case.
+
+A continuous random variable \(X\) is said to have a Normal distribution with mean \(\mu\) and variance \(\sigma^2\) if its pdf is
+\[
+f(x) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{1}{2}\frac{(x-\mu)^2}{\sigma^2}\right).
+\]
+Recall that
+\[
+E(X)=\mu, \hspace{1cm} V(X)=\sigma^2,
+\]
+and so the parameters have a straightforward interpretation in terms of mean and variance.
+
+Figure \ref{fig:norm} shows the form of the pdf of the Normal distribution for various choices of the parameters. On the left we have Normal pdfs for \(\sigma^2=1\) and various choices of \(\mu\): we can see that \(\mu\) shifts the plot on the x-axis. On the right we have Normal pdfs for \(\mu=1\) and various choices of \(\sigma^2\): we can see that all distributions are centered around the same value while they have a different spread/variability.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/norm-1} 
+
+}
+
+\caption{Probability density function for normal random variables}\label{fig:norm}
+\end{figure}
+
+The form of the Normal pdf is the well-known so-called bell-shaped function. We can notice some properties:
+
+\begin{itemize}
+\item
+  it is symmetric around the mean: the function on the left-hand side and on the right-hand side of the mean is mirrored. This implies that the median is equal to the mean ;
+\item
+  the maximum value of the pdf occurs at the mean. This implies that the mode is equal to the mean (and therefore also the median).
+\end{itemize}
+
+The cdf of the Normal random variable with parameters \(\mu\) and \(\sigma^2\) is
+\[
+F(x) = P(X\leq x)=\int_{-\infty}^{+\infty}\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{1}{2}\frac{(x-\mu)^2}{\sigma^2}\right)dx
+\]
+
+The cdf of the Normal for various choices of parameters is reported in Figure \ref{fig:pnorm}.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/pnorm-1} 
+
+}
+
+\caption{Cumulative distribution function for normal random variables}\label{fig:pnorm}
+\end{figure}
+
+Unfortunately it is not possible to solve such an integral (as for example for the Uniform and the Exponential), and in general it is approximated using some numerical techniques. This is surprising considering that the Normal distribution is so widely used!!!
+
+However, notice that we would need to compute such an approximation for every possible value of \((\mu,\sigma^2)\), depending on the distribution we want to use. This is unfeasible to do in practice.
+
+There is a trick here, that you must have used multiple times already. We can transform a Normal \(X\) with parameters \(\mu\) and \(\sigma^2\) to the so-called \emph{standard Normal} random variable \(Z\), and viceversa, using the relationship:
+\begin{equation}
+ \label{eq:standard}
+Z = \frac{X-\mu}{\sigma}, \hspace{1cm} X= \mu + \sigma Z.
+\end{equation}
+It can be shown that \(Z\) is a Normal random variable with parameter \(\mu=0\) and \(\sigma^2=1\).
+
+The values of the cdf of the standard Normal random variable then need to be computed only once since \(\mu\) and \(\sigma^2\) are fixed. You have seen these numbers many many times in what are usually called the tables of the Normal distribution.
+
+As a matter of fact you have also computed many times the cdf of a generic Normal random variable. First you computed \(Z\) using equation \eqref{eq:standard} and then looked at the Normal tables to derive that number.
+
+Let's give some details about the standard Normal. Its pdf is
+\[
+\phi(z)=\frac{1}{\sqrt{2\pi}}\exp\left(-z^2/2\right).
+\]
+It can be seen that it is the same as the one of the Normal by setting \(\mu=0\) and \(\sigma^2=1\). Such a function is so important that it is given its own symbol \(\phi\).
+
+The cdf is
+\[
+\Phi(z)=\int_{-\infty}^z\frac{1}{\sqrt{2\pi}}\exp\left(-x^2/2\right)dx
+\]
+Again this cannot be computed exactly, there is no closed-form expression. This is why you had to look at the tables instead of using a simple formula. The cdf of the standard Normal is also so important that it is given its own symbol \(\phi\).
+
+Instead of using the tables, we can use R to tell us the values of Normal probabilities. R provides an implementation of the Normal random variable with the functions \texttt{dnorm} and \texttt{pnorm} whose details are as follows:
+
+\begin{itemize}
+\item
+  the first argument is the value at which to compute the function;
+\item
+  the second argument, \texttt{mean}, is the parameter \(\mu\), by default equal to zero;
+\item
+  the third argument, \texttt{sd}, is the standard deviation, that is \(\sqrt{\sigma^2}\), by default equal to one.
+\end{itemize}
+
+So for instance
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.004431848
+\end{verbatim}
+
+computes the value of the standard Normal pdf at the value three.
+
+Similarly,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{pnorm}\NormalTok{(}\FloatTok{0.4}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1150697
+\end{verbatim}
+
+compute the value of the Normal cdf with parameters \(\mu=1\) and \(\sqrt{\sigma^2}=0.5\) at the value 0.4.
+
+\hypertarget{the-central-limit-theorem}{%
+\section{The Central Limit Theorem}\label{the-central-limit-theorem}}
+
+As a final topic in probability we will briefly discuss why the Normal distribution is so important and widely known. The reason behind this is the existence of a theorem, called the \emph{Central Limit Theorem} which is perhaps the most important theorem in probability which has far-reaching consequences in the world of statistics.
+
+Let's first state theorem. Suppose you have random variables \(X_1,\dots, X_n\) which have the following properties:
+
+\begin{itemize}
+\item
+  they are all independent of each other;
+\item
+  they all have the same mean \(\mu\);
+\item
+  the all have the same standard deviation \(\sigma^2\).
+\end{itemize}
+
+Consider the random variable
+\[
+\bar{X}_n= \frac{X_1+\cdots X_n}{n}.
+\]
+Then it holds that
+\[
+\lim_{n\rightarrow + \infty} \frac{\bar{X}_n-\mu}{\sigma/\sqrt{n}} = Z
+\]
+where \(Z\) is the standard normal random variable.
+
+We can also state the theorem as
+\[
+\lim_{n\rightarrow + \infty} \bar{X}_n = Y
+\]
+where \(Y\) is a Normal random variable with mean \(\mu\) and variance \(\sigma^2/n\).
+
+The interpretation of the Central Limit Theorem is as follows. The sample mean \(\bar{X}_n\) of independent random variables with the same mean and variance can be approximated by a Normal distribution, if the sample size \(n\) is large. Notice that we made no assumption whatsoever about the distribution of the \(X_i\)'s and still we were able to deduce the distribution of the sample mean.
+
+The existence of this theorem is the reason why you used so often Normal probabilities to construct confidence intervals or to carry out tests of hypothesis. As you will continue study statistics, you will see that the assumption of Normality of data is made most often and is justified by the central limit theorem.
+
+\hypertarget{random-number-generation}{%
+\chapter{Random Number Generation}\label{random-number-generation}}
+
+At the hearth of any simulation model there is the capability of creating numbers that mimic those we would expect in real life. In simulation modeling we will assume that specific processes will be distributed according to a specific random variable. For instance we will assume that an employee in a donut shop takes a random time to serve customers distributed according to a Normal random variable with mean \(\mu\) and variance \(\sigma^2\). In order to then carry out a simulation the computer will need to generate random serving times. This corresponds to simulating number that are distributed according to a specific distribution.
+
+Let's consider an example. Suppose you managed to generate two sequences of numbers, say \texttt{x1} and \texttt{x2}. Your objective is to simulate numbers from a Normal distribution. The histograms of the two sequences are reported in Figure \ref{fig:seq} together with the estimated shape of the density. Clearly the sequence \texttt{x1} could be following a Normal distribution, since it is bell-shaped and reasonably symmetric. On the other hand, the sequence \texttt{x2} is not symmetric at all and does not resembles the density of a Normal.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/seq-1} 
+
+}
+
+\caption{Histograms of two sequences of randomly generated numbers}\label{fig:seq}
+\end{figure}
+
+In this chapter we will learn how to characterize randomness in a computer and how to generate numbers that appear to be random realizations of a specific random variable. We will also learn how to check if a sequence of values can be a random realization from a specific random variable.
+
+\hypertarget{properties-of-random-numbers}{%
+\section{Properties of Random Numbers}\label{properties-of-random-numbers}}
+
+The first step to simulate numbers from a distribution is to be able to independently simulate random numbers \(u_1,u_2,\dots,u_N\) from a continuous uniform distribution between zero and one. From the previous chapter, you should remember that such a random variables has pdf
+\[
+f(x)=\left\{
+\begin{array}{ll}
+1, & 0\leq x \leq 1\\
+0, &\mbox{otherwise}
+\end{array}
+\right.
+\]
+and cdf
+\[
+F(x)=\left\{
+\begin{array}{ll}
+0, & x<0\\
+x, & 0\leq x \leq 1\\
+1, &\mbox{otherwise}
+\end{array}
+\right.
+\]
+These two are plotted in Figure \ref{fig:uplot}.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/uplot-1} 
+
+}
+
+\caption{Pdf (left) and cdf (right) of the continuous uniform between zero and one.}\label{fig:uplot}
+\end{figure}
+
+Its expectation is 1/2 and its variance is 1/12.
+
+This implies that if we were to divide the interval \([0,1]\) into \(n\) sub-intervals of equal length, then we would expect in each interval to have \(N/n\) observations, where \(N\) is the total number of observations.
+
+Figure \ref{fig:uhist} shows the histograms of two sequences of numbers between zero and one: whilst the one on the left resembles the pdf of a uniform distribution, the one on the right clearly does not (it is far from being flat) and therefore it is hard to believe that such numbers follow a uniform distribution.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/uhist-1} 
+
+}
+
+\caption{Histograms from two sequences of numbers between zero and one.}\label{fig:uhist}
+\end{figure}
+
+The second requirement the numbers \(u_1,\dots,u_N\) need to respect is independence. This means that the probability of observing a value in a particular sub-interval of \((0,1)\) is independent of the previous values drawn.
+
+Consider the following sequence of numbers:
+\[
+\begin{array}{cccccccccc}
+0.25 & 0.72 & 0.18 & 0.63 & 0.49 & 0.88 & 0.23 & 0.78 & 0.02 & 0.52
+\end{array}
+\]
+We can notice that numbers below and above 0.5 are alternating in the sequence. We would therefore believe that after a number less than 0.5 it is much more likely to observe a number above it. This breaks the assumption of independence.
+
+\hypertarget{pseudo-random-numbers}{%
+\section{Pseudo Random Numbers}\label{pseudo-random-numbers}}
+
+We will investigate ways to simulate numbers using algorithms in a computer. For this reason such numbers are usually called \emph{pseudo-random} numbers. Pseudo means false, in the sense that the number are not really random! They are generated according to a deterministic algorithm whose aim is to imitate as closely as possible what randomness would look like. In particular, for numbers \(u_1,\dots,u_N\) it means that they should look like independence instances of a Uniform distribution between zero and one.
+
+Possible departures from ideal numbers are:
+
+\begin{itemize}
+\item
+  the numbers are not uniformly distributed;
+\item
+  the mean of the numbers might not be 1/2;
+\item
+  the variance of the numbers might not be 1/12;
+\item
+  the numbers might be discrete-valued instead of continuous;
+\item
+  independence might not hold.
+\end{itemize}
+
+We already looked at examples of departures from the assumptions, but we will later study how to assess these departures more formally.
+
+Before looking at how we can construct pseudo-random numbers, let's discuss some important properties/considerations that need to be taken into account when generating pseudo-random numbers:
+
+\begin{itemize}
+\item
+  the random generation should be very fast. In practice, we want to use random numbers to do other computations (for example simulate a little donut shop) and such computations might be computationally intensive: if random generation were to be slow, we would not be able to perform them.
+\item
+  the cycle of random generated numbers should be long. The cycle is the length of the sequence before numbers start to repeat themselves.
+\item
+  the random numbers should be repeatable. Given a starting point of the algorithm, it should be possible to repeat the exact same sequence of numbers. This is fundamental for debugging and for reproducibility.
+\item
+  the method should be applicable in any programming language/platform.
+\item
+  and of course most importantly, the random numbers should be independent and uniformly distributed.
+\end{itemize}
+
+Repeatability of the pseudo-random numbers is worth further consideration. It is fundamental in science to be able to reproduce experiments so that the validity of results can be assessed. In R there is a specific function that allows us to do this, which is called \texttt{set.seed}. It is customary to choose as starting point of an algorithm the current year. So henceforth you will see the command:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+This ensures that every time the code following \texttt{set.seed} is run, the same results will be observed. We will give below examples of this.
+
+\hypertarget{generating-pseudo-random-numbers}{%
+\section{Generating Pseudo-Random Numbers}\label{generating-pseudo-random-numbers}}
+
+The literature on generating pseudo-random numbers is now extremely vast and it is not our purpose to review it, neither for you to learn how such algorithms work.
+
+\hypertarget{generating-pseudo-random-numbers-in-r}{%
+\subsection{Generating Pseudo-Random Numbers in R}\label{generating-pseudo-random-numbers-in-r}}
+
+R has all the capabilities to generate such numbers. This can be done with the function \texttt{runif}, which takes one input: the number of observations to generate. So for instance:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{runif}\NormalTok{(}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 0.4512674 0.7837798 0.7096822 0.3817443 0.6363238 0.7013460 0.6404389
+##  [8] 0.2666797 0.8154215 0.9829869
+\end{verbatim}
+
+generates ten random numbers between zero and one. Notice that if we repeat the same code we get the same result since we fixed the so-called \emph{seed} of the simulation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{runif}\NormalTok{(}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 0.4512674 0.7837798 0.7096822 0.3817443 0.6363238 0.7013460 0.6404389
+##  [8] 0.2666797 0.8154215 0.9829869
+\end{verbatim}
+
+Conversely, if we were to simply run the code \texttt{runif(10)} we would get a different result.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{runif}\NormalTok{(}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 0.02726706 0.83749040 0.60324073 0.56745337 0.82005281 0.25157128
+##  [7] 0.50549403 0.86753810 0.95818157 0.54569770
+\end{verbatim}
+
+\hypertarget{linear-congruential-method}{%
+\subsection{Linear Congruential Method}\label{linear-congruential-method}}
+
+Although we will use the functions already implemented in R, it is useful to at least introduce one of the most classical algorithms to simulate random numbers, called the \emph{linear congruential method}.
+This produces a sequence of integers \(x_1,x_2,x_3\) between 0 and \(m-1\) using the recursion:
+\[
+x_{i}=(ax_{i-1}+c)\mod m, \hspace{1cm} \mbox{for } i = 1,2,\dots
+\]
+Some comments:
+
+\begin{itemize}
+\item
+  \(\mod m\) is the remainder of the integer division by \(m\). For instance \(5 \mod 2\) is one and \(4\mod 2\) is zero.
+\item
+  therefore, the algorithm generates integers between 0 and \(m-1\).
+\item
+  there are three parameters that need to be chosen \(a, c\) and \(m\).
+\item
+  the value \(x_0\) is the \emph{seed} of the algorithm.
+\end{itemize}
+
+Random numbers between zero and one can be derived by setting
+\[
+u_i= x_i/m.
+\]
+
+It can be shown that the method works well for specific choices of \(a\), \(c\) and \(m\), which we will not discuss here.
+
+Let's look at an implementation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lcm }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(N, x0, a, c, m)\{}
+\NormalTok{   x }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{   x[}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ x0}
+   \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{2}\SpecialCharTok{:}\NormalTok{N) x[i] }\OtherTok{\textless{}{-}}\NormalTok{ (a}\SpecialCharTok{*}\NormalTok{x[i}\DecValTok{{-}1}\NormalTok{]}\SpecialCharTok{+}\NormalTok{c)}\SpecialCharTok{\%\%}\NormalTok{m}
+\NormalTok{   u }\OtherTok{\textless{}{-}}\NormalTok{ x}\SpecialCharTok{/}\NormalTok{m}
+   \FunctionTok{return}\NormalTok{(u)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{lcm}\NormalTok{(}\AttributeTok{N =} \DecValTok{8}\NormalTok{, }\AttributeTok{x0 =} \DecValTok{4}\NormalTok{, }\AttributeTok{a =} \DecValTok{13}\NormalTok{, }\AttributeTok{c =} \DecValTok{0}\NormalTok{, }\AttributeTok{m =} \DecValTok{64}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.0625 0.8125 0.5625 0.3125 0.0625 0.8125 0.5625 0.3125
+\end{verbatim}
+
+We can see that this specific choice of parameters is quite bad: it has cycle 4! After 4 numbers the sequence repeats itself and we surely would not like to use this in practice.
+
+In general you should not worry of these issues, R does things properly for you!
+
+\hypertarget{testing-randomness}{%
+\section{Testing Randomness}\label{testing-randomness}}
+
+Now we turn to the following question: given a sequence of numbers \(u_1,\dots,u_N\) how can we test if they are independent realizations of a Uniform random variable between zero and one?
+
+We therefore need to check if the distribution of the numbers is uniform and if they are actually independent.
+
+\hypertarget{testing-uniformity}{%
+\subsection{Testing Uniformity}\label{testing-uniformity}}
+
+A simple first method to check if the numbers are uniform is to create an histogram of the data and to see if the histogram is reasonably flat. We already saw how to assess this, but let's check if \texttt{runif} works well. Simple histograms can be created in \texttt{R} using \texttt{hist} (or if you want you can use \texttt{ggplot}).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{u }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{5000}\NormalTok{)}
+\FunctionTok{hist}\NormalTok{(u)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-81-1.pdf}
+
+We can see that the histogram is reasonably flat and therefore the assumption of uniformity seems to hold.
+
+Although the histogram is quite informative, it is not a fairly formal method. We could on the other hand look at tests of hypotheses of this form:
+\begin{align*}
+H_0: & \;\;u_i \mbox{ is uniform between zero and one, } i=1,2,\dots\\
+H_a: & \;\;u_i \mbox{ is not uniform between zero and one, } i=1,2,\dots\\
+\end{align*}
+
+The null hypothesis is thus that the numbers are indeed uniform, whilst the alternative states that the numbers are not. If we reject the null hypothesis, which happens if the p-value of the test is very small (or smaller than a critical value \(\alpha\) of our choice), then we would believe that the sequence of numbers is not uniform.
+
+There are various ways to carry out such a test, but we will consider here only one: the so-called \emph{Kolmogorov-Smirnov Test}. We will not give all details of this test, but only its interpretation and implementation.
+
+In order to understand how the test works we need to briefly introduce the concept of \emph{empirical cumulative distribution function} or \emph{ecdf}. The ecdf \(\hat{F}\) is the cumulative distribution function computed from a sequence of \(N\) numbers as
+\[
+\hat{F}(t)= \frac{\mbox{numbers in the sequence }\leq t}{N}
+\]
+
+Let's consider the following example.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{u=} \FunctionTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.2}\NormalTok{,}\FloatTok{0.4}\NormalTok{,}\FloatTok{0.8}\NormalTok{,}\FloatTok{0.9}\NormalTok{))}
+\FunctionTok{ggplot}\NormalTok{(data,}\FunctionTok{aes}\NormalTok{(u)) }\SpecialCharTok{+} \FunctionTok{stat\_ecdf}\NormalTok{(}\AttributeTok{geom =} \StringTok{"step"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme\_bw}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{ylab}\NormalTok{(}\StringTok{"ECDF"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-82-1.pdf}
+
+For instance, since there are 3 numbers out of 5 in the vector \texttt{u} that are less than 0.7, then \(\hat{F}(0.7)=3/5\).
+
+The idea behind the Kolmogorov-Smirnov test is to quantify how similar the ecdf computed from a sequence of data is to the one of the uniform distribution which is represented by a straight line (see Figure \ref{fig:uplot}).
+
+As an example consider Figure \ref{fig:Kol}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{u1 }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{20}\NormalTok{)}
+\NormalTok{u2 }\OtherTok{\textless{}{-}} \FunctionTok{rexp}\NormalTok{(}\DecValTok{20}\NormalTok{,}\DecValTok{10}\NormalTok{)}
+\NormalTok{u2 }\OtherTok{\textless{}{-}}\NormalTok{ u2[u2}\SpecialCharTok{\textless{}=}\DecValTok{1}\NormalTok{]}
+\FunctionTok{ggplot}\NormalTok{(}\FunctionTok{data.frame}\NormalTok{(}\AttributeTok{u1=}\NormalTok{u1),}\FunctionTok{aes}\NormalTok{(u1)) }\SpecialCharTok{+} \FunctionTok{stat\_ecdf}\NormalTok{(}\AttributeTok{geom =} \StringTok{"step"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme\_bw}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{ylab}\NormalTok{(}\StringTok{"ECDF"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{geom\_abline}\NormalTok{(}\AttributeTok{intercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{slope =} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-83-1.pdf}
+
+\hypertarget{testing-independence}{%
+\subsection{Testing Independence}\label{testing-independence}}
+
+\hypertarget{random-variate-generation}{%
+\section{Random Variate Generation}\label{random-variate-generation}}
 
   \bibliography{book.bib,packages.bib}
 

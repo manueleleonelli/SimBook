@@ -1,0 +1,303 @@
+# Random Number Generation
+
+At the hearth of any simulation model there is the capability of creating numbers that mimic those we would expect in real life. In simulation modeling we will assume that specific processes will be distributed according to a specific random variable. For instance we will assume that an employee in a donut shop takes a random time to serve customers distributed according to a Normal random variable with mean $\mu$ and variance $\sigma^2$. In order to then carry out a simulation the computer will need to generate random serving times. This corresponds to simulating number that are distributed according to a specific distribution. 
+
+Let's consider an example. Suppose you managed to generate two sequences of numbers, say `x1` and `x2`. Your objective is to simulate numbers from a Normal distribution. The histograms of the two sequences are reported in Figure \@ref(fig:seq) together with the estimated shape of the density. Clearly the sequence `x1` could be following a Normal distribution, since it is bell-shaped and reasonably symmetric. On the other hand, the sequence `x2` is not symmetric at all and does not resembles the density of a Normal.
+
+```{r seq, out.width = "50%",fig.cap="Histograms of two sequences of randomly generated numbers", fig.align = "center", warning = F, message=F, echo = F}
+p <- ggplot(data.frame(x1=rnorm(700)), aes(x=x1))+
+   geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")  + theme_bw() 
+p1 <- ggplot(data.frame(x2=rexp(700,4)), aes(x=x2))+
+   geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")  + theme_bw()
+grid.arrange(p,p1,ncol=2)
+```
+
+In this chapter we will learn how to characterize randomness in a computer and how to generate numbers that appear to be random realizations of a specific random variable. We will also learn how to check if a sequence of values can be a random realization from a specific random variable.
+
+
+## Properties of Random Numbers
+
+The first step to simulate numbers from a distribution is to be able to independently simulate random numbers $u_1,u_2,\dots,u_N$ from a continuous uniform distribution between zero and one. From the previous chapter, you should remember that such a random variables has pdf
+\[
+f(x)=\left\{
+\begin{array}{ll}
+1, & 0\leq x \leq 1\\
+0, &\mbox{otherwise}
+\end{array}
+\right.
+\]
+and cdf
+\[
+F(x)=\left\{
+\begin{array}{ll}
+0, & x<0\\
+x, & 0\leq x \leq 1\\
+1, &\mbox{otherwise}
+\end{array}
+\right.
+\]
+These two are plotted in Figure \@ref(fig:uplot).
+
+
+```{r uplot, out.width = "50%", fig.cap = "Pdf (left) and cdf (right) of the continuous uniform between zero and one.", fig.align='center',echo=F,warning=F,message=F}
+x <- c(seq(-1,0,0.01),seq(0,1,0.01),seq(1,2,0.01))
+y <- c(rep(0,length(seq(-1,0,0.01))),rep(1,length(seq(0,1,0.01))),rep(0,length(seq(1,2,0.01))))
+p1 <- ggplot(data.frame(x=x,y=y),aes(x,y)) + geom_line(lwd=1.3,col="red") + theme_bw() + ylab("f(x)")
+x <- c(seq(-1,0,0.01),seq(0,1,0.01),seq(1,2,0.01))
+y <- c(rep(0,length(seq(-1,0,0.01))),seq(0,1,0.01),rep(1,length(seq(1,2,0.01))))
+p2 <- ggplot(data.frame(x=x,y=y),aes(x,y)) + geom_line(lwd=1.3,col="red") + theme_bw() + ylab("f(x)")
+grid.arrange(p1,p2,ncol=2)
+```
+
+Its expectation is 1/2 and its variance is 1/12.
+
+This implies that if we were to divide the interval $[0,1]$ into $n$ sub-intervals of equal length, then we would expect in each interval to have $N/n$ observations, where $N$ is the total number of observations.
+
+Figure \@ref(fig:uhist) shows the histograms of two sequences of numbers between zero and one: whilst the one on the left resembles the pdf of a uniform distribution, the one on the right clearly does not (it is far from being flat) and therefore it is hard to believe that such numbers follow a uniform distribution.
+
+```{r uhist, out.width = "50%", fig.cap = "Histograms from two sequences of numbers between zero and one.", fig.align='center',echo=F,warning=F,message=F}
+p <- ggplot(data.frame(x1=runif(10000)), aes(x=x1))+
+   geom_histogram(aes(y=..density..),binwidth=0.1,center = 0.05, colour="black", fill="white")  + theme_bw() 
+x2 <- rexp(700,10)
+x2 <- x2[x2<=1]
+p1 <- ggplot(data.frame(x2=x2), aes(x=x2))+
+   geom_histogram(aes(y=..density..),binwidth=0.1, center = 0.05, colour="black", fill="white")+
+ theme_bw()
+grid.arrange(p,p1,ncol=2)
+```
+
+The second requirement the numbers $u_1,\dots,u_N$ need to respect is independence. This means that the probability of observing a value in a particular sub-interval of $(0,1)$ is independent of the previous values drawn. 
+
+Consider the following sequence of numbers:
+\[
+\begin{array}{cccccccccc}
+0.25 & 0.72 & 0.18 & 0.63 & 0.49 & 0.88 & 0.23 & 0.78 & 0.02 & 0.52
+\end{array}
+\]
+We can notice that numbers below and above 0.5 are alternating in the sequence. We would therefore believe that after a number less than 0.5 it is much more likely to observe a number above it. This breaks the assumption of independence.
+
+
+## Pseudo Random Numbers
+
+We will investigate ways to simulate numbers using algorithms in a computer. For this reason such numbers are usually called *pseudo-random* numbers. Pseudo means false, in the sense that the number are not really random! They are generated according to a deterministic algorithm whose aim is to imitate as closely as possible what randomness would look like. In particular, for numbers $u_1,\dots,u_N$ it means that they should look like independence instances of a Uniform distribution between zero and one.
+
+Possible departures from ideal numbers are: 
+
+ - the numbers are not uniformly distributed;
+ 
+ - the mean of the numbers might not be 1/2;
+ 
+ - the variance of the numbers might not be 1/12;
+ 
+ - the numbers might be discrete-valued instead of continuous;
+ 
+ - independence might not hold.
+ 
+We already looked at examples of departures from the assumptions, but we will later study how to assess these departures more formally.
+
+Before looking at how we can construct pseudo-random numbers, let's discuss some important properties/considerations that need to be taken into account when generating pseudo-random numbers:
+
+ - the random generation should be very fast. In practice, we want to use random numbers to do other computations (for example simulate a little donut shop) and such computations might be computationally intensive: if random generation were to be slow, we would not be able to perform them.
+ 
+ - the cycle of random generated numbers should be long. The cycle is the length of the sequence before numbers start to repeat themselves.
+ 
+ - the random numbers should be repeatable. Given a starting point of the algorithm, it should be possible to repeat the exact same sequence of numbers. This is fundamental for debugging and for reproducibility.
+ 
+ - the method should be applicable in any programming language/platform.
+ 
+ - and of course most importantly, the random numbers should be independent and uniformly distributed.
+ 
+Repeatability of the pseudo-random numbers is worth further consideration. It is fundamental in science to be able to reproduce experiments so that the validity of results can be assessed. In R there is a specific function that allows us to do this, which is called `set.seed`. It is customary to choose as starting point of an algorithm the current year. So henceforth you will see the command:
+
+```{r}
+set.seed(2021)
+```
+
+This ensures that every time the code following `set.seed` is run, the same results will be observed. We will give below examples of this.
+
+
+## Generating Pseudo-Random Numbers
+
+The literature on generating pseudo-random numbers is now extremely vast and it is not our purpose to review it, neither for you to learn how such algorithms work.
+
+### Generating Pseudo-Random Numbers in R
+
+R has all the capabilities to generate such numbers. This can be done with the function `runif`, which takes one input: the number of observations to generate. So for instance:
+```{r}
+set.seed(2021)
+runif(10)
+```
+generates ten random numbers between zero and one. Notice that if we repeat the same code we get the same result since we fixed the so-called *seed* of the simulation.
+
+```{r}
+set.seed(2021)
+runif(10)
+```
+Conversely, if we were to simply run the code `runif(10)` we would get a different result.
+
+```{r}
+runif(10)
+```
+
+### Linear Congruential Method
+
+Although we will use the functions already implemented in R, it is useful to at least introduce one of the most classical algorithms to simulate random numbers, called the *linear congruential method*.
+This produces a sequence of integers $x_1,x_2,x_3$ between 0 and $m-1$ using the recursion:
+\[
+x_{i}=(ax_{i-1}+c)\mod m, \hspace{1cm} \mbox{for } i = 1,2,\dots
+\]
+Some comments:
+
+ - $\mod m$ is the remainder of the integer division by $m$. For instance $5 \mod 2$ is one and $4\mod 2$ is zero.
+ 
+ - therefore, the algorithm generates integers between 0 and $m-1$.
+ 
+ - there are three parameters that need to be chosen $a, c$ and $m$.
+ 
+ - the value $x_0$ is the *seed* of the algorithm.
+ 
+Random numbers between zero and one can be derived by setting 
+\[
+u_i= x_i/m.
+\]
+
+It can be shown that the method works well for specific choices of $a$, $c$ and $m$, which we will not discuss here. 
+
+Let's look at an implementation.
+
+```{r}
+lcm <- function(N, x0, a, c, m){
+   x <- rep(0,N)
+   x[1] <- x0
+   for (i in 2:N) x[i] <- (a*x[i-1]+c)%%m
+   u <- x/m
+   return(u)
+}
+```
+
+```{r}
+lcm(N = 8, x0 = 4, a = 13, c = 0, m = 64)
+```
+
+We can see that this specific choice of parameters is quite bad: it has cycle 4! After 4 numbers the sequence repeats itself and we surely would not like to use this in practice.
+
+In general you should not worry of these issues, R does things properly for you!
+
+## Testing Randomness
+
+Now we turn to the following question: given a sequence of numbers $u_1,\dots,u_N$ how can we test if they are independent realizations of a Uniform random variable between zero and one? 
+
+We therefore need to check if the distribution of the numbers is uniform and if they are actually independent.
+
+### Testing Uniformity
+
+A simple first method to check if the numbers are uniform is to create an histogram of the data and to see if the histogram is reasonably flat. We already saw how to assess this, but let's check if `runif` works well. Simple histograms can be created in `R` using `hist` (or if you want you can use `ggplot`).
+
+```{r hist, fig.cap = "Histogram of a sequence of uniform numbers", fig.align='center',out.width="50%"}
+set.seed(2021)
+u <- runif(5000)
+hist(u)
+```
+
+We can see that the histogram is reasonably flat and therefore the assumption of uniformity seems to hold.
+
+Although the histogram is quite informative, it is not a fairly formal method. We could on the other hand look at tests of hypotheses of this form:
+\begin{align*}
+H_0: & \;\;u_i \mbox{ is uniform between zero and one, } i=1,2,\dots\\
+H_a: & \;\;u_i \mbox{ is not uniform between zero and one, } i=1,2,\dots\\
+\end{align*}
+
+The null hypothesis is thus that the numbers are indeed uniform, whilst the alternative states that the numbers are not. If we  reject the null hypothesis, which happens if the p-value of the test is very small (or smaller than a critical value $\alpha$ of our choice), then we would believe that the sequence of numbers is not uniform.
+
+There are various ways to carry out such a test, but we will consider here only one: the so-called *Kolmogorov-Smirnov Test*. We will not give all details of this test, but only its interpretation and implementation.
+
+In order to understand how the test works we need to briefly introduce the concept of *empirical cumulative distribution function* or *ecdf*. The ecdf $\hat{F}$ is the cumulative distribution function computed from a sequence of $N$ numbers as
+\[
+\hat{F}(t)= \frac{\mbox{numbers in the sequence }\leq t}{N}
+\]
+
+Let's consider the following example.
+```{r ecdf, fig.align='center',fig.cap="Ecdf of a simple sequence of numbers", out.width="50%"}
+data <- data.frame(u= c(0.1,0.2,0.4,0.8,0.9))
+ggplot(data,aes(u)) + stat_ecdf(geom = "step") + theme_bw() + ylab("ECDF")
+```
+
+For instance, since there are 3 numbers out of 5 in the vector `u` that are less than 0.7, then $\hat{F}(0.7)=3/5$.
+
+The idea behind the Kolmogorov-Smirnov test is to quantify how similar the ecdf computed from a sequence of data is to the one of the uniform distribution which is represented by a straight line (see Figure \@ref(fig:uplot)).
+
+As an example consider Figure \@ref(fig:Kol). The step functions are computed from two different sequences of numbers between one and zero, whilst the straight line is the cdf of the uniform distribution. By looking at the plots, we would more strongly believe that the sequence in the left plot is uniformly distributed, since the step function is much more closer to the theoretical straight line.
+
+```{r Kol, fig.cap = "Comparison between ecdf and cdf of the uniform for two sequences of numbers", fig.align = "center", echo = F, warning = F, message = F}
+set.seed(2021)
+u1 <- runif(100)
+u2 <- rexp(100,8)
+u2 <- u2[u2<=1]
+p1 <- ggplot(data.frame(u1=u1),aes(u1)) + stat_ecdf(geom = "step") + theme_bw() + ylab("ECDF") + geom_abline(intercept = 0, slope = 1)
+p2 <- ggplot(data.frame(u2=u2),aes(u2)) + stat_ecdf(geom = "step") + theme_bw() + ylab("ECDF") + geom_abline(intercept = 0, slope = 1) + xlim(0,1)
+grid.arrange(p1,p2,ncol=2)
+```
+
+The Kolmogorov-Smirnov test formally embeds this idea of similarity between the ecdf and the cdf of the uniform in a test of hypothesis. The function `ks.test` implements this test in R. For the two sequences in Figure \@ref{fig:Kol} `u1` (left plot) and `u2` (right plot), the test can be implemented as following:
+```{r}
+ks.test(u1,"punif")
+ks.test(u2,"punif")
+```
+From the results that the p-value of the test for the sequence `u1` is 0.142 and so we would not reject the null hypothesis that the sequence is uniformly distributed. On the other hand the p-value for the test over the sequence `u2` has an extremely small p-value therefore suggesting that we reject the null hypothesis and conclude that the sequence is not uniformly distributed. This confirms our intuition by looking at the plots in Figure \@ref(fig:Kol).
+
+### Testing Independence
+
+The second requirement that a sequence of pseudo-random numbers must have is independence. We already saw an example of when this might happen: a high number was followed by a low number and vice versa.
+
+We will consider tests of the form:
+
+\begin{align*}
+H_0: & \;\;u_1,\dots,u_N \mbox{ are independent }\\
+H_a: & \;\;u_1,\dots,u_N \mbox{ are not independent }
+\end{align*}
+
+So the null hypothesis is that the sequence is of independent numbers against the alternative that they are not. If the p-value of such a test is small we would then reject the null-hypothesis of independence.
+
+In order to devise such a test, we need to come up with a way to quantify how dependent numbers in a sequence are with each other. Again, there are many ways one could do this, but we consider here only one.
+
+You should already be familiar with the idea of *correlation*: this tells you how to variables are linearly dependent of each other. There is a similar idea which extends in a way correlation to the case when it is computed between a sequence of numbers and itself, which is called *autocorrelation*. We will not give the details about this, but just the interpretation (you will learn a lot more about this in Time Series).
+
+Let's briefly recall the idea behind correlation. Suppose you have two sequences of numbers $u_1,\dots,u_N$ and $w_1,\dots,w_N$. To compute the correlation you would look at the pairs $(u_1,w_1),(u_2,w_2),\dots, (u_N,w_N)$ and assess how related the numbers within a pair $(u_i,w_i)$ are. Correlation, which is a number between -1 and 1, assesses how related the sequences are: the closer the number is to one in absolute value, the stronger the relationship.
+
+Now however we have just one sequence of numbers $u_1,\dots,u_N$. So for instance we could look at pairs $(u_1,u_2), (u_2,u_3), \dots, (u_{N-1},u_{N})$ which consider two consecutive numbers and compute their correlation. Similarly we could compute the correlation between $(u_1,u_{1+k}), (u_2,u_{2+k}),\dots, (u_{N-k},u_N)$ between each number in the sequence and the one k-positions ahead. This is what we call *autocorrelation of lag k*.
+
+
+If autocorrelations of various lags are close to zero, this gives an indication that the data is independent. If on the other hand, the autocorrelation at some lags is large, then there is an indication of dependence in the sequence of random numbers. Autocorrelations are computed and plotted in `R` using `acf` and reported in Figure \@ref(fig:acf). 
+
+```{r acf, fig.cap = "Autocorrelations for a sequence of random uniform numbers", fig.align='center',out.width="50%"}
+set.seed(2021)
+u1 <- runif(200)
+acf(u1)
+```
+
+The bars in Figure \@ref(fig:acf) are the autocorrelations at various lags, whilst the dashed blue lines are confidence bands: if a bar is within the bands it means that we cannot reject the hypothesis that the autocorrelation of the associated lag is equal to zero. Notice that the first bar is lag 0: it computes the correlation for the sample $(u_1,u_1),(u_2,u_2),\dots,(u_N,u_N)$ and therefore it is always equal to one. You should never worry about this bar. Since all the bars are within the confidence bands, we believe that all autocorrelations are not different from zero and consequently that the data is independent (it was indeed generated using `runif``).
+
+Figure \@ref(fig:acf2) reports the autocorrelations of a sequence of numbers which is not independent. Although the histogram shows that the data is uniformly distributed, we would not believe that the sequence is of independent numbers since autocorrelations are very large and outside the bands.
+
+```{r acf2, fig.cap="Histogram and autocorrelations of a sequence of uniform numbers which are not independent", fig.align = "center"}
+u2 <- rep(1:10,each = 4,times = 10)/10 + rnorm(400,0,0.02) 
+u2 <- (u2 - min(u2))/(max(u2)-min(u2))
+par(mfrow=c(1,2))
+hist(u2)
+acf(u2)
+```
+
+A test of hypothesis for independence can be created by checking if any of the autocorrelations up to a specific lag are different from zero. This is implemented in the function `Box.test` in R. The first input is the sequence of numbers to consider, the second is the largest lag we want to consider. Let's compute it for the two sequences `u1` and `u2` above.
+```{r}
+Box.test(u1, lag = 5)
+Box.test(u2, lag = 5)
+```
+Here we chose a lag up to 5 (it is usually not useful to consider larger lags). The test confirms our observations of the autocorrelations. For the sequence `u1` generated with `runif` the test has a high p-value and therefore we cannot reject the hypothesis of independence. For the second sequence `u2` which had very large autocorrelations the p-value is very small and therefore we reject the hypothesis of independence.
+
+
+## Random Variate Generation
+
+
+
