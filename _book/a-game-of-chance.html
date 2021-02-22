@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>4.3 Generating Pseudo-Random Numbers | Simulation and Modelling to Understand Change</title>
+  <title>5.5 A game of chance | Simulation and Modelling to Understand Change</title>
   <meta name="description" content="These are lecture notes for the module Simulation and Modelling to Understand Change given in the School of Human Sciences and Technology at IE University, Madrid, Spain. The module is given in the 2nd semester of the 1st year of the bachelor in Data and Business Analytics. Knowledge of basic elements of R programming as well as probability and statistics is assumed." />
   <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="4.3 Generating Pseudo-Random Numbers | Simulation and Modelling to Understand Change" />
+  <meta property="og:title" content="5.5 A game of chance | Simulation and Modelling to Understand Change" />
   <meta property="og:type" content="book" />
   
   <meta property="og:image" content="/images/Rplot.png" />
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="manueleleonelli/SimBook" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="4.3 Generating Pseudo-Random Numbers | Simulation and Modelling to Understand Change" />
+  <meta name="twitter:title" content="5.5 A game of chance | Simulation and Modelling to Understand Change" />
   
   <meta name="twitter:description" content="These are lecture notes for the module Simulation and Modelling to Understand Change given in the School of Human Sciences and Technology at IE University, Madrid, Spain. The module is given in the 2nd semester of the 1st year of the bachelor in Data and Business Analytics. Knowledge of basic elements of R programming as well as probability and statistics is assumed." />
   <meta name="twitter:image" content="/images/Rplot.png" />
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="pseudo-random-numbers.html"/>
-<link rel="next" href="testing-randomness.html"/>
+<link rel="prev" href="the-sample-function.html"/>
+
 <script src="libs/header-attrs-2.6/header-attrs.js"></script>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -294,66 +294,92 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="generating-pseudo-random-numbers" class="section level2" number="4.3">
-<h2><span class="header-section-number">4.3</span> Generating Pseudo-Random Numbers</h2>
-<p>The literature on generating pseudo-random numbers is now extremely vast and it is not our purpose to review it, neither for you to learn how such algorithms work.</p>
-<div id="generating-pseudo-random-numbers-in-r" class="section level3" number="4.3.1">
-<h3><span class="header-section-number">4.3.1</span> Generating Pseudo-Random Numbers in R</h3>
-<p>R has all the capabilities to generate such numbers. This can be done with the function <code>runif</code>, which takes one input: the number of observations to generate. So for instance:</p>
-<div class="sourceCode" id="cb158"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb158-1"><a href="generating-pseudo-random-numbers.html#cb158-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
-<span id="cb158-2"><a href="generating-pseudo-random-numbers.html#cb158-2" aria-hidden="true" tabindex="-1"></a><span class="fu">runif</span>(<span class="dv">10</span>)</span></code></pre></div>
-<pre><code>##  [1] 0.4512674 0.7837798 0.7096822 0.3817443 0.6363238 0.7013460 0.6404389
-##  [8] 0.2666797 0.8154215 0.9829869</code></pre>
-<p>generates ten random numbers between zero and one. Notice that if we repeat the same code we get the same result since we fixed the so-called <em>seed</em> of the simulation.</p>
-<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb160-1"><a href="generating-pseudo-random-numbers.html#cb160-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
-<span id="cb160-2"><a href="generating-pseudo-random-numbers.html#cb160-2" aria-hidden="true" tabindex="-1"></a><span class="fu">runif</span>(<span class="dv">10</span>)</span></code></pre></div>
-<pre><code>##  [1] 0.4512674 0.7837798 0.7096822 0.3817443 0.6363238 0.7013460 0.6404389
-##  [8] 0.2666797 0.8154215 0.9829869</code></pre>
-<p>Conversely, if we were to simply run the code <code>runif(10)</code> we would get a different result.</p>
-<div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb162-1"><a href="generating-pseudo-random-numbers.html#cb162-1" aria-hidden="true" tabindex="-1"></a><span class="fu">runif</span>(<span class="dv">10</span>)</span></code></pre></div>
-<pre><code>##  [1] 0.02726706 0.83749040 0.60324073 0.56745337 0.82005281 0.25157128
-##  [7] 0.50549403 0.86753810 0.95818157 0.54569770</code></pre>
+<div id="a-game-of-chance" class="section level2" number="5.5">
+<h2><span class="header-section-number">5.5</span> A game of chance</h2>
+<p>For the rest of this chapter we will develop various Monte Carlo simulations. We start simulating a little game of chance.</p>
+<p>Peter and Paul play a simple game involving repeated tosses of a fair coin. In a given toss, if heads is observed, Peter wins 1€ from Paul; otherwise if tails is tossed, Peter gives 1€ to Paul. If Peter starts with zero euros, we are interested in his fortune as the game is played for 50 tosses.</p>
+<p>We can simulate this game using the R <code>sample()</code> function. Peter’s winning on a particular toss will be 1€ or -1€ with equal probability. His winnings on 50 repeated tosses can be considered to be a sample of size 50 selected with replacement from the set {1€, -1€}.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="a-game-of-chance.html#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb28-2"><a href="a-game-of-chance.html#cb28-2" aria-hidden="true" tabindex="-1"></a>win <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>),<span class="at">size =</span> <span class="dv">50</span>, <span class="at">replace =</span> T)</span>
+<span id="cb28-3"><a href="a-game-of-chance.html#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(win)</span></code></pre></div>
+<pre><code>## [1] -1  1  1  1 -1  1</code></pre>
+<p>For this particular game Peter lost the first game, then won the second, the third and the fourth and so on.</p>
+<p>Suppose Peter is interested in his cumulative winnings as he plays this game. The function <code>cumsum()</code> computes the cumulative winnings of the individual values and we store the cumulative values in a vector named <code>cumul.win</code>.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="a-game-of-chance.html#cb30-1" aria-hidden="true" tabindex="-1"></a>cumul.win <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(win) </span>
+<span id="cb30-2"><a href="a-game-of-chance.html#cb30-2" aria-hidden="true" tabindex="-1"></a>cumul.win</span></code></pre></div>
+<pre><code>##  [1] -1  0  1  2  1  2  3  4  5  6  5  6  7  6  5  4  3  2  3  2  3  4  3  4  3
+## [26]  2  3  4  5  6  5  6  5  6  7  6  7  6  7  6  5  4  5  6  5  4  5  6  7  8</code></pre>
+<p>So at the end of this specific game Peter won 8€. Figure <a href="a-game-of-chance.html#fig:cumwin">5.1</a> reports Peter’s fortune as the game evolved. We can notice that Peter was in the lead throughout almost the whole game.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="a-game-of-chance.html#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cumsum</span>(win), <span class="at">type=</span><span class="st">&quot;l&quot;</span> ,<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">25</span>, <span class="dv">25</span>))</span>
+<span id="cb32-2"><a href="a-game-of-chance.html#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="dv">0</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:cumwin"></span>
+<img src="SimBook_files/figure-html/cumwin-1.png" alt="Peter's fortune throughout one simulated game." width="50%" />
+<p class="caption">
+Figure 5.1: Peter’s fortune throughout one simulated game.
+</p>
 </div>
-<div id="linear-congruential-method" class="section level3" number="4.3.2">
-<h3><span class="header-section-number">4.3.2</span> Linear Congruential Method</h3>
-<p>Although we will use the functions already implemented in R, it is useful to at least introduce one of the most classical algorithms to simulate random numbers, called the <em>linear congruential method</em>.
-This produces a sequence of integers <span class="math inline">\(x_1,x_2,x_3\)</span> between 0 and <span class="math inline">\(m-1\)</span> using the recursion:
-<span class="math display">\[
-x_{i}=(ax_{i-1}+c)\mod m, \hspace{1cm} \mbox{for } i = 1,2,\dots
-\]</span>
-Some comments:</p>
+<p>Of course this is the result of a single simulation and the outcome may be totally different than the one we saw. Figure <a href="a-game-of-chance.html#fig:mcumwin">5.2</a> reports four simulated games: we can see that in the first one Peter wins, in the second he almost breaks even, whilst in the third and fourth he clearly loses.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="a-game-of-chance.html#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb33-2"><a href="a-game-of-chance.html#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb33-3"><a href="a-game-of-chance.html#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb33-4"><a href="a-game-of-chance.html#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(<span class="fu">cumsum</span>(<span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>),<span class="at">size=</span><span class="dv">50</span>,<span class="at">replace=</span>T)),<span class="at">type=</span><span class="st">&quot;l&quot;</span> ,<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">25</span>, <span class="dv">25</span>), <span class="at">ylab=</span><span class="st">&quot;Outcome&quot;</span>)</span>
+<span id="cb33-5"><a href="a-game-of-chance.html#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">h=</span><span class="dv">0</span>)}</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:mcumwin"></span>
+<img src="SimBook_files/figure-html/mcumwin-1.png" alt="Outcome of four simulated game of chances." width="80%" />
+<p class="caption">
+Figure 5.2: Outcome of four simulated game of chances.
+</p>
+</div>
+<p>Suppose we are interested in the following question.</p>
 <ul>
-<li><p><span class="math inline">\(\mod m\)</span> is the remainder of the integer division by <span class="math inline">\(m\)</span>. For instance <span class="math inline">\(5 \mod 2\)</span> is one and <span class="math inline">\(4\mod 2\)</span> is zero.</p></li>
-<li><p>therefore, the algorithm generates integers between 0 and <span class="math inline">\(m-1\)</span>.</p></li>
-<li><p>there are three parameters that need to be chosen <span class="math inline">\(a, c\)</span> and <span class="math inline">\(m\)</span>.</p></li>
-<li><p>the value <span class="math inline">\(x_0\)</span> is the <em>seed</em> of the algorithm.</p></li>
+<li>What is the probability that Peter breaks even at the end of the game?</li>
 </ul>
-<p>Random numbers between zero and one can be derived by setting
-<span class="math display">\[
-u_i= x_i/m.
-\]</span></p>
-<p>It can be shown that the method works well for specific choices of <span class="math inline">\(a\)</span>, <span class="math inline">\(c\)</span> and <span class="math inline">\(m\)</span>, which we will not discuss here.</p>
-<p>Let’s look at an implementation.</p>
-<div class="sourceCode" id="cb164"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb164-1"><a href="generating-pseudo-random-numbers.html#cb164-1" aria-hidden="true" tabindex="-1"></a>lcm <span class="ot">&lt;-</span> <span class="cf">function</span>(N, x0, a, c, m){</span>
-<span id="cb164-2"><a href="generating-pseudo-random-numbers.html#cb164-2" aria-hidden="true" tabindex="-1"></a>   x <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,N)</span>
-<span id="cb164-3"><a href="generating-pseudo-random-numbers.html#cb164-3" aria-hidden="true" tabindex="-1"></a>   x[<span class="dv">1</span>] <span class="ot">&lt;-</span> x0</span>
-<span id="cb164-4"><a href="generating-pseudo-random-numbers.html#cb164-4" aria-hidden="true" tabindex="-1"></a>   <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>N) x[i] <span class="ot">&lt;-</span> (a<span class="sc">*</span>x[i<span class="dv">-1</span>]<span class="sc">+</span>c)<span class="sc">%%</span>m</span>
-<span id="cb164-5"><a href="generating-pseudo-random-numbers.html#cb164-5" aria-hidden="true" tabindex="-1"></a>   u <span class="ot">&lt;-</span> x<span class="sc">/</span>m</span>
-<span id="cb164-6"><a href="generating-pseudo-random-numbers.html#cb164-6" aria-hidden="true" tabindex="-1"></a>   <span class="fu">return</span>(u)</span>
-<span id="cb164-7"><a href="generating-pseudo-random-numbers.html#cb164-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb165"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb165-1"><a href="generating-pseudo-random-numbers.html#cb165-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lcm</span>(<span class="at">N =</span> <span class="dv">8</span>, <span class="at">x0 =</span> <span class="dv">4</span>, <span class="at">a =</span> <span class="dv">13</span>, <span class="at">c =</span> <span class="dv">0</span>, <span class="at">m =</span> <span class="dv">64</span>)</span></code></pre></div>
-<pre><code>## [1] 0.0625 0.8125 0.5625 0.3125 0.0625 0.8125 0.5625 0.3125</code></pre>
-<p>We can see that this specific choice of parameters is quite bad: it has cycle 4! After 4 numbers the sequence repeats itself and we surely would not like to use this in practice.</p>
-<p>In general you should not worry of these issues, R does things properly for you!</p>
+<p>Evidently we cannot cannot answer by simply looking at the outputs of the previous simulations. We need to do a formal Monte Carlo study. In this type of experiment, we simulate the random process and compute the statistic of interest. By repeating the random process many times, we obtain a collection of values of the statistic, which can then be used to approximate probabilities or expectations that answer the questions.</p>
+<p>As you may recall from the estimation of <span class="math inline">\(\pi\)</span> experiment, we first need to write a function that simulates the experiment. In particular we need to write a function which outputs Peter’s winning at the end of the game. To make this function more general, we define <code>n</code> to be the number of tosses and let the default value of <code>n</code> be 50.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="a-game-of-chance.html#cb34-1" aria-hidden="true" tabindex="-1"></a>peter.paul <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">n=</span><span class="dv">50</span>){</span>
+<span id="cb34-2"><a href="a-game-of-chance.html#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(<span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">size=</span>n, <span class="at">replace=</span><span class="cn">TRUE</span>))</span>
+<span id="cb34-3"><a href="a-game-of-chance.html#cb34-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-4"><a href="a-game-of-chance.html#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb34-5"><a href="a-game-of-chance.html#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">peter.paul</span>()</span></code></pre></div>
+<pre><code>## [1] 8</code></pre>
+<p>The output is the same as the previous code, so it seems that our function works correctly.</p>
+<p>Let’s replicate the experiment many times.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="a-game-of-chance.html#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb36-2"><a href="a-game-of-chance.html#cb36-2" aria-hidden="true" tabindex="-1"></a>experiment <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">1000</span>,<span class="fu">peter.paul</span>())</span>
+<span id="cb36-3"><a href="a-game-of-chance.html#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(experiment)</span></code></pre></div>
+<pre><code>## [1]   8  -2 -12 -12 -14   8</code></pre>
+<p>So the vector <code>experiment</code> stores Peter’s final fortune in 1000 games. Since Peter’s fortune is an integer-value variable, it is convenient to summarize it using the <code>table</code> function.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="a-game-of-chance.html#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(experiment)</span></code></pre></div>
+<pre><code>## experiment
+## -22 -20 -18 -16 -14 -12 -10  -8  -6  -4  -2   0   2   4   6   8  10  12  14  16 
+##   1   2   7   7  16  30  42  66  58 101 116 102 110 103  70  60  44  26  15  14 
+##  18  20 
+##   4   6</code></pre>
+<p>A graphical representation of the table is also useful.</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="a-game-of-chance.html#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">table</span>(experiment))</span></code></pre></div>
+<p><img src="SimBook_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+So we can see that Peter breaks even 102 out of 1000 times. Furthermore the plot shows us that most commonly Peter will win/lose little money and that big wins/losses are unlikely.</p>
+<p>To conclude our experiment we need to calculate our estimated probability of Peter breaking even. Clearly this is equal to 102/1000= 0.102. In R:</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="a-game-of-chance.html#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(experiment[experiment<span class="sc">==</span><span class="dv">0</span>])<span class="sc">/</span><span class="dv">1000</span></span></code></pre></div>
+<pre><code>## [1] 0.102</code></pre>
+<p>Notice that we could have also answered this question exactly. The event Peter breaking even coincides with a number of successes <span class="math inline">\(n/2\)</span> in a Binomial experiment with parameters <span class="math inline">\(n=50\)</span> and <span class="math inline">\(\theta = 0.5\)</span>. This can be computed in R as</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="a-game-of-chance.html#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbinom</span>(<span class="dv">25</span>, <span class="at">size =</span> <span class="dv">50</span>, <span class="at">prob =</span> <span class="fl">0.5</span>)</span></code></pre></div>
+<pre><code>## [1] 0.1122752</code></pre>
+<p>So our approximation is already quite close to the true value. We would get even closer by replicating the experiment a larger number of times.</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="a-game-of-chance.html#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb45-2"><a href="a-game-of-chance.html#cb45-2" aria-hidden="true" tabindex="-1"></a>experiment <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>,<span class="fu">peter.paul</span>())</span>
+<span id="cb45-3"><a href="a-game-of-chance.html#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(experiment[experiment<span class="sc">==</span><span class="dv">0</span>])<span class="sc">/</span><span class="dv">1000</span></span></code></pre></div>
+<pre><code>## [1] 1.096</code></pre>
+
 </div>
-</div>
+<!-- </div> -->
             </section>
 
           </div>
         </div>
       </div>
-<a href="pseudo-random-numbers.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="testing-randomness.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="the-sample-function.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

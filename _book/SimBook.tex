@@ -117,7 +117,7 @@
 
 \title{Simulation and Modelling to Understand Change}
 \author{Manuele Leonelli}
-\date{2021-02-01}
+\date{2021-02-21}
 
 \begin{document}
 \maketitle
@@ -2284,6 +2284,11 @@ which is plotted in Figure \ref{fig:expcdf}.
 
 We can notice that the cdf has similar properties as in the discrete case: it is non-decreasing, on the left-hand side is zero and on the right-hand side tends to zero.
 
+In the continuous case, one can prove that cdfs and pdfs are related as
+\[
+f(x)=\frac{d}{dx}F(x).
+\]
+
 \hypertarget{summaries-1}{%
 \subsection{Summaries}\label{summaries-1}}
 
@@ -2896,7 +2901,14 @@ A simple first method to check if the numbers are uniform is to create an histog
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{SimBook_files/figure-latex/unnamed-chunk-81-1.pdf}
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/hist-1} 
+
+}
+
+\caption{Histogram of a sequence of uniform numbers}\label{fig:hist}
+\end{figure}
 
 We can see that the histogram is reasonably flat and therefore the assumption of uniformity seems to hold.
 
@@ -2924,30 +2936,749 @@ Let's consider the following example.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{SimBook_files/figure-latex/unnamed-chunk-82-1.pdf}
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/ecdf-1} 
+
+}
+
+\caption{Ecdf of a simple sequence of numbers}\label{fig:ecdf}
+\end{figure}
 
 For instance, since there are 3 numbers out of 5 in the vector \texttt{u} that are less than 0.7, then \(\hat{F}(0.7)=3/5\).
 
 The idea behind the Kolmogorov-Smirnov test is to quantify how similar the ecdf computed from a sequence of data is to the one of the uniform distribution which is represented by a straight line (see Figure \ref{fig:uplot}).
 
-As an example consider Figure \ref{fig:Kol}.
+As an example consider Figure \ref{fig:Kol}. The step functions are computed from two different sequences of numbers between one and zero, whilst the straight line is the cdf of the uniform distribution. By looking at the plots, we would more strongly believe that the sequence in the left plot is uniformly distributed, since the step function is much more closer to the theoretical straight line.
+
+\begin{figure}
+
+{\centering \includegraphics{SimBook_files/figure-latex/Kol-1} 
+
+}
+
+\caption{Comparison between ecdf and cdf of the uniform for two sequences of numbers}\label{fig:Kol}
+\end{figure}
+
+The Kolmogorov-Smirnov test formally embeds this idea of similarity between the ecdf and the cdf of the uniform in a test of hypothesis. The function \texttt{ks.test} implements this test in R. For the two sequences in Figure @ref\{fig:Kol\} \texttt{u1} (left plot) and \texttt{u2} (right plot), the test can be implemented as following:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{u1 }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{20}\NormalTok{)}
-\NormalTok{u2 }\OtherTok{\textless{}{-}} \FunctionTok{rexp}\NormalTok{(}\DecValTok{20}\NormalTok{,}\DecValTok{10}\NormalTok{)}
-\NormalTok{u2 }\OtherTok{\textless{}{-}}\NormalTok{ u2[u2}\SpecialCharTok{\textless{}=}\DecValTok{1}\NormalTok{]}
-\FunctionTok{ggplot}\NormalTok{(}\FunctionTok{data.frame}\NormalTok{(}\AttributeTok{u1=}\NormalTok{u1),}\FunctionTok{aes}\NormalTok{(u1)) }\SpecialCharTok{+} \FunctionTok{stat\_ecdf}\NormalTok{(}\AttributeTok{geom =} \StringTok{"step"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme\_bw}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{ylab}\NormalTok{(}\StringTok{"ECDF"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{geom\_abline}\NormalTok{(}\AttributeTok{intercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{slope =} \DecValTok{1}\NormalTok{)}
+\FunctionTok{ks.test}\NormalTok{(u1,}\StringTok{"punif"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{SimBook_files/figure-latex/unnamed-chunk-83-1.pdf}
+\begin{verbatim}
+## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  u1
+## D = 0.11499, p-value = 0.142
+## alternative hypothesis: two-sided
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ks.test}\NormalTok{(u2,}\StringTok{"punif"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  u2
+## D = 0.56939, p-value < 2.2e-16
+## alternative hypothesis: two-sided
+\end{verbatim}
+
+From the results that the p-value of the test for the sequence \texttt{u1} is 0.142 and so we would not reject the null hypothesis that the sequence is uniformly distributed. On the other hand the p-value for the test over the sequence \texttt{u2} has an extremely small p-value therefore suggesting that we reject the null hypothesis and conclude that the sequence is not uniformly distributed. This confirms our intuition by looking at the plots in Figure \ref{fig:Kol}.
 
 \hypertarget{testing-independence}{%
 \subsection{Testing Independence}\label{testing-independence}}
 
+The second requirement that a sequence of pseudo-random numbers must have is independence. We already saw an example of when this might happen: a high number was followed by a low number and vice versa.
+
+We will consider tests of the form:
+
+\begin{align*}
+H_0: & \;\;u_1,\dots,u_N \mbox{ are independent }\\
+H_a: & \;\;u_1,\dots,u_N \mbox{ are not independent }
+\end{align*}
+
+So the null hypothesis is that the sequence is of independent numbers against the alternative that they are not. If the p-value of such a test is small we would then reject the null-hypothesis of independence.
+
+In order to devise such a test, we need to come up with a way to quantify how dependent numbers in a sequence are with each other. Again, there are many ways one could do this, but we consider here only one.
+
+You should already be familiar with the idea of \emph{correlation}: this tells you how to variables are linearly dependent of each other. There is a similar idea which extends in a way correlation to the case when it is computed between a sequence of numbers and itself, which is called \emph{autocorrelation}. We will not give the details about this, but just the interpretation (you will learn a lot more about this in Time Series).
+
+Let's briefly recall the idea behind correlation. Suppose you have two sequences of numbers \(u_1,\dots,u_N\) and \(w_1,\dots,w_N\). To compute the correlation you would look at the pairs \((u_1,w_1),(u_2,w_2),\dots, (u_N,w_N)\) and assess how related the numbers within a pair \((u_i,w_i)\) are. Correlation, which is a number between -1 and 1, assesses how related the sequences are: the closer the number is to one in absolute value, the stronger the relationship.
+
+Now however we have just one sequence of numbers \(u_1,\dots,u_N\). So for instance we could look at pairs \((u_1,u_2), (u_2,u_3), \dots, (u_{N-1},u_{N})\) which consider two consecutive numbers and compute their correlation. Similarly we could compute the correlation between \((u_1,u_{1+k}), (u_2,u_{2+k}),\dots, (u_{N-k},u_N)\) between each number in the sequence and the one k-positions ahead. This is what we call \emph{autocorrelation of lag k}.
+
+If autocorrelations of various lags are close to zero, this gives an indication that the data is independent. If on the other hand, the autocorrelation at some lags is large, then there is an indication of dependence in the sequence of random numbers. Autocorrelations are computed and plotted in \texttt{R} using \texttt{acf} and reported in Figure \ref{fig:acf}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{u1 }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{200}\NormalTok{)}
+\FunctionTok{acf}\NormalTok{(u1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/acf-1} 
+
+}
+
+\caption{Autocorrelations for a sequence of random uniform numbers}\label{fig:acf}
+\end{figure}
+
+The bars in Figure \ref{fig:acf} are the autocorrelations at various lags, whilst the dashed blue lines are confidence bands: if a bar is within the bands it means that we cannot reject the hypothesis that the autocorrelation of the associated lag is equal to zero. Notice that the first bar is lag 0: it computes the correlation for the sample \((u_1,u_1),(u_2,u_2),\dots,(u_N,u_N)\) and therefore it is always equal to one. You should never worry about this bar. Since all the bars are within the confidence bands, we believe that all autocorrelations are not different from zero and consequently that the data is independent (it was indeed generated using `runif``).
+
+Figure \ref{fig:acf2} reports the autocorrelations of a sequence of numbers which is not independent. Although the histogram shows that the data is uniformly distributed, we would not believe that the sequence is of independent numbers since autocorrelations are very large and outside the bands.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{u2 }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{,}\AttributeTok{each =} \DecValTok{4}\NormalTok{,}\AttributeTok{times =} \DecValTok{10}\NormalTok{)}\SpecialCharTok{/}\DecValTok{10} \SpecialCharTok{+} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{400}\NormalTok{,}\DecValTok{0}\NormalTok{,}\FloatTok{0.02}\NormalTok{) }
+\NormalTok{u2 }\OtherTok{\textless{}{-}}\NormalTok{ (u2 }\SpecialCharTok{{-}} \FunctionTok{min}\NormalTok{(u2))}\SpecialCharTok{/}\NormalTok{(}\FunctionTok{max}\NormalTok{(u2)}\SpecialCharTok{{-}}\FunctionTok{min}\NormalTok{(u2))}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\FunctionTok{hist}\NormalTok{(u2)}
+\FunctionTok{acf}\NormalTok{(u2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{SimBook_files/figure-latex/acf2-1} 
+
+}
+
+\caption{Histogram and autocorrelations of a sequence of uniform numbers which are not independent}\label{fig:acf2}
+\end{figure}
+
+A test of hypothesis for independence can be created by checking if any of the autocorrelations up to a specific lag are different from zero. This is implemented in the function \texttt{Box.test} in R. The first input is the sequence of numbers to consider, the second is the largest lag we want to consider. Let's compute it for the two sequences \texttt{u1} and \texttt{u2} above.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{Box.test}\NormalTok{(u1, }\AttributeTok{lag =} \DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Box-Pierce test
+## 
+## data:  u1
+## X-squared = 4.8518, df = 5, p-value = 0.4342
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{Box.test}\NormalTok{(u2, }\AttributeTok{lag =} \DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Box-Pierce test
+## 
+## data:  u2
+## X-squared = 807.1, df = 5, p-value < 2.2e-16
+\end{verbatim}
+
+Here we chose a lag up to 5 (it is usually not useful to consider larger lags). The test confirms our observations of the autocorrelations. For the sequence \texttt{u1} generated with \texttt{runif} the test has a high p-value and therefore we cannot reject the hypothesis of independence. For the second sequence \texttt{u2} which had very large autocorrelations the p-value is very small and therefore we reject the hypothesis of independence.
+
 \hypertarget{random-variate-generation}{%
 \section{Random Variate Generation}\label{random-variate-generation}}
+
+Up to this point we have investigated how to generate numbers between 0 and 1 and how to assess the quality of those randomly generated numbers.
+
+For simulation models we want to be more generally able to simulate observations that appear to be realizations of random variables with known distributions. We now study how this can be done. But before this, let's see how R implements random variate generation.
+
+\hypertarget{random-generation-in-r}{%
+\subsection{Random Generation in R}\label{random-generation-in-r}}
+
+In the next few sections we will learn results that allow for the simulation of random observations from generic distributions. No matter how the methods work, they have a very simple and straightforward implementation in R.
+
+We have already learned that we can simulate observations from the uniform between zero and one using the code \texttt{runif(N)} where \texttt{N} is the number of observations to simulate. We can notice that it is similar to the commands \texttt{dunif} and \texttt{punif} we have already seen for the pdf and cdf of the uniform.
+
+Not surprisingly we can generate observations from any random variable using the syntax \texttt{r} followed by the naming of the variable chosen. So for instance:
+
+\begin{itemize}
+\item
+  \texttt{runif} generates random observations from the Uniform;
+\item
+  \texttt{rnorm} generates random observations from the Normal;
+\item
+  \texttt{rexp} generates random observations from the Exponential;
+\item
+  \texttt{rbinom} generates random observations from the Binomial;
+\item
+  \texttt{rpois} generates random observations from the Poisson;
+\end{itemize}
+
+Each of these functions takes as first input the number of observations that we want to simulate. They then have additional inputs that can be given, which depend on the random variable chosen and are the same that we saw in the past.
+
+So for instance
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{rnorm}\NormalTok{(}\DecValTok{10}\NormalTok{, }\AttributeTok{mean =} \DecValTok{1}\NormalTok{, }\AttributeTok{sd =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+generates ten observations from a Normal distribution with mean 1 and standard deviation 2.
+
+\hypertarget{the-inverse-transform-method}{%
+\subsection{The Inverse Transform Method}\label{the-inverse-transform-method}}
+
+The simplest method to simulate observations from generic random variables is the so-called \emph{inverse transform method}.
+
+Suppose we are interested in a random variable \(X\) whose cdf is \(F\). We must assume that \(F\) is:
+
+\begin{itemize}
+\item
+  known and written in closed-form;
+\item
+  continuous;
+\item
+  strictly increasing.
+\end{itemize}
+
+Then one can prove that
+\[
+X = F^{-1}(U),
+\]
+where \(F^{-1}\) is the inverse of \(F\) and \(U\) is a continuous uniform distribution between zero and one.
+
+The above results gives us the following algorithm to simulate observations from a random variable \(X\) with distribution \(F\):
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  compute the inverse \(F^{-1}\) of \(F\);
+\item
+  generate independent random observations \(u_1,u_2,\dots,u_N\) from a Uniform between zero and one;
+\item
+  compute \(x_1=F^{-1}(u_1), x_2=F^{-1}(u_2),\dots,x_N=F^{-1}(u_n)\).
+\end{enumerate}
+
+Then \(x_1,x_2,\dots,x_N\) are independent random observations of the random variable \(X\).
+
+So the above algorithm can be applied to generate observations from continuous random variables with a cdf in closed-form. Therefore, for instance the above algorithm cannot be straightforwardly used for Normals. However it can be used to simulate Exponential and Uniform distributions. Furthermore, it cannot be directly used to simulate discrete random variables. A simple adaptation of this method, which we will not see here, can however be used for discrete random variables.
+
+\hypertarget{simulating-exponentials}{%
+\subsubsection{Simulating Exponentials}\label{simulating-exponentials}}
+
+Recall that if \(X\) is Exponential with parameter \(\lambda\) then its cdf is
+\[
+F(x)= 1- e^{-\lambda x}, \hspace{1cm} \mbox{for } x\geq 0
+\]
+Suppose we want to simulate observations \(x_1,\dots,x_N\) from such a distribution.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  First we need to compute the inverse of \(F\). This means solving the equation:
+  \[
+  1-e^{-\lambda x} = u
+  \]
+  for \(x\). This can be done following the steps:
+  \begin{eqnarray*}
+  1-e^{-\lambda x} &=& u\\
+  e^{-\lambda x} &=& 1 - u\\
+  -\lambda x &=& \log(1-u)\\
+  x &=& -\frac{1}{\lambda}\log(1-u)
+  \end{eqnarray*}
+  So \(F^{-1}(u)=-\log(1-u)/\lambda\).
+\item
+  Second we need to simulate random uniform observations using \texttt{runif}.
+\item
+  Last, we apply the inverse function to the randomly simulated observations.
+\end{enumerate}
+
+Let's give the R code.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\CommentTok{\# Define inverse function}
+\NormalTok{invF }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(u,lambda) }\SpecialCharTok{{-}}\FunctionTok{log}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{u)}\SpecialCharTok{/}\NormalTok{lambda}
+\CommentTok{\# Simulate 5 uniform observations}
+\NormalTok{u }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{5}\NormalTok{)}
+\CommentTok{\# Compute the inverse }
+\FunctionTok{invF}\NormalTok{(u, }\AttributeTok{lambda =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.3000720 0.7657289 0.6183896 0.2404265 0.5057456
+\end{verbatim}
+
+First we defined the inverse function of an Exponential with parameter \texttt{lambda} in \texttt{invF}. Then we simulated five observations from a uniform. Last we applied the function \texttt{invF} for a parameter \texttt{lambda} equal to two. The output are therefore five observations from an Exponential random variable with parameter 2.
+
+\hypertarget{simulating-generic-uniforms}{%
+\subsubsection{Simulating Generic Uniforms}\label{simulating-generic-uniforms}}
+
+We know how to simulate uniformly between 0 and 1, but we do not know how to simulate uniformly between two generic values \(a\) and \(b\).
+
+Recall that the cdf of the uniform distribution between \(a\) and \(b\) is
+\[
+F(x)=\frac{x-a}{b-a}, \hspace{2cm} \mbox{for } a\leq x \leq b
+\]
+The inverse transform method requires the inverse of \(F\), which using simple algebra can be computed as
+\[
+F^{-1}(u)=a + (b-a)u
+\]
+So given a sequence \(u_1,\dots,u_N\) of random observations from a Uniform between 0 and 1, we can simulate numbers at uniform between \(a\) and \(b\) by computing
+\[
+x_1 = a + (b-a)u_1,\dots, x_N=a+(b-a)u_N
+\]
+In R:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{a }\OtherTok{\textless{}{-}} \DecValTok{2}
+\NormalTok{b }\OtherTok{\textless{}{-}} \DecValTok{6}
+\NormalTok{a }\SpecialCharTok{+}\NormalTok{ (b}\SpecialCharTok{{-}}\NormalTok{a)}\SpecialCharTok{*}\FunctionTok{runif}\NormalTok{(}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.805069 5.135119 4.838729 3.526977 4.545295
+\end{verbatim}
+
+The code simulates five observations from a Uniform between two and six. This can be equally achieved by simply using:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{runif}\NormalTok{(}\DecValTok{5}\NormalTok{, }\AttributeTok{min =} \DecValTok{2}\NormalTok{, }\AttributeTok{max =} \DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.805069 5.135119 4.838729 3.526977 4.545295
+\end{verbatim}
+
+Notice that since we fixed the seed, the two methods return exactly the same sequence of numbers.
+
+\hypertarget{simulating-bernoulli-and-binomial}{%
+\subsection{Simulating Bernoulli and Binomial}\label{simulating-bernoulli-and-binomial}}
+
+Bernoulli random variables represent binary experiments with a probability of success equal to \(\theta\). A simple simulation algorithm to simulate one Bernoulli observation is:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  generate \(u\) uniformly between zero and one;
+\item
+  if \(u< \theta\) set \(x=0\), otherwise \(x=1\).
+\end{enumerate}
+
+We will not prove that this actually works, but it intuitively does. Let's code it in R.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{theta }\OtherTok{\textless{}{-}} \FloatTok{0.5}
+\NormalTok{u }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{5}\NormalTok{)}
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(u }\SpecialCharTok{\textless{}}\NormalTok{ theta, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{x}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0 1 1 0 1
+\end{verbatim}
+
+So here we simulated five observations from a Bernoulli with parameter 0.5: the toss of a fair coin. Three times the coin showed head, and twice tails.
+
+From this comment, it is easy to see how to simulate one observation from a Binomial: by simply summing the randomly generated observations from Bernoullis. So if we were to sum the five numbers above, we would get one random observations from a Binomial with parameter \(n=5\) and \(\theta=0.5\).
+
+\hypertarget{simulating-other-distributions}{%
+\subsection{Simulating Other Distributions}\label{simulating-other-distributions}}
+
+There are many other algorithms that allow to simulate specific as well as generic random variables. Since these are a bit more technical we will not consider them here, but it is important for you to know that we now can simulate basically any random variable you are interested in!
+
+\hypertarget{testing-generic-simulation-sequences}{%
+\section{Testing Generic Simulation Sequences}\label{testing-generic-simulation-sequences}}
+
+In previous sections we spent a lot of effort in assesing if a sequence of numbers could have been a random sequence of independent numbers from a Uniform distribution between zero and one.
+
+Now we will look at the same question, but considering generic distributions we might be interested in. Recall that we had to check two aspects:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  if the random sequence had the same distribution as the theoretical one (in previous sections Uniform between zero and one);
+\item
+  if the sequence was of independent numbers
+\end{enumerate}
+
+We will see that the tools to perform these steps are basically the same.
+
+\hypertarget{testing-distribution-fit}{%
+\subsection{Testing Distribution Fit}\label{testing-distribution-fit}}
+
+There are various ways to check if the random sequence of observations has the same distribution as the theoretical one.
+
+\hypertarget{histogram}{%
+\subsubsection{Histogram}\label{histogram}}
+
+First, we could construct an histogram of the data sequence and compare it to the theoretical distribution. Suppose we have a sequence of numbers \texttt{x1} that we want to assess if it simulated from a Standard Normal distribution.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(x1, }\FunctionTok{aes}\NormalTok{(x1)) }\SpecialCharTok{+}
+   \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ ..density.., }\AttributeTok{colour =} \StringTok{\textquotesingle{}Empirical\textquotesingle{}}\NormalTok{), }\AttributeTok{stat =} \StringTok{\textquotesingle{}density\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
+   \FunctionTok{stat\_function}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ dnorm, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =} \StringTok{\textquotesingle{}Normal\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}      
+   \FunctionTok{geom\_histogram}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ ..density..), }\AttributeTok{alpha =} \FloatTok{0.4}\NormalTok{) }\SpecialCharTok{+}      
+   \FunctionTok{scale\_colour\_manual}\NormalTok{(}\AttributeTok{name =} \StringTok{\textquotesingle{}Density\textquotesingle{}}\NormalTok{, }\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
+   \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/normhist-1} 
+
+}
+
+\caption{Histogram of the sequence x1 together with theoretical pdf of the standard Normal}\label{fig:normhist}
+\end{figure}
+
+Figure \ref{fig:normhist} reports the histogram of the sequence \texttt{x1} together with a smooth estimate of the histogram, often called density plot, in the red line. The blue line denotes the theoretical pdf of the standard Normal distribution. We can see that the sequence seems to follow quite closely a Normal distribution and therefore we could be convinced that the numbers are indeed Normal.
+
+Let's consider a different sequence \texttt{x2}. Figure \ref{fig:exphist} clearly shows that there is a poor fit between the sequence and the standard Normal distribution. So we would in general not believe that these observations came from a Standard Normal.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(x2, }\FunctionTok{aes}\NormalTok{(x2)) }\SpecialCharTok{+}
+   \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ ..density.., }\AttributeTok{colour =} \StringTok{\textquotesingle{}Empirical\textquotesingle{}}\NormalTok{), }\AttributeTok{stat =} \StringTok{\textquotesingle{}density\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
+   \FunctionTok{stat\_function}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ dnorm, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =} \StringTok{\textquotesingle{}Normal\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}      
+   \FunctionTok{geom\_histogram}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ ..density..), }\AttributeTok{alpha =} \FloatTok{0.4}\NormalTok{) }\SpecialCharTok{+}      
+   \FunctionTok{scale\_colour\_manual}\NormalTok{(}\AttributeTok{name =} \StringTok{\textquotesingle{}Density\textquotesingle{}}\NormalTok{, }\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
+   \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/exphist-1} 
+
+}
+
+\caption{Histogram of the sequence x2 together with theoretical pdf of the standard Normal}\label{fig:exphist}
+\end{figure}
+
+\hypertarget{empirical-cumulative-distribution-function}{%
+\subsubsection{Empirical Cumulative Distribution Function}\label{empirical-cumulative-distribution-function}}
+
+We have already seen for uniform numbers that we can use the empirical cdf to assess if a sequence of numbers is uniformly distributed. We can use the exact same method for any other distribution.
+
+Figure \ref{fig:normecdf} reports the ecdf of the sequence of numbers \texttt{x1} (in red) together with the theoretical cdf of the standard Normal (in blue). We can see that the two functions match closely and therefore we could assume that the sequence is distributed as a standard Normal.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(x1, }\FunctionTok{aes}\NormalTok{(x1)) }\SpecialCharTok{+}
+   \FunctionTok{stat\_ecdf}\NormalTok{(}\AttributeTok{geom =} \StringTok{"step"}\NormalTok{,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =} \StringTok{\textquotesingle{}Empirical\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
+   \FunctionTok{stat\_function}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ pnorm,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =} \StringTok{\textquotesingle{}Theoretical\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
+   \FunctionTok{theme\_bw}\NormalTok{() }\SpecialCharTok{+}      
+   \FunctionTok{scale\_colour\_manual}\NormalTok{(}\AttributeTok{name =} \StringTok{\textquotesingle{}Density\textquotesingle{}}\NormalTok{, }\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/normecdf-1} 
+
+}
+
+\caption{Empirical cdf the sequence x1 together with theoretical cdf of the standard Normal}\label{fig:normecdf}
+\end{figure}
+
+Figure \ref{fig:expecdf} reports the same plot but for the sequence \texttt{x2}. The two lines strongly differ and therefore it cannot be assume that the sequence is distributed as a standard Normal.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(x2, }\FunctionTok{aes}\NormalTok{(x2)) }\SpecialCharTok{+}
+   \FunctionTok{stat\_ecdf}\NormalTok{(}\AttributeTok{geom =} \StringTok{"step"}\NormalTok{,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =} \StringTok{\textquotesingle{}Empirical\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
+   \FunctionTok{stat\_function}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ pnorm,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =} \StringTok{\textquotesingle{}Theoretical\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
+   \FunctionTok{theme\_bw}\NormalTok{() }\SpecialCharTok{+}      
+   \FunctionTok{scale\_colour\_manual}\NormalTok{(}\AttributeTok{name =} \StringTok{\textquotesingle{}Density\textquotesingle{}}\NormalTok{, }\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/expecdf-1} 
+
+}
+
+\caption{Empirical cdf the sequence x2 together with theoretical cdf of the standard Normal}\label{fig:expecdf}
+\end{figure}
+
+\hypertarget{qq-plot}{%
+\subsubsection{QQ-Plot}\label{qq-plot}}
+
+A third visualization of the distribution of a sequence of numbers is the so called \emph{QQ-plot}. You may have already seen this when checking if the residuals of a linear regression follow a Normal distribution. But more generally, qq-plots can be used to check if a sequence of numbers is distributed according to any distribution.
+
+We will not the details about how these are constructed but just their interpretation and implementation. Let's consider Figure \ref{fig:qqnorm}. The plot is composed of a series of points, where each point is associated to a number in our random sequence, and a line, which describes the theoretical distribution we are targeting. The closest the points and the line are, the better the fit to that distribution.
+
+In particular, in Figure \ref{fig:qqnorm} we are checking if the sequence \texttt{x1} is distributed according to a standard Normal (represented by the straight line). Since the points are placed almost in a straight line over the theoretical line of the standard Normal, we can assume the sequence to be Normal.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(x1, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{sample =}\NormalTok{ x1)) }\SpecialCharTok{+}
+   \FunctionTok{stat\_qq}\NormalTok{(}\AttributeTok{distribution =}\NormalTok{ qnorm) }\SpecialCharTok{+}
+   \FunctionTok{stat\_qq\_line}\NormalTok{(}\AttributeTok{distribution =}\NormalTok{ qnorm) }\SpecialCharTok{+}
+   \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/qqnorm-1} 
+
+}
+
+\caption{QQ-plot for the sequence x1 checking against the standard Normal}\label{fig:qqnorm}
+\end{figure}
+
+Figure \ref{fig:qqexp} reports the qq-plot for the sequence \texttt{x2} to check if the data can be following a standard Normal. We can see that the points do not differ too much from the straight line and in this case we could assume the data to be Normal (notice that the histograms and the cdf strongly suggested that this sequence was not Normal).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(x2, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{sample =}\NormalTok{ x2)) }\SpecialCharTok{+}
+   \FunctionTok{stat\_qq}\NormalTok{(}\AttributeTok{distribution =}\NormalTok{ qnorm) }\SpecialCharTok{+}
+   \FunctionTok{stat\_qq\_line}\NormalTok{(}\AttributeTok{distribution =}\NormalTok{ qnorm) }\SpecialCharTok{+}
+   \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/qqexp-1} 
+
+}
+
+\caption{QQ-plot for the sequence x2 checking against the standard Normal}\label{fig:qqexp}
+\end{figure}
+
+Notice that the form of the qq-plot does not only depend on the sequence of numbers we are considering, but also on the distribution we are testing it against. Figure \ref{fig:qqnorm} reports the qq-plot for the sequence \texttt{x1} when checked against an Exponential random variable with parameter \(\lambda =3\). Given that the sequence also includes negative numbers, it does not make sense to check if it is distributed as an Exponential (since it can only model non-negative data), but this is just an illustration.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(x1, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{sample =}\NormalTok{ x1)) }\SpecialCharTok{+}
+   \FunctionTok{stat\_qq}\NormalTok{(}\AttributeTok{distribution =}\NormalTok{ qexp, }\AttributeTok{dparams =}\NormalTok{ (}\AttributeTok{rate =} \DecValTok{3}\NormalTok{)) }\SpecialCharTok{+}
+   \FunctionTok{stat\_qq\_line}\NormalTok{(}\AttributeTok{distribution =}\NormalTok{ qexp, }\AttributeTok{dparams =}\NormalTok{ (}\AttributeTok{rate =} \DecValTok{3}\NormalTok{)) }\SpecialCharTok{+}
+   \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/qqnorm1-1} 
+
+}
+
+\caption{QQ-plot for the sequence x1 checking against an Exponential}\label{fig:qqnorm1}
+\end{figure}
+
+\hypertarget{formal-testing}{%
+\subsubsection{Formal Testing}\label{formal-testing}}
+
+The above plots are highly informative since they provide insights into the shape of the data distribution, but these are not formal. Again, we can carry out tests of hypothesis to check if data is distributed as a specific random variable, just like we did for the Uniform.
+
+Again, there are many tests one could use, but here we focus only on the Kolmogorov-Smirnov Test which checks how close the empirical and the theoretical cdfs are. It is implemented in the \texttt{ks.test} R function.
+
+Let's check if the sequences \texttt{x1} and \texttt{x2} are distributed as a standard Normal.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ks.test}\NormalTok{(x1,pnorm)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  x1
+## D = 0.041896, p-value = 0.3439
+## alternative hypothesis: two-sided
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ks.test}\NormalTok{(x2,pnorm)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  x2
+## D = 0.2997, p-value < 2.2e-16
+## alternative hypothesis: two-sided
+\end{verbatim}
+
+The conclusion is that \texttt{x1} is distributed as a standard Normal since the p-value of the test is large and for instance bigger than 0.10. On the other hand, the p-value for the Kolmogorov-Smirnov test over the sequence \texttt{x2} has a very small p-value thus leading us to reject the null hypothesis that the sequence is Normally distributed.
+
+Notice that we can add extra inputs to the function. For instance we can check if \texttt{x1} is distributed as a Normal with \texttt{mean\ =\ 2} and \texttt{sd\ =\ 2} using:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ks.test}\NormalTok{(x1, pnorm, }\AttributeTok{mean =} \DecValTok{2}\NormalTok{, }\AttributeTok{sd =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  x1
+## D = 0.54604, p-value < 2.2e-16
+## alternative hypothesis: two-sided
+\end{verbatim}
+
+The p-value is small and therefore we would reject the null hypothesis that the sequence is distributed as a Normal with mean two and standard deviation two.
+
+\hypertarget{testing-independence-1}{%
+\subsection{Testing Independence}\label{testing-independence-1}}
+
+The other step in assessing if a sequence of numbers is pseudo-random is checking if independence holds. We have already learned that one possible way to do this is by computing the auto-correlation function with the R function \texttt{acf}. Let's compute the auto-correlations of various lags for the sequences \texttt{x1} and \texttt{x2}, reported in Figure \ref{fig:acf12}. We can see that for \texttt{x2} all bars are within the confidence bands (recall that the first bar for lag \(k=0\) should not be considered). For \texttt{x1} the bar corresponding to lag 1 is slightly outside the confidence bands, indicating that there may be some dependence.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{acf}\NormalTok{(x1)}
+\FunctionTok{acf}\NormalTok{(x2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/acf12-1} \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/acf12-2} 
+
+}
+
+\caption{Autocorrelations for the sequences x1 and x2.}\label{fig:acf12}
+\end{figure}
+
+Let's run the Box test to assess if the assumption of independence is tenable for both sequences.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{Box.test}\NormalTok{(x1, }\AttributeTok{lag =} \DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Box-Pierce test
+## 
+## data:  x1
+## X-squared = 8.4212, df = 5, p-value = 0.1345
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{Box.test}\NormalTok{(x2, }\AttributeTok{lag =} \DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Box-Pierce test
+## 
+## data:  x2
+## X-squared = 4.2294, df = 5, p-value = 0.5169
+\end{verbatim}
+
+In both cases the p-values are larger than 0.10, thus we would not reject the null hypothesis of independence for both sequences. Recall that \texttt{x1} is distributed as a standard Normal, whilst \texttt{x2} is not.
+
+For the sequence \texttt{x1} we observed that one bar was slightly outside the confidence bands: this sometimes happens even when data is actually (pseudo-) random - I created \texttt{x1} using \texttt{rnorm}. The autocorrelations below are an instance of a case where independence is not tenable since we see that multiple bars are outside the confidence bands.
+
+\begin{center}\includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/unnamed-chunk-93-1} \end{center}
+
+\hypertarget{monte-carlo-simulation}{%
+\chapter{Monte Carlo Simulation}\label{monte-carlo-simulation}}
+
+The previous chapters laid the foundations of probability and statistics that now allow us to carry out meaningful simulation experiments. In this chapter we start looking at non-dynamic simulations which are often referred to as \emph{Monte Carlo simulations}.
+
+\hypertarget{what-does-monte-carlo-simulation-mean}{%
+\section{What does Monte Carlo simulation mean?}\label{what-does-monte-carlo-simulation-mean}}
+
+The **definition of the Monte Carlo concept can be a bit confusing. For this reason, we will take \emph{Sawilowsky's} example and distinguish between: Simulation, Monte Carlo method and Monte Carlo simulation.
+
+\begin{itemize}
+\item
+  A \textbf{Simulation} is a fictitious representation of reality. For example: Drawing one pseudo-random uniform variable from the interval {[}0,1{]} can be used to simulate the tossing of a coin. If the value is less than or equal to 0.50 designate the outcome as heads, but if the value is greater than 0.50 designate the outcome as tails. This is a simulation, but not a Monte Carlo simulation.
+\item
+  A \textbf{Monte Carlo method} is a technique that can be used to solve a mathematical or statistical problem. For example: Pouring out a box of coins on a table, and then computing the ratio of coins that land heads versus tails is a Monte Carlo method of determining the behavior of repeated coin tosses, but it is not a simulation.
+\item
+  A \textbf{Monte Carlo simulation} uses repeated sampling to obtain the statistical properties of some phenomenon (or behavior). For example: drawing a large number of pseudo-random uniform variables from the interval {[}0,1{]} at one time, or once at many different times, and assigning values less than or equal to 0.50 as heads and greater than 0.50 as tails, is a Monte Carlo simulation of the behavior of repeatedly tossing a coin.
+\end{itemize}
+
+The main idea behind this method is that a phenomenon is simulated multiple times on a computer using random-number generation based and the results are aggregated to provide statistical summaries associated to the phenomenon.
+
+Sawilowsky lists the characteristics of a high-quality Monte Carlo simulation:
+
+\begin{itemize}
+\item
+  the (pseudo-random) number generator has certain characteristics (e.g.~a long ``period'' before the sequence repeats)
+\item
+  the (pseudo-random) number generator produces values that pass tests for randomness
+\item
+  there are enough samples to ensure accurate results
+\item
+  the algorithm used is valid for what is being modeled
+\item
+  it simulates the phenomenon in question.
+\end{itemize}
+
+\hypertarget{a-bit-of-history}{%
+\section{A bit of history}\label{a-bit-of-history}}
+
+There were several approaches to the Monte Carlo method in the early 20th century, but it was in the mid-1940s during the Manhattan Project at ``Los Alamos'' that this method was first intentionally developed by Stanislaw Ulam and John von Neumann for early work relating to the development of nuclear weapons.
+
+Below you can read a quote from Stanislaw Ulam in which he explains how he came up with this simple but powerful method:
+
+\begin{quote}
+The first thoughts and attempts I made to practice {[}the Monte Carlo Method{]} were suggested by a question which occurred to me in 1946 as I was convalescing from an illness and playing solitaires. The question was what are the chances that a Canfield solitaire laid out with 52 cards will come out successfully? After spending a lot of time trying to estimate them by pure combinatorial calculations, I wondered whether a more practical method than ``abstract thinking'' might not be to lay it out say one hundred times and simply observe and count the number of successful plays. This was already possible to envisage with the beginning of the new era of fast computers, and I immediately thought of problems of neutron diffusion and other questions of mathematical physics, and more generally how to change processes described by certain differential equations into an equivalent form interpretable as a succession of random operations. Later {[}in 1946{]}, I described the idea to John von Neumann, and we began to plan actual calculations.
+\end{quote}
+
+Being secret, the work of von Neumann and Ulam required a code name. A colleague of von Neumann and Ulam, Nicholas Metropolis, suggested using the name Monte Carlo, which refers to the Monte Carlo Casino in Monaco where Ulam's uncle would borrow money from relatives to gamble.
+
+\hypertarget{steps-of-monte-carlo-simulation}{%
+\section{Steps of Monte Carlo simulation}\label{steps-of-monte-carlo-simulation}}
+
+Monte Carlo methods vary, but tend to follow a particular pattern:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Define a domain of possible inputs
+\item
+  Generate inputs randomly from a probability distribution over the domain
+\item
+  Perform a deterministic computation on the inputs
+\item
+  Aggregate the results
+\end{enumerate}
+
+To better understand how Monte Carlo simulation works we will develop a classic experiment: The \(\pi\) number estimation.
+
+\(\pi\) is the mathematical constant, which is equal to 3.14159265\ldots, defined as the ratio of a circle's circumference to its diameter. It has been calculated in hundreds of different ways over the years. Today, with computational advances, a very useful way is through Monte Carlo Simulation.
+
+Consider a circle with radius \(r\), which is fixed and known
+
+\includegraphics{./images/Circle-radio.png}
 
   \bibliography{book.bib,packages.bib}
 

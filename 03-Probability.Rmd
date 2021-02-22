@@ -574,6 +574,11 @@ ggplot(data,aes(x,y)) + geom_line(lwd=1.3,col="red") + theme_bw() + ylab("F(x)")
 
 We can notice that the cdf has similar properties as in the discrete case: it is non-decreasing, on the left-hand side is zero and on the right-hand side tends to zero.
 
+In the continuous case, one can prove that cdfs and pdfs are related as
+\[
+f(x)=\frac{d}{dx}F(x).
+\]
+
 ### Summaries
 
 Just as for discrete random variables, we may want to summarize some features of a continuous random variable into a unique number. The same set of summaries exists for continuous random variables, which are almost exactly defined as in the discrete case (integrals are used instead of summations).

@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>4.3 Generating Pseudo-Random Numbers | Simulation and Modelling to Understand Change</title>
+  <title>5.2 A bit of history | Simulation and Modelling to Understand Change</title>
   <meta name="description" content="These are lecture notes for the module Simulation and Modelling to Understand Change given in the School of Human Sciences and Technology at IE University, Madrid, Spain. The module is given in the 2nd semester of the 1st year of the bachelor in Data and Business Analytics. Knowledge of basic elements of R programming as well as probability and statistics is assumed." />
   <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="4.3 Generating Pseudo-Random Numbers | Simulation and Modelling to Understand Change" />
+  <meta property="og:title" content="5.2 A bit of history | Simulation and Modelling to Understand Change" />
   <meta property="og:type" content="book" />
   
   <meta property="og:image" content="/images/Rplot.png" />
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="manueleleonelli/SimBook" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="4.3 Generating Pseudo-Random Numbers | Simulation and Modelling to Understand Change" />
+  <meta name="twitter:title" content="5.2 A bit of history | Simulation and Modelling to Understand Change" />
   
   <meta name="twitter:description" content="These are lecture notes for the module Simulation and Modelling to Understand Change given in the School of Human Sciences and Technology at IE University, Madrid, Spain. The module is given in the 2nd semester of the 1st year of the bachelor in Data and Business Analytics. Knowledge of basic elements of R programming as well as probability and statistics is assumed." />
   <meta name="twitter:image" content="/images/Rplot.png" />
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="pseudo-random-numbers.html"/>
-<link rel="next" href="testing-randomness.html"/>
+<link rel="prev" href="what-does-monte-carlo-simulation-mean.html"/>
+<link rel="next" href="steps-of-monte-carlo-simulation.html"/>
 <script src="libs/header-attrs-2.6/header-attrs.js"></script>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -294,66 +294,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="generating-pseudo-random-numbers" class="section level2" number="4.3">
-<h2><span class="header-section-number">4.3</span> Generating Pseudo-Random Numbers</h2>
-<p>The literature on generating pseudo-random numbers is now extremely vast and it is not our purpose to review it, neither for you to learn how such algorithms work.</p>
-<div id="generating-pseudo-random-numbers-in-r" class="section level3" number="4.3.1">
-<h3><span class="header-section-number">4.3.1</span> Generating Pseudo-Random Numbers in R</h3>
-<p>R has all the capabilities to generate such numbers. This can be done with the function <code>runif</code>, which takes one input: the number of observations to generate. So for instance:</p>
-<div class="sourceCode" id="cb158"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb158-1"><a href="generating-pseudo-random-numbers.html#cb158-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
-<span id="cb158-2"><a href="generating-pseudo-random-numbers.html#cb158-2" aria-hidden="true" tabindex="-1"></a><span class="fu">runif</span>(<span class="dv">10</span>)</span></code></pre></div>
-<pre><code>##  [1] 0.4512674 0.7837798 0.7096822 0.3817443 0.6363238 0.7013460 0.6404389
-##  [8] 0.2666797 0.8154215 0.9829869</code></pre>
-<p>generates ten random numbers between zero and one. Notice that if we repeat the same code we get the same result since we fixed the so-called <em>seed</em> of the simulation.</p>
-<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb160-1"><a href="generating-pseudo-random-numbers.html#cb160-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
-<span id="cb160-2"><a href="generating-pseudo-random-numbers.html#cb160-2" aria-hidden="true" tabindex="-1"></a><span class="fu">runif</span>(<span class="dv">10</span>)</span></code></pre></div>
-<pre><code>##  [1] 0.4512674 0.7837798 0.7096822 0.3817443 0.6363238 0.7013460 0.6404389
-##  [8] 0.2666797 0.8154215 0.9829869</code></pre>
-<p>Conversely, if we were to simply run the code <code>runif(10)</code> we would get a different result.</p>
-<div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb162-1"><a href="generating-pseudo-random-numbers.html#cb162-1" aria-hidden="true" tabindex="-1"></a><span class="fu">runif</span>(<span class="dv">10</span>)</span></code></pre></div>
-<pre><code>##  [1] 0.02726706 0.83749040 0.60324073 0.56745337 0.82005281 0.25157128
-##  [7] 0.50549403 0.86753810 0.95818157 0.54569770</code></pre>
-</div>
-<div id="linear-congruential-method" class="section level3" number="4.3.2">
-<h3><span class="header-section-number">4.3.2</span> Linear Congruential Method</h3>
-<p>Although we will use the functions already implemented in R, it is useful to at least introduce one of the most classical algorithms to simulate random numbers, called the <em>linear congruential method</em>.
-This produces a sequence of integers <span class="math inline">\(x_1,x_2,x_3\)</span> between 0 and <span class="math inline">\(m-1\)</span> using the recursion:
-<span class="math display">\[
-x_{i}=(ax_{i-1}+c)\mod m, \hspace{1cm} \mbox{for } i = 1,2,\dots
-\]</span>
-Some comments:</p>
-<ul>
-<li><p><span class="math inline">\(\mod m\)</span> is the remainder of the integer division by <span class="math inline">\(m\)</span>. For instance <span class="math inline">\(5 \mod 2\)</span> is one and <span class="math inline">\(4\mod 2\)</span> is zero.</p></li>
-<li><p>therefore, the algorithm generates integers between 0 and <span class="math inline">\(m-1\)</span>.</p></li>
-<li><p>there are three parameters that need to be chosen <span class="math inline">\(a, c\)</span> and <span class="math inline">\(m\)</span>.</p></li>
-<li><p>the value <span class="math inline">\(x_0\)</span> is the <em>seed</em> of the algorithm.</p></li>
-</ul>
-<p>Random numbers between zero and one can be derived by setting
-<span class="math display">\[
-u_i= x_i/m.
-\]</span></p>
-<p>It can be shown that the method works well for specific choices of <span class="math inline">\(a\)</span>, <span class="math inline">\(c\)</span> and <span class="math inline">\(m\)</span>, which we will not discuss here.</p>
-<p>Let’s look at an implementation.</p>
-<div class="sourceCode" id="cb164"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb164-1"><a href="generating-pseudo-random-numbers.html#cb164-1" aria-hidden="true" tabindex="-1"></a>lcm <span class="ot">&lt;-</span> <span class="cf">function</span>(N, x0, a, c, m){</span>
-<span id="cb164-2"><a href="generating-pseudo-random-numbers.html#cb164-2" aria-hidden="true" tabindex="-1"></a>   x <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,N)</span>
-<span id="cb164-3"><a href="generating-pseudo-random-numbers.html#cb164-3" aria-hidden="true" tabindex="-1"></a>   x[<span class="dv">1</span>] <span class="ot">&lt;-</span> x0</span>
-<span id="cb164-4"><a href="generating-pseudo-random-numbers.html#cb164-4" aria-hidden="true" tabindex="-1"></a>   <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>N) x[i] <span class="ot">&lt;-</span> (a<span class="sc">*</span>x[i<span class="dv">-1</span>]<span class="sc">+</span>c)<span class="sc">%%</span>m</span>
-<span id="cb164-5"><a href="generating-pseudo-random-numbers.html#cb164-5" aria-hidden="true" tabindex="-1"></a>   u <span class="ot">&lt;-</span> x<span class="sc">/</span>m</span>
-<span id="cb164-6"><a href="generating-pseudo-random-numbers.html#cb164-6" aria-hidden="true" tabindex="-1"></a>   <span class="fu">return</span>(u)</span>
-<span id="cb164-7"><a href="generating-pseudo-random-numbers.html#cb164-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb165"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb165-1"><a href="generating-pseudo-random-numbers.html#cb165-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lcm</span>(<span class="at">N =</span> <span class="dv">8</span>, <span class="at">x0 =</span> <span class="dv">4</span>, <span class="at">a =</span> <span class="dv">13</span>, <span class="at">c =</span> <span class="dv">0</span>, <span class="at">m =</span> <span class="dv">64</span>)</span></code></pre></div>
-<pre><code>## [1] 0.0625 0.8125 0.5625 0.3125 0.0625 0.8125 0.5625 0.3125</code></pre>
-<p>We can see that this specific choice of parameters is quite bad: it has cycle 4! After 4 numbers the sequence repeats itself and we surely would not like to use this in practice.</p>
-<p>In general you should not worry of these issues, R does things properly for you!</p>
-</div>
+<div id="a-bit-of-history" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> A bit of history</h2>
+<p>There were several approaches to the Monte Carlo method in the early 20th century, but it was in the mid-1940s during the Manhattan Project at “Los Alamos” that this method was first intentionally developed by Stanislaw Ulam and John von Neumann for early work relating to the development of nuclear weapons.</p>
+<p>Below you can read a quote from Stanislaw Ulam in which he explains how he came up with this simple but powerful method:</p>
+<blockquote>
+<p>The first thoughts and attempts I made to practice [the Monte Carlo Method] were suggested by a question which occurred to me in 1946 as I was convalescing from an illness and playing solitaires. The question was what are the chances that a Canfield solitaire laid out with 52 cards will come out successfully? After spending a lot of time trying to estimate them by pure combinatorial calculations, I wondered whether a more practical method than “abstract thinking” might not be to lay it out say one hundred times and simply observe and count the number of successful plays. This was already possible to envisage with the beginning of the new era of fast computers, and I immediately thought of problems of neutron diffusion and other questions of mathematical physics, and more generally how to change processes described by certain differential equations into an equivalent form interpretable as a succession of random operations. Later [in 1946], I described the idea to John von Neumann, and we began to plan actual calculations.</p>
+</blockquote>
+<p>Being secret, the work of von Neumann and Ulam required a code name. A colleague of von Neumann and Ulam, Nicholas Metropolis, suggested using the name Monte Carlo, which refers to the Monte Carlo Casino in Monaco where Ulam’s uncle would borrow money from relatives to gamble.</p>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="pseudo-random-numbers.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="testing-randomness.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="what-does-monte-carlo-simulation-mean.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="steps-of-monte-carlo-simulation.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
