@@ -299,19 +299,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>For the rest of this chapter we will develop various Monte Carlo simulations. We start simulating a little game of chance.</p>
 <p>Peter and Paul play a simple game involving repeated tosses of a fair coin. In a given toss, if heads is observed, Peter wins 1€ from Paul; otherwise if tails is tossed, Peter gives 1€ to Paul. If Peter starts with zero euros, we are interested in his fortune as the game is played for 50 tosses.</p>
 <p>We can simulate this game using the R <code>sample()</code> function. Peter’s winning on a particular toss will be 1€ or -1€ with equal probability. His winnings on 50 repeated tosses can be considered to be a sample of size 50 selected with replacement from the set {1€, -1€}.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="a-game-of-chance.html#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
-<span id="cb28-2"><a href="a-game-of-chance.html#cb28-2" aria-hidden="true" tabindex="-1"></a>win <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>),<span class="at">size =</span> <span class="dv">50</span>, <span class="at">replace =</span> T)</span>
-<span id="cb28-3"><a href="a-game-of-chance.html#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(win)</span></code></pre></div>
+<div class="sourceCode" id="cb233"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb233-1"><a href="a-game-of-chance.html#cb233-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb233-2"><a href="a-game-of-chance.html#cb233-2" aria-hidden="true" tabindex="-1"></a>win <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>),<span class="at">size =</span> <span class="dv">50</span>, <span class="at">replace =</span> T)</span>
+<span id="cb233-3"><a href="a-game-of-chance.html#cb233-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(win)</span></code></pre></div>
 <pre><code>## [1] -1  1  1  1 -1  1</code></pre>
 <p>For this particular game Peter lost the first game, then won the second, the third and the fourth and so on.</p>
 <p>Suppose Peter is interested in his cumulative winnings as he plays this game. The function <code>cumsum()</code> computes the cumulative winnings of the individual values and we store the cumulative values in a vector named <code>cumul.win</code>.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="a-game-of-chance.html#cb30-1" aria-hidden="true" tabindex="-1"></a>cumul.win <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(win) </span>
-<span id="cb30-2"><a href="a-game-of-chance.html#cb30-2" aria-hidden="true" tabindex="-1"></a>cumul.win</span></code></pre></div>
+<div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb235-1"><a href="a-game-of-chance.html#cb235-1" aria-hidden="true" tabindex="-1"></a>cumul.win <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(win) </span>
+<span id="cb235-2"><a href="a-game-of-chance.html#cb235-2" aria-hidden="true" tabindex="-1"></a>cumul.win</span></code></pre></div>
 <pre><code>##  [1] -1  0  1  2  1  2  3  4  5  6  5  6  7  6  5  4  3  2  3  2  3  4  3  4  3
 ## [26]  2  3  4  5  6  5  6  5  6  7  6  7  6  7  6  5  4  5  6  5  4  5  6  7  8</code></pre>
 <p>So at the end of this specific game Peter won 8€. Figure <a href="a-game-of-chance.html#fig:cumwin">5.1</a> reports Peter’s fortune as the game evolved. We can notice that Peter was in the lead throughout almost the whole game.</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="a-game-of-chance.html#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cumsum</span>(win), <span class="at">type=</span><span class="st">&quot;l&quot;</span> ,<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">25</span>, <span class="dv">25</span>))</span>
-<span id="cb32-2"><a href="a-game-of-chance.html#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="a-game-of-chance.html#cb237-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cumsum</span>(win), <span class="at">type=</span><span class="st">&quot;l&quot;</span> ,<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">25</span>, <span class="dv">25</span>))</span>
+<span id="cb237-2"><a href="a-game-of-chance.html#cb237-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="dv">0</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:cumwin"></span>
 <img src="SimBook_files/figure-html/cumwin-1.png" alt="Peter's fortune throughout one simulated game." width="50%" />
 <p class="caption">
@@ -319,11 +319,11 @@ Figure 5.1: Peter’s fortune throughout one simulated game.
 </p>
 </div>
 <p>Of course this is the result of a single simulation and the outcome may be totally different than the one we saw. Figure <a href="a-game-of-chance.html#fig:mcumwin">5.2</a> reports four simulated games: we can see that in the first one Peter wins, in the second he almost breaks even, whilst in the third and fourth he clearly loses.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="a-game-of-chance.html#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
-<span id="cb33-2"><a href="a-game-of-chance.html#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb33-3"><a href="a-game-of-chance.html#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>){</span>
-<span id="cb33-4"><a href="a-game-of-chance.html#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(<span class="fu">cumsum</span>(<span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>),<span class="at">size=</span><span class="dv">50</span>,<span class="at">replace=</span>T)),<span class="at">type=</span><span class="st">&quot;l&quot;</span> ,<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">25</span>, <span class="dv">25</span>), <span class="at">ylab=</span><span class="st">&quot;Outcome&quot;</span>)</span>
-<span id="cb33-5"><a href="a-game-of-chance.html#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">h=</span><span class="dv">0</span>)}</span></code></pre></div>
+<div class="sourceCode" id="cb238"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb238-1"><a href="a-game-of-chance.html#cb238-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb238-2"><a href="a-game-of-chance.html#cb238-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb238-3"><a href="a-game-of-chance.html#cb238-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb238-4"><a href="a-game-of-chance.html#cb238-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(<span class="fu">cumsum</span>(<span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>),<span class="at">size=</span><span class="dv">50</span>,<span class="at">replace=</span>T)),<span class="at">type=</span><span class="st">&quot;l&quot;</span> ,<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">25</span>, <span class="dv">25</span>), <span class="at">ylab=</span><span class="st">&quot;Outcome&quot;</span>)</span>
+<span id="cb238-5"><a href="a-game-of-chance.html#cb238-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">h=</span><span class="dv">0</span>)}</span></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:mcumwin"></span>
 <img src="SimBook_files/figure-html/mcumwin-1.png" alt="Outcome of four simulated game of chances." width="80%" />
 <p class="caption">
@@ -336,39 +336,39 @@ Figure 5.2: Outcome of four simulated game of chances.
 </ul>
 <p>Evidently we cannot cannot answer by simply looking at the outputs of the previous simulations. We need to do a formal Monte Carlo study. In this type of experiment, we simulate the random process and compute the statistic of interest. By repeating the random process many times, we obtain a collection of values of the statistic, which can then be used to approximate probabilities or expectations that answer the questions.</p>
 <p>As you may recall from the estimation of <span class="math inline">\(\pi\)</span> experiment, we first need to write a function that simulates the experiment. In particular we need to write a function which outputs Peter’s winning at the end of the game. To make this function more general, we define <code>n</code> to be the number of tosses and let the default value of <code>n</code> be 50.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="a-game-of-chance.html#cb34-1" aria-hidden="true" tabindex="-1"></a>peter.paul <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">n=</span><span class="dv">50</span>){</span>
-<span id="cb34-2"><a href="a-game-of-chance.html#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(<span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">size=</span>n, <span class="at">replace=</span><span class="cn">TRUE</span>))</span>
-<span id="cb34-3"><a href="a-game-of-chance.html#cb34-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb34-4"><a href="a-game-of-chance.html#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
-<span id="cb34-5"><a href="a-game-of-chance.html#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">peter.paul</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb239-1"><a href="a-game-of-chance.html#cb239-1" aria-hidden="true" tabindex="-1"></a>peter.paul <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">n=</span><span class="dv">50</span>){</span>
+<span id="cb239-2"><a href="a-game-of-chance.html#cb239-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(<span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">size=</span>n, <span class="at">replace=</span><span class="cn">TRUE</span>))</span>
+<span id="cb239-3"><a href="a-game-of-chance.html#cb239-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb239-4"><a href="a-game-of-chance.html#cb239-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb239-5"><a href="a-game-of-chance.html#cb239-5" aria-hidden="true" tabindex="-1"></a><span class="fu">peter.paul</span>()</span></code></pre></div>
 <pre><code>## [1] 8</code></pre>
 <p>The output is the same as the previous code, so it seems that our function works correctly.</p>
 <p>Let’s replicate the experiment many times.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="a-game-of-chance.html#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
-<span id="cb36-2"><a href="a-game-of-chance.html#cb36-2" aria-hidden="true" tabindex="-1"></a>experiment <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">1000</span>,<span class="fu">peter.paul</span>())</span>
-<span id="cb36-3"><a href="a-game-of-chance.html#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(experiment)</span></code></pre></div>
+<div class="sourceCode" id="cb241"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb241-1"><a href="a-game-of-chance.html#cb241-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb241-2"><a href="a-game-of-chance.html#cb241-2" aria-hidden="true" tabindex="-1"></a>experiment <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">1000</span>,<span class="fu">peter.paul</span>())</span>
+<span id="cb241-3"><a href="a-game-of-chance.html#cb241-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(experiment)</span></code></pre></div>
 <pre><code>## [1]   8  -2 -12 -12 -14   8</code></pre>
 <p>So the vector <code>experiment</code> stores Peter’s final fortune in 1000 games. Since Peter’s fortune is an integer-value variable, it is convenient to summarize it using the <code>table</code> function.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="a-game-of-chance.html#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(experiment)</span></code></pre></div>
+<div class="sourceCode" id="cb243"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb243-1"><a href="a-game-of-chance.html#cb243-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(experiment)</span></code></pre></div>
 <pre><code>## experiment
 ## -22 -20 -18 -16 -14 -12 -10  -8  -6  -4  -2   0   2   4   6   8  10  12  14  16 
 ##   1   2   7   7  16  30  42  66  58 101 116 102 110 103  70  60  44  26  15  14 
 ##  18  20 
 ##   4   6</code></pre>
 <p>A graphical representation of the table is also useful.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="a-game-of-chance.html#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">table</span>(experiment))</span></code></pre></div>
-<p><img src="SimBook_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+<div class="sourceCode" id="cb245"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb245-1"><a href="a-game-of-chance.html#cb245-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">table</span>(experiment))</span></code></pre></div>
+<p><img src="SimBook_files/figure-html/unnamed-chunk-113-1.png" width="672" />
 So we can see that Peter breaks even 102 out of 1000 times. Furthermore the plot shows us that most commonly Peter will win/lose little money and that big wins/losses are unlikely.</p>
 <p>To conclude our experiment we need to calculate our estimated probability of Peter breaking even. Clearly this is equal to 102/1000= 0.102. In R:</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="a-game-of-chance.html#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(experiment[experiment<span class="sc">==</span><span class="dv">0</span>])<span class="sc">/</span><span class="dv">1000</span></span></code></pre></div>
+<div class="sourceCode" id="cb246"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb246-1"><a href="a-game-of-chance.html#cb246-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(experiment<span class="sc">==</span><span class="dv">0</span>)<span class="sc">/</span><span class="dv">1000</span></span></code></pre></div>
 <pre><code>## [1] 0.102</code></pre>
 <p>Notice that we could have also answered this question exactly. The event Peter breaking even coincides with a number of successes <span class="math inline">\(n/2\)</span> in a Binomial experiment with parameters <span class="math inline">\(n=50\)</span> and <span class="math inline">\(\theta = 0.5\)</span>. This can be computed in R as</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="a-game-of-chance.html#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbinom</span>(<span class="dv">25</span>, <span class="at">size =</span> <span class="dv">50</span>, <span class="at">prob =</span> <span class="fl">0.5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb248"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb248-1"><a href="a-game-of-chance.html#cb248-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbinom</span>(<span class="dv">25</span>, <span class="at">size =</span> <span class="dv">50</span>, <span class="at">prob =</span> <span class="fl">0.5</span>)</span></code></pre></div>
 <pre><code>## [1] 0.1122752</code></pre>
 <p>So our approximation is already quite close to the true value. We would get even closer by replicating the experiment a larger number of times.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="a-game-of-chance.html#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
-<span id="cb45-2"><a href="a-game-of-chance.html#cb45-2" aria-hidden="true" tabindex="-1"></a>experiment <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>,<span class="fu">peter.paul</span>())</span>
-<span id="cb45-3"><a href="a-game-of-chance.html#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(experiment[experiment<span class="sc">==</span><span class="dv">0</span>])<span class="sc">/</span><span class="dv">1000</span></span></code></pre></div>
+<div class="sourceCode" id="cb250"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb250-1"><a href="a-game-of-chance.html#cb250-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb250-2"><a href="a-game-of-chance.html#cb250-2" aria-hidden="true" tabindex="-1"></a>experiment <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>,<span class="fu">peter.paul</span>())</span>
+<span id="cb250-3"><a href="a-game-of-chance.html#cb250-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(experiment[experiment<span class="sc">==</span><span class="dv">0</span>])<span class="sc">/</span><span class="dv">1000</span></span></code></pre></div>
 <pre><code>## [1] 1.096</code></pre>
 
 </div>

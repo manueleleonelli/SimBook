@@ -117,7 +117,7 @@
 
 \title{Simulation and Modelling to Understand Change}
 \author{Manuele Leonelli}
-\date{2021-02-21}
+\date{2021-02-22}
 
 \begin{document}
 \maketitle
@@ -3614,7 +3614,7 @@ The previous chapters laid the foundations of probability and statistics that no
 \hypertarget{what-does-monte-carlo-simulation-mean}{%
 \section{What does Monte Carlo simulation mean?}\label{what-does-monte-carlo-simulation-mean}}
 
-The **definition of the Monte Carlo concept can be a bit confusing. For this reason, we will take \emph{Sawilowsky's} example and distinguish between: Simulation, Monte Carlo method and Monte Carlo simulation.
+The definition of the Monte Carlo concept can be a bit confusing. For this reason, we will take \emph{Sawilowsky's} example and distinguish between: Simulation, Monte Carlo method and Monte Carlo simulation.
 
 \begin{itemize}
 \item
@@ -3676,9 +3676,498 @@ To better understand how Monte Carlo simulation works we will develop a classic 
 
 \(\pi\) is the mathematical constant, which is equal to 3.14159265\ldots, defined as the ratio of a circle's circumference to its diameter. It has been calculated in hundreds of different ways over the years. Today, with computational advances, a very useful way is through Monte Carlo Simulation.
 
-Consider a circle with radius \(r\), which is fixed and known
+Consider a circle with radius \(r\), which is fixed and known.
 
-\includegraphics{./images/Circle-radio.png}
+\begin{center}\includegraphics[width=0.25\linewidth]{images/Circle-radio} \end{center}
+
+Imagine that this circle is circumscribed within a square, which therefore has side \(2r\) (also equal to the diameter).
+
+\begin{center}\includegraphics[width=0.25\linewidth]{images/Circle-square} \end{center}
+
+What is the probability that if I choose a random point inside the square, it will also be inside the circle? If I choose any random point within the square, it can be inside the circle or just inside the square. A very simple way to compute this probability is the ratio between the area of the circle and the area of the square.
+
+\[
+P(point\ inside\ the\ circle) = \frac{area\ of\ the\ circle}{area\ of\ the\ square}=\frac{\pi r^2}{2r\times 2r}=\frac{\pi}{4}
+\]
+
+The probability that a random selected point in the square is in the circle is \(\pi/4\). This means that if I were to replicate the selection of a random point in the square a large number of times, I could count the proportion of points inside the circle, multiply it by four and that would give me an approximation of \(\pi\).
+
+We will create a Monte Carlo experiment in R which implements the ideas above. We will carry out the experiment in 5 steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Generate 2 random numbers between -1 and 1 in total 100 times (\(x\) and \(y\)).
+\item
+  Calculate \(x^2 + y^2\) (This is the circumference equation).
+
+  \begin{itemize}
+  \tightlist
+  \item
+    If the value is less than 1, the case will be inside the circle
+  \item
+    If the value is greater than 1, the case will be outside the circle.
+  \end{itemize}
+\item
+  Calculate the proportion of points inside the circle and multiply it by four to approximate the \(\pi\) value.
+\item
+  Repeat the experiment a thousand times, to get different approximations to \(\pi\).
+\item
+  Calculate the average of the previous 1000 experiments to give a final value estimate.
+\end{enumerate}
+
+\hypertarget{estimating-pi-step-1}{%
+\subsection{\texorpdfstring{Estimating \(\pi\): step 1}{Estimating \textbackslash pi: step 1}}\label{estimating-pi-step-1}}
+
+Generate two random numbers between -1 and 1, 100 times:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{nPoints }\OtherTok{\textless{}{-}} \DecValTok{100}
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(nPoints,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\NormalTok{y }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(nPoints,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\FunctionTok{head}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -0.09746527  0.56755957  0.41936446 -0.23651148  0.27264754  0.40269205
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(y)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -0.38312966 -0.42837094 -0.97592119  0.76677917  0.03488941 -0.53043372
+\end{verbatim}
+
+So both \texttt{x} and \texttt{y} are vectors of length 100 storing numbers between -1 and 1.
+
+\hypertarget{estimating-pi-step-2}{%
+\subsection{\texorpdfstring{Estimating \(\pi\): step 2}{Estimating \textbackslash pi: step 2}}\label{estimating-pi-step-2}}
+
+Calculate the circumference equation.
+
+\begin{itemize}
+\tightlist
+\item
+  If the value is less than 1, the case will be inside the circle
+\item
+  If the value is greater than 1, the case will be outside the circle.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{result }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(x}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ y}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{\textless{}=} \DecValTok{1}\NormalTok{, }\ConstantTok{TRUE}\NormalTok{, }\ConstantTok{FALSE}\NormalTok{)}
+\FunctionTok{head}\NormalTok{(result)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+\end{verbatim}
+
+The vector \texttt{result} has in i-th position \texttt{TRUE} if \texttt{x{[}i{]}\^{}2\ +\ y{[}i{]}\^{}2\ \textless{}=\ 1}, that is if the associated point is within the circle. We can see that out of the first six simulated points, only one is outside the circle.
+
+\hypertarget{estimating-pi-step-3}{%
+\subsection{\texorpdfstring{Estimating \(\pi\): step 3}{Estimating \textbackslash pi: step 3}}\label{estimating-pi-step-3}}
+
+Calculate the proportion of points inside the circle and multiply it by four to approximate the \(\pi\) value.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{4}\SpecialCharTok{*}\FunctionTok{sum}\NormalTok{(result)}\SpecialCharTok{/}\NormalTok{nPoints}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2.92
+\end{verbatim}
+
+So using our 100 simulated points, we came up with an approximation of 2.92 for the value of \(\pi\). Of course this number depends on the random numbers that were generated. If we were to repeat it, we would get a different approximation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{1988}\NormalTok{)}
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(nPoints,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\NormalTok{y }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(nPoints,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\NormalTok{result }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(x}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ y}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{\textless{}=} \DecValTok{1}\NormalTok{, }\ConstantTok{TRUE}\NormalTok{, }\ConstantTok{FALSE}\NormalTok{)}
+\DecValTok{4}\SpecialCharTok{*}\FunctionTok{sum}\NormalTok{(result)}\SpecialCharTok{/}\NormalTok{nPoints}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.08
+\end{verbatim}
+
+\hypertarget{estimating-pi-step-4}{%
+\subsection{\texorpdfstring{Estimating \(\pi\): step 4}{Estimating \textbackslash pi: step 4}}\label{estimating-pi-step-4}}
+
+Repeat the experiment a thousand times, to get different approximations to \(\pi\).
+
+We could do this by coding a \texttt{for} cycle, but we will take advantage of some features already implemented in R. In order to do this however, we first need to define a function which repeats our estimation of \(\pi\) given 100 random points.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{piVal }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(}\AttributeTok{nPoints =} \DecValTok{100}\NormalTok{)\{}
+\NormalTok{  x }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(nPoints,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\NormalTok{  y }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(nPoints,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\NormalTok{  result }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(x}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{+}\NormalTok{y}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{\textless{}=} \DecValTok{1}\NormalTok{, }\ConstantTok{TRUE}\NormalTok{, }\ConstantTok{FALSE}\NormalTok{)}
+  \DecValTok{4}\SpecialCharTok{*}\FunctionTok{sum}\NormalTok{(result)}\SpecialCharTok{/}\NormalTok{nPoints}
+\NormalTok{\}}
+
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{piVal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2.92
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{1988}\NormalTok{)}
+\FunctionTok{piVal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.08
+\end{verbatim}
+
+So we can see that the function works since it gives us the same output as the code above.
+
+Now we can use the function \texttt{replicate} in R, to replicate the experiment 1000 times, or to put it differently, to compute the function \texttt{piVal} 1000 times. \texttt{replicate} takes two inputs:
+
+\begin{itemize}
+\item
+  \texttt{n}: the number of times we want to replicate the experimet;
+\item
+  \texttt{expr}: the function we want to be replicated
+\end{itemize}
+
+Therefore the following code replicates the experiment:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{N }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\NormalTok{pis }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(N, }\FunctionTok{piVal}\NormalTok{())}
+\FunctionTok{head}\NormalTok{(pis)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2.92 3.20 3.16 3.08 3.20 2.76
+\end{verbatim}
+
+We can see that the first entry of the vector \texttt{pis} is indeed \texttt{pis{[}1{]}} which is the same value we obtained running the function ourselves (in both cases we fixed the same seed).
+
+\hypertarget{estimating-pi-step-5}{%
+\subsection{\texorpdfstring{Estimating \(\pi\): step 5}{Estimating \textbackslash pi: step 5}}\label{estimating-pi-step-5}}
+
+Calculate the average of the previous 1000 experiments to give a final value estimate.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{mean}\NormalTok{(pis)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.13828
+\end{verbatim}
+
+The average gives us a good approximation of \(\pi\).
+
+A boxplot can give us a visualization of the results.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boxplot}\NormalTok{(pis)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/unnamed-chunk-103-1} \end{center}
+
+The boxplot importantly tells us two things:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  if we were to take the average of the 1000 approximatations of \(\pi\) we would get a value close to the true value (look at the horizontal line within the box).
+\item
+  if we were to choose a value for \(\pi\) based on a single simulation, then we could pick values between 2.48 and 3.6.
+\end{enumerate}
+
+\hypertarget{estimating-pi-conclusions}{%
+\subsection{\texorpdfstring{Estimating \(\pi\): conclusions}{Estimating \textbackslash pi: conclusions}}\label{estimating-pi-conclusions}}
+
+One thing you might wonder now is the following. Why did we replicate the experiment 1000 times and each time took only 100 points. Could have we not taken a much larger number of points only once (for example \(1000\times 100\))?
+
+On one hand that would have clearly given us a good approximation, using the same total number of simulated points. Indeed
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{piVal}\NormalTok{(}\DecValTok{1000}\SpecialCharTok{*}\DecValTok{100}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.1416
+\end{verbatim}
+
+which is very close to the true value.
+
+However this approach does not give us any information about uncertainty or about how good our approximation is. We have just one single value. On the other hand, using replication we have 1000 possible approximations of \(\pi\) and we can construct intervals of plausible values. For instance, we would believe that the true value \(\pi\) is with 95\% probability in the interval
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{c}\NormalTok{(}\FunctionTok{sort}\NormalTok{(pis)[}\DecValTok{25}\NormalTok{],}\FunctionTok{sort}\NormalTok{(pis)[}\DecValTok{975}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2.84 3.44
+\end{verbatim}
+
+which includes 95\% of the central approximations of \(\pi\). Such intervals are in spirit similar to the confidence intervals you should be familiar with, but there are some technicalities that makes them different (which we will not discuss here).
+
+\hypertarget{the-sample-function}{%
+\section{\texorpdfstring{The \texttt{sample} function}{The sample function}}\label{the-sample-function}}
+
+We have now carried out our first Monte Carlo experiment!! We will carry out others in the rest of this chapter and interpret their results. There is one function, the \texttt{sample} function which we will often use.
+
+In the previous chapter we discussed how to simulate numbers distributed according to a specific random variable. One possible class of numbers we may want to simulate in some situations are integers. Suppose for example you want to simulate a game of dice: then we must be able to simulate in R one number from the set \(\{1,2,3,4,5,6\}\) where each has the same probability of appearing. We have not introduced yet a function that does this.
+
+For this specific purpose there is the function \texttt{sample}. This takes four inputs:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \texttt{x}: a vector of values we want to sample from.
+\item
+  \texttt{size}: the size of the sample we want.
+\item
+  \texttt{replace}: if \texttt{TRUE} sampling is done with replacement. That is if a value has been selected, it can be selected again. By default equal to \texttt{FALSE}
+\item
+  \texttt{prob}: a vector of the same length of \texttt{x} giving the probabilities that the elements of \texttt{x} are selected. By defaul equal to a uniform probability.
+\end{enumerate}
+
+So for instance if we wanted to simulate ten tosses of a fair dice we can write.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{sample}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{, }\AttributeTok{size =} \DecValTok{10}\NormalTok{, }\AttributeTok{replace =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 6 6 2 4 4 6 6 3 6 6
+\end{verbatim}
+
+Notice that the vector \texttt{x} does not necessarily needs to be numeric. It could be a vector of characters. For instance, let's simulate the toss of 5 coins, where the probability of heads is 2/3 and the probability of tails is 1/3.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{sample}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"heads"}\NormalTok{,}\StringTok{"tails"}\NormalTok{), }\AttributeTok{size =} \DecValTok{5}\NormalTok{, }\AttributeTok{replace =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prob =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\SpecialCharTok{/}\DecValTok{3}\NormalTok{,}\DecValTok{1}\SpecialCharTok{/}\DecValTok{3}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "heads" "tails" "tails" "heads" "heads"
+\end{verbatim}
+
+\hypertarget{a-game-of-chance}{%
+\section{A game of chance}\label{a-game-of-chance}}
+
+For the rest of this chapter we will develop various Monte Carlo simulations. We start simulating a little game of chance.
+
+Peter and Paul play a simple game involving repeated tosses of a fair coin. In a given toss, if heads is observed, Peter wins 1€ from Paul; otherwise if tails is tossed, Peter gives 1€ to Paul. If Peter starts with zero euros, we are interested in his fortune as the game is played for 50 tosses.
+
+We can simulate this game using the R \texttt{sample()} function. Peter's winning on a particular toss will be 1€ or -1€ with equal probability. His winnings on 50 repeated tosses can be considered to be a sample of size 50 selected with replacement from the set \{1€, -1€\}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{win }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\AttributeTok{size =} \DecValTok{50}\NormalTok{, }\AttributeTok{replace =}\NormalTok{ T)}
+\FunctionTok{head}\NormalTok{(win)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -1  1  1  1 -1  1
+\end{verbatim}
+
+For this particular game Peter lost the first game, then won the second, the third and the fourth and so on.
+
+Suppose Peter is interested in his cumulative winnings as he plays this game. The function \texttt{cumsum()} computes the cumulative winnings of the individual values and we store the cumulative values in a vector named \texttt{cumul.win}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cumul.win }\OtherTok{\textless{}{-}} \FunctionTok{cumsum}\NormalTok{(win) }
+\NormalTok{cumul.win}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] -1  0  1  2  1  2  3  4  5  6  5  6  7  6  5  4  3  2  3  2  3  4  3  4  3
+## [26]  2  3  4  5  6  5  6  5  6  7  6  7  6  7  6  5  4  5  6  5  4  5  6  7  8
+\end{verbatim}
+
+So at the end of this specific game Peter won 8€. Figure \ref{fig:cumwin} reports Peter's fortune as the game evolved. We can notice that Peter was in the lead throughout almost the whole game.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{cumsum}\NormalTok{(win), }\AttributeTok{type=}\StringTok{"l"}\NormalTok{ ,}\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{25}\NormalTok{, }\DecValTok{25}\NormalTok{))}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{h=}\DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/cumwin-1} 
+
+}
+
+\caption{Peter's fortune throughout one simulated game.}\label{fig:cumwin}
+\end{figure}
+
+Of course this is the result of a single simulation and the outcome may be totally different than the one we saw. Figure \ref{fig:mcumwin} reports four simulated games: we can see that in the first one Peter wins, in the second he almost breaks even, whilst in the third and fourth he clearly loses.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{(j }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{)\{}
+  \FunctionTok{plot}\NormalTok{(}\FunctionTok{cumsum}\NormalTok{(}\FunctionTok{sample}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{),}\AttributeTok{size=}\DecValTok{50}\NormalTok{,}\AttributeTok{replace=}\NormalTok{T)),}\AttributeTok{type=}\StringTok{"l"}\NormalTok{ ,}\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{25}\NormalTok{, }\DecValTok{25}\NormalTok{), }\AttributeTok{ylab=}\StringTok{"Outcome"}\NormalTok{)}
+  \FunctionTok{abline}\NormalTok{(}\AttributeTok{h=}\DecValTok{0}\NormalTok{)\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{SimBook_files/figure-latex/mcumwin-1} 
+
+}
+
+\caption{Outcome of four simulated game of chances.}\label{fig:mcumwin}
+\end{figure}
+
+Suppose we are interested in the following question.
+
+\begin{itemize}
+\tightlist
+\item
+  What is the probability that Peter breaks even at the end of the game?
+\end{itemize}
+
+Evidently we cannot cannot answer by simply looking at the outputs of the previous simulations. We need to do a formal Monte Carlo study. In this type of experiment, we simulate the random process and compute the statistic of interest. By repeating the random process many times, we obtain a collection of values of the statistic, which can then be used to approximate probabilities or expectations that answer the questions.
+
+As you may recall from the estimation of \(\pi\) experiment, we first need to write a function that simulates the experiment. In particular we need to write a function which outputs Peter's winning at the end of the game. To make this function more general, we define \texttt{n} to be the number of tosses and let the default value of \texttt{n} be 50.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{peter.paul }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(}\AttributeTok{n=}\DecValTok{50}\NormalTok{)\{}
+  \FunctionTok{sum}\NormalTok{(}\FunctionTok{sample}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{size=}\NormalTok{n, }\AttributeTok{replace=}\ConstantTok{TRUE}\NormalTok{))}
+\NormalTok{\}}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{peter.paul}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 8
+\end{verbatim}
+
+The output is the same as the previous code, so it seems that our function works correctly.
+
+Let's replicate the experiment many times.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{experiment }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\FunctionTok{peter.paul}\NormalTok{())}
+\FunctionTok{head}\NormalTok{(experiment)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]   8  -2 -12 -12 -14   8
+\end{verbatim}
+
+So the vector \texttt{experiment} stores Peter's final fortune in 1000 games. Since Peter's fortune is an integer-value variable, it is convenient to summarize it using the \texttt{table} function.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{table}\NormalTok{(experiment)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## experiment
+## -22 -20 -18 -16 -14 -12 -10  -8  -6  -4  -2   0   2   4   6   8  10  12  14  16 
+##   1   2   7   7  16  30  42  66  58 101 116 102 110 103  70  60  44  26  15  14 
+##  18  20 
+##   4   6
+\end{verbatim}
+
+A graphical representation of the table is also useful.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{table}\NormalTok{(experiment))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-113-1.pdf}
+So we can see that Peter breaks even 102 out of 1000 times. Furthermore the plot shows us that most commonly Peter will win/lose little money and that big wins/losses are unlikely.
+
+To conclude our experiment we need to calculate our estimated probability of Peter breaking even. Clearly this is equal to 102/1000= 0.102. In R:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sum}\NormalTok{(experiment}\SpecialCharTok{==}\DecValTok{0}\NormalTok{)}\SpecialCharTok{/}\DecValTok{1000}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.102
+\end{verbatim}
+
+Notice that we could have also answered this question exactly. The event Peter breaking even coincides with a number of successes \(n/2\) in a Binomial experiment with parameters \(n=50\) and \(\theta = 0.5\). This can be computed in R as
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dbinom}\NormalTok{(}\DecValTok{25}\NormalTok{, }\AttributeTok{size =} \DecValTok{50}\NormalTok{, }\AttributeTok{prob =} \FloatTok{0.5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1122752
+\end{verbatim}
+
+So our approximation is already quite close to the true value. We would get even closer by replicating the experiment a larger number of times.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{experiment }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(}\DecValTok{10000}\NormalTok{,}\FunctionTok{peter.paul}\NormalTok{())}
+\FunctionTok{length}\NormalTok{(experiment[experiment}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{/}\DecValTok{1000}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1.096
+\end{verbatim}
 
   \bibliography{book.bib,packages.bib}
 

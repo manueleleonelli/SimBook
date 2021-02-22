@@ -4,7 +4,7 @@ The previous chapters laid the foundations of probability and statistics that no
 
 ## What does Monte Carlo simulation mean?
 
-The **definition of the Monte Carlo concept can be a bit confusing. For this reason, we will take *Sawilowsky's* example and distinguish between: Simulation, Monte Carlo method and Monte Carlo simulation.
+The definition of the Monte Carlo concept can be a bit confusing. For this reason, we will take *Sawilowsky's* example and distinguish between: Simulation, Monte Carlo method and Monte Carlo simulation.
 
   - A **Simulation** is a fictitious representation of reality. For example: Drawing one pseudo-random uniform variable from the interval [0,1] can be used to simulate the tossing of a coin. If the value is less than or equal to 0.50 designate the outcome as heads, but if the value is greater than 0.50 designate the outcome as tails. This is a simulation, but not a Monte Carlo simulation.
   
@@ -320,7 +320,7 @@ So we can see that Peter breaks even 102 out of 1000 times. Furthermore the plot
 
 To conclude our experiment we need to calculate our estimated probability of Peter breaking even. Clearly this is equal to 102/1000= 0.102. In R:
 ```{r}
-length(experiment[experiment==0])/1000
+sum(experiment==0)/1000
 ```
 
 Notice that we could have also answered this question exactly. The event Peter breaking even coincides with a number of successes $n/2$ in a Binomial experiment with parameters $n=50$ and $\theta = 0.5$. This can be computed in R as
