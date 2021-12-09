@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>7.4 Measures of Performance | Simulation and Modelling to Understand Change</title>
+  <meta name="description" content="These are lecture notes for the module Simulation and Modelling to Understand Change given in the School of Human Sciences and Technology at IE University, Madrid, Spain. The module is given in the 2nd semester of the 1st year of the bachelor in Data and Business Analytics. Knowledge of basic elements of R programming as well as probability and statistics is assumed." />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="7.4 Measures of Performance | Simulation and Modelling to Understand Change" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:image" content="/images/Rplot.png" />
+  <meta property="og:description" content="These are lecture notes for the module Simulation and Modelling to Understand Change given in the School of Human Sciences and Technology at IE University, Madrid, Spain. The module is given in the 2nd semester of the 1st year of the bachelor in Data and Business Analytics. Knowledge of basic elements of R programming as well as probability and statistics is assumed." />
+  <meta name="github-repo" content="manueleleonelli/SimBook" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="7.4 Measures of Performance | Simulation and Modelling to Understand Change" />
+  
+  <meta name="twitter:description" content="These are lecture notes for the module Simulation and Modelling to Understand Change given in the School of Human Sciences and Technology at IE University, Madrid, Spain. The module is given in the 2nd semester of the 1st year of the bachelor in Data and Business Analytics. Knowledge of basic elements of R programming as well as probability and statistics is assumed." />
+  <meta name="twitter:image" content="/images/Rplot.png" />
+
+<meta name="author" content="Manuele Leonelli" />
+
+
+<meta name="date" content="2021-04-19" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="queuing-notation.html"/>
+<link rel="next" href="steady-state-behavior-of-the-mm1-model.html"/>
+<script src="libs/header-attrs-2.6/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="libs/viz-1.8.2/viz.js"></script>
+<link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="libs/grViz-binding-1.0.6.1/grViz.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Simulation and Modelling to Understand Change</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="what-is-simulation.html"><a href="what-is-simulation.html"><i class="fa fa-check"></i><b>1.1</b> What is simulation</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="what-is-simulation.html"><a href="what-is-simulation.html#a-simple-simulation-model"><i class="fa fa-check"></i><b>1.1.1</b> A simple simulation model</a></li>
+<li class="chapter" data-level="1.1.2" data-path="what-is-simulation.html"><a href="what-is-simulation.html#why-simulate"><i class="fa fa-check"></i><b>1.1.2</b> Why simulate?</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="types-of-simulations.html"><a href="types-of-simulations.html"><i class="fa fa-check"></i><b>1.2</b> Types of simulations</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="types-of-simulations.html"><a href="types-of-simulations.html#stochastic-vs-deterministic-simulations"><i class="fa fa-check"></i><b>1.2.1</b> Stochastic vs deterministic simulations</a></li>
+<li class="chapter" data-level="1.2.2" data-path="types-of-simulations.html"><a href="types-of-simulations.html#static-vs-dynamic-simulations"><i class="fa fa-check"></i><b>1.2.2</b> Static vs dynamic simulations</a></li>
+<li class="chapter" data-level="1.2.3" data-path="types-of-simulations.html"><a href="types-of-simulations.html#discrete-vs-continuous-simulations"><i class="fa fa-check"></i><b>1.2.3</b> Discrete vs continuous simulations</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="elements-of-a-simulation-model.html"><a href="elements-of-a-simulation-model.html"><i class="fa fa-check"></i><b>1.3</b> Elements of a simulation model</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="elements-of-a-simulation-model.html"><a href="elements-of-a-simulation-model.html#objects-of-the-model"><i class="fa fa-check"></i><b>1.3.1</b> Objects of the model</a></li>
+<li class="chapter" data-level="1.3.2" data-path="elements-of-a-simulation-model.html"><a href="elements-of-a-simulation-model.html#organization-of-entities-and-resources"><i class="fa fa-check"></i><b>1.3.2</b> Organization of entities and resources</a></li>
+<li class="chapter" data-level="1.3.3" data-path="elements-of-a-simulation-model.html"><a href="elements-of-a-simulation-model.html#operations-of-the-objects"><i class="fa fa-check"></i><b>1.3.3</b> Operations of the objects</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="the-donut-shop-example.html"><a href="the-donut-shop-example.html"><i class="fa fa-check"></i><b>1.4</b> The donut shop example</a></li>
+<li class="chapter" data-level="1.5" data-path="simulating-a-little-health-center.html"><a href="simulating-a-little-health-center.html"><i class="fa fa-check"></i><b>1.5</b> Simulating a little health center</a></li>
+<li class="chapter" data-level="1.6" data-path="whats-next.html"><a href="whats-next.html"><i class="fa fa-check"></i><b>1.6</b> What’s next</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="r-programming.html"><a href="r-programming.html"><i class="fa fa-check"></i><b>2</b> R programming</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="why-r.html"><a href="why-r.html"><i class="fa fa-check"></i><b>2.1</b> Why R?</a></li>
+<li class="chapter" data-level="2.2" data-path="r-basics.html"><a href="r-basics.html"><i class="fa fa-check"></i><b>2.2</b> R basics</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="r-basics.html"><a href="r-basics.html#r-as-a-calculator"><i class="fa fa-check"></i><b>2.2.1</b> R as a calculator</a></li>
+<li class="chapter" data-level="2.2.2" data-path="r-basics.html"><a href="r-basics.html#variable-assignment"><i class="fa fa-check"></i><b>2.2.2</b> Variable assignment</a></li>
+<li class="chapter" data-level="2.2.3" data-path="r-basics.html"><a href="r-basics.html#data-types"><i class="fa fa-check"></i><b>2.2.3</b> Data types</a></li>
+<li class="chapter" data-level="2.2.4" data-path="r-basics.html"><a href="r-basics.html#vectors"><i class="fa fa-check"></i><b>2.2.4</b> Vectors</a></li>
+<li class="chapter" data-level="2.2.5" data-path="r-basics.html"><a href="r-basics.html#matrices"><i class="fa fa-check"></i><b>2.2.5</b> Matrices</a></li>
+<li class="chapter" data-level="2.2.6" data-path="r-basics.html"><a href="r-basics.html#dataframes"><i class="fa fa-check"></i><b>2.2.6</b> Dataframes</a></li>
+<li class="chapter" data-level="2.2.7" data-path="r-basics.html"><a href="r-basics.html#null-and-na"><i class="fa fa-check"></i><b>2.2.7</b> <code>NULL</code> and <code>NA</code></a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html"><i class="fa fa-check"></i><b>2.3</b> Accessing and manipulating variables</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html#accessing-a-single-element"><i class="fa fa-check"></i><b>2.3.1</b> Accessing a single element</a></li>
+<li class="chapter" data-level="2.3.2" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html#acessing-multiple-entries"><i class="fa fa-check"></i><b>2.3.2</b> Acessing multiple entries</a></li>
+<li class="chapter" data-level="2.3.3" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html#accessing-entries-with-logical-operators"><i class="fa fa-check"></i><b>2.3.3</b> Accessing entries with logical operators</a></li>
+<li class="chapter" data-level="2.3.4" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html#manipulating-dataframes"><i class="fa fa-check"></i><b>2.3.4</b> Manipulating dataframes</a></li>
+<li class="chapter" data-level="2.3.5" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html#information-about-objects"><i class="fa fa-check"></i><b>2.3.5</b> Information about objects</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="loops-and-conditions.html"><a href="loops-and-conditions.html"><i class="fa fa-check"></i><b>2.4</b> Loops and conditions</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="loops-and-conditions.html"><a href="loops-and-conditions.html#if-statements"><i class="fa fa-check"></i><b>2.4.1</b> <code>if</code> statements</a></li>
+<li class="chapter" data-level="2.4.2" data-path="loops-and-conditions.html"><a href="loops-and-conditions.html#ifelse"><i class="fa fa-check"></i><b>2.4.2</b> <code>ifelse</code></a></li>
+<li class="chapter" data-level="2.4.3" data-path="loops-and-conditions.html"><a href="loops-and-conditions.html#loops"><i class="fa fa-check"></i><b>2.4.3</b> Loops</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="functions.html"><a href="functions.html"><i class="fa fa-check"></i><b>2.5</b> Functions</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="functions.html"><a href="functions.html#defining-your-own-function"><i class="fa fa-check"></i><b>2.5.1</b> Defining your own function</a></li>
+<li class="chapter" data-level="2.5.2" data-path="functions.html"><a href="functions.html#calling-functions"><i class="fa fa-check"></i><b>2.5.2</b> Calling functions</a></li>
+<li class="chapter" data-level="2.5.3" data-path="functions.html"><a href="functions.html#mathematical-and-statistical-functions"><i class="fa fa-check"></i><b>2.5.3</b> Mathematical and statistical functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="the-apply-family-of-functions.html"><a href="the-apply-family-of-functions.html"><i class="fa fa-check"></i><b>2.6</b> The <code>apply</code> family of functions</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="the-apply-family-of-functions.html"><a href="the-apply-family-of-functions.html#the-function-apply"><i class="fa fa-check"></i><b>2.6.1</b> The function <code>apply</code></a></li>
+<li class="chapter" data-level="2.6.2" data-path="the-apply-family-of-functions.html"><a href="the-apply-family-of-functions.html#the-function-sapply"><i class="fa fa-check"></i><b>2.6.2</b> The function <code>sapply</code></a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="the-pipe-operator.html"><a href="the-pipe-operator.html"><i class="fa fa-check"></i><b>2.7</b> The pipe operator</a></li>
+<li class="chapter" data-level="2.8" data-path="plotting.html"><a href="plotting.html"><i class="fa fa-check"></i><b>2.8</b> Plotting</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="probability-basics.html"><a href="probability-basics.html"><i class="fa fa-check"></i><b>3</b> Probability Basics</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="discrete-random-variables.html"><a href="discrete-random-variables.html"><i class="fa fa-check"></i><b>3.1</b> Discrete Random Variables</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="discrete-random-variables.html"><a href="discrete-random-variables.html#probability-mass-function"><i class="fa fa-check"></i><b>3.1.1</b> Probability Mass Function</a></li>
+<li class="chapter" data-level="3.1.2" data-path="discrete-random-variables.html"><a href="discrete-random-variables.html#cumulative-distribution-function"><i class="fa fa-check"></i><b>3.1.2</b> Cumulative Distribution Function</a></li>
+<li class="chapter" data-level="3.1.3" data-path="discrete-random-variables.html"><a href="discrete-random-variables.html#summaries"><i class="fa fa-check"></i><b>3.1.3</b> Summaries</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="notable-discrete-variables.html"><a href="notable-discrete-variables.html"><i class="fa fa-check"></i><b>3.2</b> Notable Discrete Variables</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="notable-discrete-variables.html"><a href="notable-discrete-variables.html#bernoulli-distribution"><i class="fa fa-check"></i><b>3.2.1</b> Bernoulli Distribution</a></li>
+<li class="chapter" data-level="3.2.2" data-path="notable-discrete-variables.html"><a href="notable-discrete-variables.html#binomial-distribution"><i class="fa fa-check"></i><b>3.2.2</b> Binomial Distribution</a></li>
+<li class="chapter" data-level="3.2.3" data-path="notable-discrete-variables.html"><a href="notable-discrete-variables.html#poisson-distribution"><i class="fa fa-check"></i><b>3.2.3</b> Poisson Distribution</a></li>
+<li class="chapter" data-level="3.2.4" data-path="notable-discrete-variables.html"><a href="notable-discrete-variables.html#some-examples"><i class="fa fa-check"></i><b>3.2.4</b> Some Examples</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="continuous-random-variables.html"><a href="continuous-random-variables.html"><i class="fa fa-check"></i><b>3.3</b> Continuous Random Variables</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="continuous-random-variables.html"><a href="continuous-random-variables.html#probability-density-function"><i class="fa fa-check"></i><b>3.3.1</b> Probability Density Function</a></li>
+<li class="chapter" data-level="3.3.2" data-path="continuous-random-variables.html"><a href="continuous-random-variables.html#cumulative-distribution-function-1"><i class="fa fa-check"></i><b>3.3.2</b> Cumulative Distribution Function</a></li>
+<li class="chapter" data-level="3.3.3" data-path="continuous-random-variables.html"><a href="continuous-random-variables.html#summaries-1"><i class="fa fa-check"></i><b>3.3.3</b> Summaries</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="notable-continuous-distribution.html"><a href="notable-continuous-distribution.html"><i class="fa fa-check"></i><b>3.4</b> Notable Continuous Distribution</a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="notable-continuous-distribution.html"><a href="notable-continuous-distribution.html#uniform-distribution"><i class="fa fa-check"></i><b>3.4.1</b> Uniform Distribution</a></li>
+<li class="chapter" data-level="3.4.2" data-path="notable-continuous-distribution.html"><a href="notable-continuous-distribution.html#exponential-distribution"><i class="fa fa-check"></i><b>3.4.2</b> Exponential Distribution</a></li>
+<li class="chapter" data-level="3.4.3" data-path="notable-continuous-distribution.html"><a href="notable-continuous-distribution.html#normal-distribution"><i class="fa fa-check"></i><b>3.4.3</b> Normal Distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="the-central-limit-theorem.html"><a href="the-central-limit-theorem.html"><i class="fa fa-check"></i><b>3.5</b> The Central Limit Theorem</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="random-number-generation.html"><a href="random-number-generation.html"><i class="fa fa-check"></i><b>4</b> Random Number Generation</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="properties-of-random-numbers.html"><a href="properties-of-random-numbers.html"><i class="fa fa-check"></i><b>4.1</b> Properties of Random Numbers</a></li>
+<li class="chapter" data-level="4.2" data-path="pseudo-random-numbers.html"><a href="pseudo-random-numbers.html"><i class="fa fa-check"></i><b>4.2</b> Pseudo Random Numbers</a></li>
+<li class="chapter" data-level="4.3" data-path="generating-pseudo-random-numbers.html"><a href="generating-pseudo-random-numbers.html"><i class="fa fa-check"></i><b>4.3</b> Generating Pseudo-Random Numbers</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="generating-pseudo-random-numbers.html"><a href="generating-pseudo-random-numbers.html#generating-pseudo-random-numbers-in-r"><i class="fa fa-check"></i><b>4.3.1</b> Generating Pseudo-Random Numbers in R</a></li>
+<li class="chapter" data-level="4.3.2" data-path="generating-pseudo-random-numbers.html"><a href="generating-pseudo-random-numbers.html#linear-congruential-method"><i class="fa fa-check"></i><b>4.3.2</b> Linear Congruential Method</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="testing-randomness.html"><a href="testing-randomness.html"><i class="fa fa-check"></i><b>4.4</b> Testing Randomness</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="testing-randomness.html"><a href="testing-randomness.html#testing-uniformity"><i class="fa fa-check"></i><b>4.4.1</b> Testing Uniformity</a></li>
+<li class="chapter" data-level="4.4.2" data-path="testing-randomness.html"><a href="testing-randomness.html#testing-independence"><i class="fa fa-check"></i><b>4.4.2</b> Testing Independence</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="random-variate-generation.html"><a href="random-variate-generation.html"><i class="fa fa-check"></i><b>4.5</b> Random Variate Generation</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="random-variate-generation.html"><a href="random-variate-generation.html#random-generation-in-r"><i class="fa fa-check"></i><b>4.5.1</b> Random Generation in R</a></li>
+<li class="chapter" data-level="4.5.2" data-path="random-variate-generation.html"><a href="random-variate-generation.html#the-inverse-transform-method"><i class="fa fa-check"></i><b>4.5.2</b> The Inverse Transform Method</a></li>
+<li class="chapter" data-level="4.5.3" data-path="random-variate-generation.html"><a href="random-variate-generation.html#simulating-bernoulli-and-binomial"><i class="fa fa-check"></i><b>4.5.3</b> Simulating Bernoulli and Binomial</a></li>
+<li class="chapter" data-level="4.5.4" data-path="random-variate-generation.html"><a href="random-variate-generation.html#simulating-other-distributions"><i class="fa fa-check"></i><b>4.5.4</b> Simulating Other Distributions</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="testing-generic-simulation-sequences.html"><a href="testing-generic-simulation-sequences.html"><i class="fa fa-check"></i><b>4.6</b> Testing Generic Simulation Sequences</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="testing-generic-simulation-sequences.html"><a href="testing-generic-simulation-sequences.html#testing-distribution-fit"><i class="fa fa-check"></i><b>4.6.1</b> Testing Distribution Fit</a></li>
+<li class="chapter" data-level="4.6.2" data-path="testing-generic-simulation-sequences.html"><a href="testing-generic-simulation-sequences.html#testing-independence-1"><i class="fa fa-check"></i><b>4.6.2</b> Testing Independence</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="monte-carlo-simulation.html"><a href="monte-carlo-simulation.html"><i class="fa fa-check"></i><b>5</b> Monte Carlo Simulation</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="what-does-monte-carlo-simulation-mean.html"><a href="what-does-monte-carlo-simulation-mean.html"><i class="fa fa-check"></i><b>5.1</b> What does Monte Carlo simulation mean?</a></li>
+<li class="chapter" data-level="5.2" data-path="a-bit-of-history.html"><a href="a-bit-of-history.html"><i class="fa fa-check"></i><b>5.2</b> A bit of history</a></li>
+<li class="chapter" data-level="5.3" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html"><i class="fa fa-check"></i><b>5.3</b> Steps of Monte Carlo simulation</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-step-1"><i class="fa fa-check"></i><b>5.3.1</b> Estimating <span class="math inline">\(\pi\)</span>: step 1</a></li>
+<li class="chapter" data-level="5.3.2" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-step-2"><i class="fa fa-check"></i><b>5.3.2</b> Estimating <span class="math inline">\(\pi\)</span>: step 2</a></li>
+<li class="chapter" data-level="5.3.3" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-step-3"><i class="fa fa-check"></i><b>5.3.3</b> Estimating <span class="math inline">\(\pi\)</span>: step 3</a></li>
+<li class="chapter" data-level="5.3.4" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-step-4"><i class="fa fa-check"></i><b>5.3.4</b> Estimating <span class="math inline">\(\pi\)</span>: step 4</a></li>
+<li class="chapter" data-level="5.3.5" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-step-5"><i class="fa fa-check"></i><b>5.3.5</b> Estimating <span class="math inline">\(\pi\)</span>: step 5</a></li>
+<li class="chapter" data-level="5.3.6" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-conclusions"><i class="fa fa-check"></i><b>5.3.6</b> Estimating <span class="math inline">\(\pi\)</span>: conclusions</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="the-sample-function.html"><a href="the-sample-function.html"><i class="fa fa-check"></i><b>5.4</b> The <code>sample</code> function</a></li>
+<li class="chapter" data-level="5.5" data-path="a-game-of-chance.html"><a href="a-game-of-chance.html"><i class="fa fa-check"></i><b>5.5</b> A game of chance</a></li>
+<li class="chapter" data-level="5.6" data-path="playing-the-roulette.html"><a href="playing-the-roulette.html"><i class="fa fa-check"></i><b>5.6</b> Playing the roulette</a>
+<ul>
+<li class="chapter" data-level="5.6.1" data-path="playing-the-roulette.html"><a href="playing-the-roulette.html#question-1"><i class="fa fa-check"></i><b>5.6.1</b> Question 1</a></li>
+<li class="chapter" data-level="5.6.2" data-path="playing-the-roulette.html"><a href="playing-the-roulette.html#question-2"><i class="fa fa-check"></i><b>5.6.2</b> Question 2</a></li>
+<li class="chapter" data-level="5.6.3" data-path="playing-the-roulette.html"><a href="playing-the-roulette.html#question-3"><i class="fa fa-check"></i><b>5.6.3</b> Question 3</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="is-annie-meeting-sam.html"><a href="is-annie-meeting-sam.html"><i class="fa fa-check"></i><b>5.7</b> Is Annie meeting Sam?</a>
+<ul>
+<li class="chapter" data-level="5.7.1" data-path="is-annie-meeting-sam.html"><a href="is-annie-meeting-sam.html#question-1-1"><i class="fa fa-check"></i><b>5.7.1</b> Question 1</a></li>
+<li class="chapter" data-level="5.7.2" data-path="is-annie-meeting-sam.html"><a href="is-annie-meeting-sam.html#question-2-1"><i class="fa fa-check"></i><b>5.7.2</b> Question 2</a></li>
+<li class="chapter" data-level="5.7.3" data-path="is-annie-meeting-sam.html"><a href="is-annie-meeting-sam.html#question-3-1"><i class="fa fa-check"></i><b>5.7.3</b> Question 3</a></li>
+<li class="chapter" data-level="5.7.4" data-path="is-annie-meeting-sam.html"><a href="is-annie-meeting-sam.html#question-4"><i class="fa fa-check"></i><b>5.7.4</b> Question 4</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="discrete-event-simulation.html"><a href="discrete-event-simulation.html"><i class="fa fa-check"></i><b>6</b> Discrete Event Simulation</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="the-donut-shop.html"><a href="the-donut-shop.html"><i class="fa fa-check"></i><b>6.1</b> The donut shop</a>
+<ul>
+<li class="chapter" data-level="6.1.1" data-path="the-donut-shop.html"><a href="the-donut-shop.html#a-single-customer-at-a-fixed-time"><i class="fa fa-check"></i><b>6.1.1</b> A single customer at a fixed time</a></li>
+<li class="chapter" data-level="6.1.2" data-path="the-donut-shop.html"><a href="the-donut-shop.html#a-customer-arriving-at-random"><i class="fa fa-check"></i><b>6.1.2</b> A customer arriving at random</a></li>
+<li class="chapter" data-level="6.1.3" data-path="the-donut-shop.html"><a href="the-donut-shop.html#many-random-customers"><i class="fa fa-check"></i><b>6.1.3</b> Many random customers</a></li>
+<li class="chapter" data-level="6.1.4" data-path="the-donut-shop.html"><a href="the-donut-shop.html#the-donut-shop-with-a-service-counter"><i class="fa fa-check"></i><b>6.1.4</b> The donut shop with a service counter</a></li>
+<li class="chapter" data-level="6.1.5" data-path="the-donut-shop.html"><a href="the-donut-shop.html#several-service-counters"><i class="fa fa-check"></i><b>6.1.5</b> Several service counters</a></li>
+<li class="chapter" data-level="6.1.6" data-path="the-donut-shop.html"><a href="the-donut-shop.html#simple-visualizations"><i class="fa fa-check"></i><b>6.1.6</b> Simple visualizations</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="replication.html"><a href="replication.html"><i class="fa fa-check"></i><b>6.2</b> Replication</a></li>
+<li class="chapter" data-level="6.3" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html"><i class="fa fa-check"></i><b>6.3</b> The donut shop - advanced features</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#priority-customers-without-preemption"><i class="fa fa-check"></i><b>6.3.1</b> Priority customers without preemption</a></li>
+<li class="chapter" data-level="6.3.2" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#priority-customers-with-preemption"><i class="fa fa-check"></i><b>6.3.2</b> Priority customers with preemption</a></li>
+<li class="chapter" data-level="6.3.3" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#balking-customers"><i class="fa fa-check"></i><b>6.3.3</b> Balking customers</a></li>
+<li class="chapter" data-level="6.3.4" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#reneging-or-abandoning-customers"><i class="fa fa-check"></i><b>6.3.4</b> Reneging (or abandoning) customers</a></li>
+<li class="chapter" data-level="6.3.5" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#several-counters-with-individual-queues"><i class="fa fa-check"></i><b>6.3.5</b> Several counters with individual queues</a></li>
+<li class="chapter" data-level="6.3.6" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#opening-times"><i class="fa fa-check"></i><b>6.3.6</b> Opening times</a></li>
+<li class="chapter" data-level="6.3.7" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#batching-clients"><i class="fa fa-check"></i><b>6.3.7</b> Batching clients</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="simulating-a-simple-health-center.html"><a href="simulating-a-simple-health-center.html"><i class="fa fa-check"></i><b>6.4</b> Simulating a simple health center</a></li>
+<li class="chapter" data-level="6.5" data-path="a-production-process-simulation.html"><a href="a-production-process-simulation.html"><i class="fa fa-check"></i><b>6.5</b> A production process simulation</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="queuing-theory.html"><a href="queuing-theory.html"><i class="fa fa-check"></i><b>7</b> Queuing Theory</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="poisson-process.html"><a href="poisson-process.html"><i class="fa fa-check"></i><b>7.1</b> Poisson Process</a></li>
+<li class="chapter" data-level="7.2" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html"><i class="fa fa-check"></i><b>7.2</b> Characteristics of Queuing Systems</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html#the-calling-population"><i class="fa fa-check"></i><b>7.2.1</b> The Calling Population</a></li>
+<li class="chapter" data-level="7.2.2" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html#system-capacity"><i class="fa fa-check"></i><b>7.2.2</b> System Capacity</a></li>
+<li class="chapter" data-level="7.2.3" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html#the-arrival-process"><i class="fa fa-check"></i><b>7.2.3</b> The Arrival Process</a></li>
+<li class="chapter" data-level="7.2.4" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html#queue-behavior-and-queue-discipline"><i class="fa fa-check"></i><b>7.2.4</b> Queue Behavior and Queue Discipline</a></li>
+<li class="chapter" data-level="7.2.5" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html#service-times-and-service-mechanism"><i class="fa fa-check"></i><b>7.2.5</b> Service Times and Service Mechanism</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="queuing-notation.html"><a href="queuing-notation.html"><i class="fa fa-check"></i><b>7.3</b> Queuing Notation</a></li>
+<li class="chapter" data-level="7.4" data-path="measures-of-performance.html"><a href="measures-of-performance.html"><i class="fa fa-check"></i><b>7.4</b> Measures of Performance</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="measures-of-performance.html"><a href="measures-of-performance.html#average-number-of-customers-in-the-system-l"><i class="fa fa-check"></i><b>7.4.1</b> Average Number of Customers in the System <span class="math inline">\(L\)</span></a></li>
+<li class="chapter" data-level="7.4.2" data-path="measures-of-performance.html"><a href="measures-of-performance.html#average-time-spent-in-system-per-customer-w"><i class="fa fa-check"></i><b>7.4.2</b> Average Time Spent in System per Customer <span class="math inline">\(w\)</span></a></li>
+<li class="chapter" data-level="7.4.3" data-path="measures-of-performance.html"><a href="measures-of-performance.html#littles-law"><i class="fa fa-check"></i><b>7.4.3</b> Little’s Law</a></li>
+<li class="chapter" data-level="7.4.4" data-path="measures-of-performance.html"><a href="measures-of-performance.html#server-utilization"><i class="fa fa-check"></i><b>7.4.4</b> Server Utilization</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="steady-state-behavior-of-the-mm1-model.html"><a href="steady-state-behavior-of-the-mm1-model.html"><i class="fa fa-check"></i><b>7.5</b> Steady-State Behavior of the M/M/1 Model</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Simulation and Modelling to Understand Change</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="measures-of-performance" class="section level2" number="7.4">
+<h2><span class="header-section-number">7.4</span> Measures of Performance</h2>
+<p>There are various measures that one can use to assess the quality of a queuing system. These are:</p>
+<ul>
+<li><p><span class="math inline">\(L\)</span>: the average number of customers in the system;</p></li>
+<li><p><span class="math inline">\(L_Q\)</span>: the average number of customers in the system;</p></li>
+<li><p><span class="math inline">\(w\)</span>: the average time spent in the system;</p></li>
+<li><p><span class="math inline">\(w_Q\)</span>: the average time spent in the queue;</p></li>
+<li><p><span class="math inline">\(\rho\)</span>: the server utilization; the proportion of time that a server is busy.</p></li>
+</ul>
+<p>The term system refers to the waiting line plus the service mechanism, whilst the term queue refers to the waiting line alone.</p>
+<div id="average-number-of-customers-in-the-system-l" class="section level3" number="7.4.1">
+<h3><span class="header-section-number">7.4.1</span> Average Number of Customers in the System <span class="math inline">\(L\)</span></h3>
+<p>Consider a queuing system over a period of time <span class="math inline">\(T\)</span> and let <span class="math inline">\(L(t)\)</span> denote the number of customers in the system at time <span class="math inline">\(t\)</span>. Let <span class="math inline">\(T_i\)</span> be the total time in <span class="math inline">\([0,T]\)</span> in which the system contained exactly <span class="math inline">\(i\)</span> customers. In general <span class="math inline">\(\sum_{i=0}^{\infty}T_i = T\)</span>. The <em>average number of customers in the system</em> is estimated by
+<span class="math display">\[
+\hat{L}=\frac{1}{T}\sum_{i=0}^\infty iT_i=\sum_{i=0}^\infty i \frac{T_i}{T}.
+\]</span>
+Notice that <span class="math inline">\(T_i/T\)</span> is the proportion of time the system contains exactly <span class="math inline">\(i\)</span> customers.</p>
+<p>Let’s consider an example. Figure <a href="measures-of-performance.html#fig:system">7.1</a> gives a simulation of a queue in an interval of 20 time units. It can be seen that <span class="math inline">\(T_0= 3\)</span>, <span class="math inline">\(T_1 = 11\)</span>, <span class="math inline">\(T_2 = 5\)</span> and <span class="math inline">\(T_3 =1\)</span>, and therefore <span class="math inline">\(\hat{L}= (0\cdot 3 + 1\cdot 11 + 2\cdot 5 + 3\cdot 1)/20 = 24/20 = 1.2\)</span> customers.</p>
+<div class="figure"><span id="fig:system"></span>
+<img src="images/system.jpg" alt="Number in system, L(t), at time t." width="1816" />
+<p class="caption">
+Figure 7.1: Number in system, L(t), at time t.
+</p>
+</div>
+<p>By looking at Figure <a href="measures-of-performance.html#fig:system">7.1</a> it can be seen that the total area under the function <span class="math inline">\(L(t)\)</span> can be decomposed into rectangles of length <span class="math inline">\(T_i\)</span> and height <span class="math inline">\(i\)</span>, thus having area <span class="math inline">\(iT_i\)</span>. It follows that the total area is given by <span class="math display">\[
+\sum_{i=0}^{\infty}iT_i = \int_0^TL(t)dt
+\]</span>
+and therefore
+<span class="math display">\[
+\hat{L}= \frac{1}{T}\sum_{i=0}^{\infty}iT_i=\frac{1}{T}\int_{0}^TL(t)dt
+\]</span></p>
+<p>Many queuing systems exhibit some kind of long-run stability in terms of their average performance. For such systems, as time <span class="math inline">\(T\)</span> gets large, the observed average number of customers in the system <span class="math inline">\(\hat{L}\)</span> approaches a limiting value, say <span class="math inline">\(L\)</span>, which is called the <em>long-run average number in system</em>. With probability 1 we have that
+<span class="math display">\[
+\hat{L}=\frac{1}{T}\int_{0}^TL(t)dt \rightarrow L \mbox{ as } T \rightarrow \infty
+\]</span>
+If a simulation run length <span class="math inline">\(T\)</span> is sufficiently long, the estimator <span class="math inline">\(\hat{L}\)</span> becomes arbitrarily close to <span class="math inline">\(L\)</span>.</p>
+<p>The above equations can be applied to any subsystem of a queuing system. If <span class="math inline">\(L_Q(t)\)</span> denotes the number of customers waiting in queue, and <span class="math inline">\(T_i^Q\)</span> denotes the total time in <span class="math inline">\([0,T]\)</span> in which exactly <span class="math inline">\(i\)</span> customers are waiting in queue, then
+<span class="math display">\[
+\hat{L}_Q=\frac{1}{T}\sum_{i=0}^{\infty}iT_i^Q=\int_0^TL_Q(t)dt \rightarrow L_Q \mbox{ as } T \rightarrow \infty
+\]</span></p>
+</div>
+<div id="average-time-spent-in-system-per-customer-w" class="section level3" number="7.4.2">
+<h3><span class="header-section-number">7.4.2</span> Average Time Spent in System per Customer <span class="math inline">\(w\)</span></h3>
+<p>If we simulate a queuing system for some period of time, say <span class="math inline">\(T\)</span>, then we can record the time that each customer spends in the system during <span class="math inline">\([0,T]\)</span>, say <span class="math inline">\(W_1,W_2,\dots,W_N\)</span> where <span class="math inline">\(N\)</span> is the number of arrivals in <span class="math inline">\([0,T]\)</span>. The average time spent in system per customer, called the <em>average system time</em>, is given by
+<span class="math display">\[
+\hat{w} = \frac{1}{N}\sum_{i=1}^N W_i
+\]</span>
+For stable systems, as <span class="math inline">\(N\rightarrow \infty\)</span>
+<span class="math display">\[
+\hat{w} \rightarrow w
+\]</span>
+with probability 1, where <span class="math inline">\(w\)</span> is called the <em>long-run average system time</em>.</p>
+<p>If the system under consideration is the queue alone, we can re-write the above equations as
+<span class="math display">\[
+\hat{w}_Q=\frac{1}{N}\sum_{i=1}^NW_i^Q \rightarrow w_Q \mbox{ as } N \rightarrow \infty
+\]</span>
+where <span class="math inline">\(W_i^Q\)</span> is the total time customer <span class="math inline">\(i\)</span> spends waiting in queue, <span class="math inline">\(\hat{w}_Q\)</span> is the observed average time spend in queue (or delay) and <span class="math inline">\(w_Q\)</span> is the long-run average delay per customer.</p>
+<p>Consider the system in Figure <a href="measures-of-performance.html#fig:system">7.1</a>. It can be seen that there are 5 customers who waited <span class="math inline">\(W_1 =2\)</span>, <span class="math inline">\(W_2 = 5\)</span>, <span class="math inline">\(W_3 = 6\)</span>, <span class="math inline">\(W_4 = 7\)</span> and <span class="math inline">\(W_5 = 4\)</span> and therefore
+<span class="math display">\[
+\hat{w}=\frac{2+5 +6 + 7 + 4}{5}= 4.8 \mbox{ time units}
+\]</span>
+Thus on average these customers spent 4.8 time units in the system. As for the time spent in the queue, it can be computed as <span class="math inline">\(W_1^Q=0\)</span>, <span class="math inline">\(W_2^Q = 0\)</span>, <span class="math inline">\(W_3^Q=3\)</span>, <span class="math inline">\(W_4^Q = 4\)</span> and <span class="math inline">\(W_5^Q = 0\)</span>, thus:
+<span class="math display">\[
+\hat{w}_Q=\frac{0 + 0 + 3 + 4 +0}{5}= 1.4 \mbox{ time units.}
+\]</span></p>
+</div>
+<div id="littles-law" class="section level3" number="7.4.3">
+<h3><span class="header-section-number">7.4.3</span> Little’s Law</h3>
+<p>For the example in Figure <a href="measures-of-performance.html#fig:system">7.1</a> there were <span class="math inline">\(N=5\)</span> arrivals in <span class="math inline">\(T=20\)</span> time units, and thus the observed arrival rate was <span class="math inline">\(\hat{\lambda}= N/T=1/4\)</span> customer per time unit. Recall that <span class="math inline">\(\hat{L}=1.2\)</span> and <span class="math inline">\(\hat{w}=4.8\)</span>. Hence it follows that
+<span class="math display">\[
+\hat{L}=\hat{\lambda}\hat{w},
+\]</span>
+since <span class="math inline">\(1.2 = \frac{1}{4}4.8\)</span>.</p>
+<p>This relationship is not coincidental: it holds for almost all queuing systems. Allowing <span class="math inline">\(T\rightarrow \infty\)</span> and <span class="math inline">\(N\rightarrow \infty\)</span>, the above expression becomes
+<span class="math display">\[
+L=\lambda w,
+\]</span>
+where <span class="math inline">\(\hat{\lambda}\rightarrow \lambda\)</span> and <span class="math inline">\(\lambda\)</span> is the long-run average arrival rate. This equality is usually called <em>Little’s law</em>. It says that the average number of customers in the system is equal to the average number of arrivals per time unit times the average time spent in the system. For Figure <a href="measures-of-performance.html#fig:system">7.1</a> there is one arrival every 4 minutes (on average) and each arrival spends 4.6 minutes in the system (on average), so at an arbitrary point in time there will be <span class="math inline">\((1/4)(4.9)=1.2\)</span> customers present (on average).</p>
+<div class="figure"><span id="fig:unnamed-chunk-179"></span>
+<img src="images/system2.jpg" alt="System times W_i for the example system." width="1704" />
+<p class="caption">
+Figure 7.2: System times W_i for the example system.
+</p>
+</div>
+<p>Little’s law can also be derived reconsidering Figure <a href="measures-of-performance.html#fig:system">7.1</a> as follows. Figure <a href="#fig:system2"><strong>??</strong></a> shows the exact same system history, but reporting the waiting time of each customer in the system, <span class="math inline">\(W_i\)</span>. Again we can see that the area under the function <span class="math inline">\(L(t)\)</span> can be decomposed into rectangles of height 1 and length <span class="math inline">\(W_i\)</span>, for each <span class="math inline">\(i=1,2,\dots,N\)</span>. Therefore
+<span class="math display">\[
+\sum_{i=1}^NW_i=\int_{0}^TL(t)dt
+\]</span>
+Therefore, by using that <span class="math inline">\(\hat{\lambda}=N/T\)</span> we have that
+<span class="math display">\[
+\hat{L}=\frac{1}{T}\int_{0}^TL(t)dt=\frac{1}{T}\sum_{i=1}^NW_i=\frac{N}{T}\frac{1}{N}\sum_{i=1}^NW_i=\hat\lambda\hat{w},
+\]</span>
+which is indeed Little’s law!</p>
+</div>
+<div id="server-utilization" class="section level3" number="7.4.4">
+<h3><span class="header-section-number">7.4.4</span> Server Utilization</h3>
+<p>Server utilization is defined as the proportion of time that a server is busy. Observed served utilization, denoted by <span class="math inline">\(\hat{\rho}\)</span>, is defined over a specified time interval <span class="math inline">\([0,T]\)</span>. Long-run server utilization is denoted by <span class="math inline">\(\rho\)</span>. For systems that exhibit long-run stability,
+<span class="math display">\[
+\hat{\rho}\rightarrow \rho \mbox{ as } T\rightarrow \infty
+\]</span></p>
+<div id="server-utilization-in-gg1-queues" class="section level4" number="7.4.4.1">
+<h4><span class="header-section-number">7.4.4.1</span> Server Utilization in G/G/1 Queues</h4>
+<p>Consider any single-server queuing system with average arrival rate <span class="math inline">\(\lambda\)</span> customers per time unit, average service time <span class="math inline">\(E(S)=1/\mu\)</span> time units, and infinite queue capacity and calling population. Notice that <span class="math inline">\(E(S)=1/\mu\)</span> implies that when busy the server is working at the rate <span class="math inline">\(\mu\)</span> customers per time unit, on average: <span class="math inline">\(\mu\)</span> is called the <em>service rate</em>.</p>
+<p>Notice that the server alone is a subsystem that can be considered as a queuing system itself. hence, Little’s law <span class="math inline">\(L=\lambda w\)</span> can be applied to the server. For stable systems, the average arrival rate to the server, say <span class="math inline">\(\lambda_s\)</span> must be identical to the average arrival rate to the system <span class="math inline">\(\lambda\)</span> (certainly <span class="math inline">\(\lambda_s\leq \lambda\)</span> since customers cannot be served faster than they arrive, but if <span class="math inline">\(\lambda_s&lt;\lambda\)</span> the the waiting line would tend to grow in length and so we would have an unstable system). For the server subsystem, the average system time is <span class="math inline">\(w=E(S)=1/\mu\)</span>. The actual number of customers in the server subsystem is either zero or one as shown in Figure <a href="measures-of-performance.html#fig:system3">7.3</a> for the system in Figure <a href="measures-of-performance.html#fig:system">7.1</a>. Hence the average number in the server subsystem <span class="math inline">\(\hat{L}_s\)</span> is given by
+<span class="math display">\[
+\hat{L}_s = \frac{T-T_0}{T}
+\]</span>
+In the example <span class="math inline">\(\hat{L}_s=17/20=\hat{\rho}\)</span>.</p>
+<div class="figure"><span id="fig:system3"></span>
+<img src="images/system3.jpg" alt="Number of customers being served at time t" width="1842" />
+<p class="caption">
+Figure 7.3: Number of customers being served at time t
+</p>
+</div>
+<p>In general, for a single-server queue, the average number of customers being served at an arbitrary point in time is equal to server utilization. As <span class="math inline">\(T\rightarrow \infty\)</span>, <span class="math inline">\(\hat{L}_s=\hat{\rho}\rightarrow L_s=\rho\)</span>. Combining these results into <span class="math inline">\(L=\lambda w\)</span> for the server subsystem yields
+<span class="math display">\[
+\rho = \lambda E(S)=\frac{\lambda}{\mu}
+\]</span>
+that is the long-run server utilization in a single-server queue is equal to the average arrival rate divided by the average service rate. For a single-server queue to be stable, the arrival-rate <span class="math inline">\(\lambda\)</span> must be less then the service rate <span class="math inline">\(\mu\)</span>:
+<span class="math display">\[
+\lambda &lt; \mu
+\]</span>
+or
+<span class="math display">\[
+\rho =\frac{\lambda}{\mu} &lt; 1
+\]</span>
+If the arrival rate is greater than the service rate <span class="math inline">\((\lambda &gt; \mu)\)</span> the server will eventually get further and further behind. After time, the server will always be busy, and the waiting line will tend to grow in length. For stable single-server systems long-run measures of performance such as average queue length <span class="math inline">\(L_Q\)</span> are well defined and have a meaning. For unstable systems long-run server utilization is 1 and the long-run average queue length is infinite.</p>
+</div>
+<div id="server-utilization-in-ggc-queues" class="section level4" number="7.4.4.2">
+<h4><span class="header-section-number">7.4.4.2</span> Server Utilization in G/G/c Queues</h4>
+<p>Consider now a queuing system with <span class="math inline">\(c\)</span> identical servers in parallel. If an arriving customer finds more than one server idle, the customer chooses a server without favoring any particular server. Arrivals occur at rate <span class="math inline">\(\lambda\)</span> from an infinite calling population and each server works at rate <span class="math inline">\(\mu\)</span> customers per time unit.</p>
+<p>Using a similar argument as above, one can derive that long-run average server utilization is defined by
+<span class="math display">\[
+\rho = \frac{\lambda}{c\mu}
+\]</span>
+and the system is stable if <span class="math inline">\(\rho &lt; 1\)</span> or equivalently if
+<span class="math display">\[
+\lambda &lt; c\mu.
+\]</span>
+The average number of busy servers is
+<span class="math display">\[
+L_s=\frac{\lambda}{\mu}.
+\]</span></p>
+</div>
+<div id="an-example" class="section level4" number="7.4.4.3">
+<h4><span class="header-section-number">7.4.4.3</span> An Example</h4>
+<p>Consider a doctor who schedules patients every 10 minutes and who spends <span class="math inline">\(S_i\)</span> minutes with the i-th patient, where
+<span class="math display">\[
+S_i = \left\{
+\begin{array}{l}
+9 \mbox{ minutes with probability } 0.9\\
+12 \mbox{ minutes with probability } 0.1
+\end{array}
+\right.
+\]</span>
+Thus, arrivals are deterministic (every 10 minutes) but services are stochastic with mean and variance given by
+<span class="math display">\[
+E(S_i)= 9\cdot 0.9 + 12\cdot 0.1 = 9.3 \mbox{ minutes}
+\]</span>
+and
+<span class="math display">\[
+V(S_i)=0.9\cdot(9-9.3)^2 + 0.1\cdot(12-9.3)^2 = 0.81 \mbox{ minutes}^2
+\]</span>
+Here <span class="math inline">\(\rho=\lambda /\mu = 9.3/10=0.93 &lt; 1\)</span> and so the system is stable and the doctor will be busy 93% of the time in the long-run. In the short-run, sometimes queues will build up temporarily because of the variability of the service distribution, as shown in Figure <a href="measures-of-performance.html#fig:system4">7.4</a>.</p>
+<div class="figure"><span id="fig:system4"></span>
+<img src="images/system4.jpg" alt="Number of patients in the doctor's office at time t" width="1736" />
+<p class="caption">
+Figure 7.4: Number of patients in the doctor’s office at time t
+</p>
+</div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="queuing-notation.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="steady-state-behavior-of-the-mm1-model.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["SimBook.pdf", "SimBook.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

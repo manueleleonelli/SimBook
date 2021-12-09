@@ -117,7 +117,7 @@
 
 \title{Simulation and Modelling to Understand Change}
 \author{Manuele Leonelli}
-\date{2021-02-22}
+\date{2021-04-19}
 
 \begin{document}
 \maketitle
@@ -4168,6 +4168,2075 @@ So our approximation is already quite close to the true value. We would get even
 \begin{verbatim}
 ## [1] 1.096
 \end{verbatim}
+
+\hypertarget{playing-the-roulette}{%
+\section{Playing the roulette}\label{playing-the-roulette}}
+
+Consider a European-style roulette which includes numbers between 0 and 36. In roulette there are many different betting alternatives but we consider here the simplest case where we bet on a single number. If we pick the right number then we win 35 times what we bet.
+
+Consider the following scenario. We start playing roulette with a fixed \texttt{budget}. Every sping of the roulette costs one unit of \texttt{budget}. We play until we run out of budget and we always bet on the same number. The following function \texttt{roulette} implements this game.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{roulette }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(budget, number)\{}
+\NormalTok{  current }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+  \ControlFlowTok{while}\NormalTok{(budget }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{)\{}
+\NormalTok{    outcome }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\DecValTok{0}\SpecialCharTok{:}\DecValTok{36}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+    \ControlFlowTok{if}\NormalTok{(outcome }\SpecialCharTok{==}\NormalTok{ number) \{}
+\NormalTok{      budget }\OtherTok{\textless{}{-}}\NormalTok{ budget }\SpecialCharTok{+} \DecValTok{35}
+\NormalTok{    \}}
+    \ControlFlowTok{else}\NormalTok{ \{budget }\OtherTok{\textless{}{-}}\NormalTok{ budget }\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{\}}
+\NormalTok{    current }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(current,budget)}
+\NormalTok{  \}}
+\NormalTok{  current}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+It takes two inputs: the \texttt{budget} and the number we decided to play all the time. It outputs our budget throughout the whole game until it ends.
+
+Let's play one game with a budget of 15 and betting on the number 8.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{roulette}\NormalTok{(}\DecValTok{15}\NormalTok{,}\DecValTok{8}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+\end{verbatim}
+
+In 15 spins the number 8 never comes up and therefore our game ends quite quickly.
+
+We can ask ourselves many questions about such a game. For instance:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  What is the probability that the game last exactly 15 spins if I start with a budget of 15 and bet on the number 8?
+\item
+  What is the average length of the game starting with a budget of 15 and betting on the number 8?
+\item
+  What is the average maximum wealth I have during a game started with a budget of 15 and betting on the number 8?
+\end{enumerate}
+
+We will develop various Monte Carlo experiments to answer all the above questions. In each case, we simply need to modify the function \texttt{roulette} to output some summary about the game.
+
+\hypertarget{question-1}{%
+\subsection{Question 1}\label{question-1}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  What is the probability that the game last exactly 15 spins if I start with a budget of 15 and bet on the number 8?
+\end{enumerate}
+
+If a game where I started with a budget of 15 ends after 15 spins, it means that the number 8 never showed up. We can adapt the function roulette to output \texttt{TRUE} if the length of the vector \texttt{wealth} is exactly equal to \texttt{budget}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{roulette1 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(budget, number)\{}
+\NormalTok{  wealth }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+\NormalTok{  current }\OtherTok{\textless{}{-}}\NormalTok{ budget}
+  \ControlFlowTok{while}\NormalTok{(current }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{)\{}
+\NormalTok{    outcome }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\DecValTok{0}\SpecialCharTok{:}\DecValTok{36}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+    \ControlFlowTok{if}\NormalTok{(outcome }\SpecialCharTok{==}\NormalTok{ number) \{}
+\NormalTok{      current }\OtherTok{\textless{}{-}}\NormalTok{ current }\SpecialCharTok{+} \DecValTok{35}
+\NormalTok{    \}}
+    \ControlFlowTok{else}\NormalTok{ \{current }\OtherTok{\textless{}{-}}\NormalTok{ current }\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{\}}
+\NormalTok{    wealth }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(wealth,current)}
+\NormalTok{  \}}
+  \ControlFlowTok{if}\NormalTok{(}\FunctionTok{length}\NormalTok{(wealth) }\SpecialCharTok{==}\NormalTok{ budget)\{}\FunctionTok{return}\NormalTok{(}\ConstantTok{TRUE}\NormalTok{)\} }\ControlFlowTok{else}\NormalTok{\{}\FunctionTok{return}\NormalTok{(}\ConstantTok{FALSE}\NormalTok{)\}}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Therefore for the previous example the function should output \texttt{TRUE}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{roulette1}\NormalTok{(}\DecValTok{15}\NormalTok{,}\DecValTok{8}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+Let's replicate the experiment 1000 times. The proportion of \texttt{TRUE} we observe is our estimate of this probability.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{experiment }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\FunctionTok{roulette1}\NormalTok{(}\DecValTok{15}\NormalTok{,}\DecValTok{8}\NormalTok{))}
+\FunctionTok{sum}\NormalTok{(experiment)}\SpecialCharTok{/}\DecValTok{1000}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.657
+\end{verbatim}
+
+Notice that actually we could have also computed this probability exactly. This is the probability that a Binomial random variable with parameter \(n=15\) (15 spins of the roulette) and \(\theta = 1/37\) (the number eight has probability 1/37 of appearing in a single spin) is equal to zero (no 8 can happen). This is equal to:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dbinom}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{15}\NormalTok{,}\DecValTok{1}\SpecialCharTok{/}\DecValTok{37}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.6629971
+\end{verbatim}
+
+Therefore the Monte Carlo experiment approximates well the probability.
+
+\hypertarget{question-2}{%
+\subsection{Question 2}\label{question-2}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  What is the average length of the game starting with a budget of 15 and betting on the number 8?
+\end{enumerate}
+
+We can answer this question by adapting the \texttt{roulette} function to output the length of the vector \texttt{wealth}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{roulette2 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(budget, number)\{}
+\NormalTok{  wealth }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+\NormalTok{  current }\OtherTok{\textless{}{-}}\NormalTok{ budget}
+  \ControlFlowTok{while}\NormalTok{(current }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{)\{}
+\NormalTok{    outcome }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\DecValTok{0}\SpecialCharTok{:}\DecValTok{36}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+    \ControlFlowTok{if}\NormalTok{(outcome }\SpecialCharTok{==}\NormalTok{ number) \{}
+\NormalTok{      current }\OtherTok{\textless{}{-}}\NormalTok{ current }\SpecialCharTok{+} \DecValTok{35}
+\NormalTok{    \}}
+    \ControlFlowTok{else}\NormalTok{ \{current }\OtherTok{\textless{}{-}}\NormalTok{ current }\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{\}}
+\NormalTok{    wealth }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(wealth,current)}
+\NormalTok{  \}}
+  \FunctionTok{length}\NormalTok{(wealth)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+In our example, the output should be 15.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{roulette2}\NormalTok{(}\DecValTok{15}\NormalTok{,}\DecValTok{8}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 15
+\end{verbatim}
+
+Let's replicate the experiment 1000 times and summarize the results with a plot (it may take some time to run the code!).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{experiment }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\FunctionTok{roulette2}\NormalTok{(}\DecValTok{15}\NormalTok{,}\DecValTok{8}\NormalTok{))}
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{table}\NormalTok{(experiment))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/roulette2-1} \end{center}
+
+We can see that the distribution is very skewed, most often the length is 15 spins, but then sometimes the game has a length which is much longer. Therefore, the median of the data is a much better option to summarize the average length of the game. We can compute it, together with a range of plausible values, as
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{median}\NormalTok{(experiment)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 15
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{c}\NormalTok{(}\FunctionTok{sort}\NormalTok{(experiment)[}\DecValTok{25}\NormalTok{],}\FunctionTok{sort}\NormalTok{(experiment)[}\DecValTok{975}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]   15 1923
+\end{verbatim}
+
+So we can see that the median is indeed 15: most of the times the number 8 does not appear and therefore the game ends in 15 spins.
+
+\hypertarget{question-3}{%
+\subsection{Question 3}\label{question-3}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  What is the average maximum wealth I have during a game started with a budget of 15 and betting on the number 8?
+\end{enumerate}
+
+We can answer this question by adapting the \texttt{roulette} function to output the maximum of the vector \texttt{wealth}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{roulette3 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(budget, number)\{}
+\NormalTok{  wealth }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+\NormalTok{  current }\OtherTok{\textless{}{-}}\NormalTok{ budget}
+  \ControlFlowTok{while}\NormalTok{(current }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{)\{}
+\NormalTok{    outcome }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\DecValTok{0}\SpecialCharTok{:}\DecValTok{36}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+    \ControlFlowTok{if}\NormalTok{(outcome }\SpecialCharTok{==}\NormalTok{ number) \{}
+\NormalTok{      current }\OtherTok{\textless{}{-}}\NormalTok{ current }\SpecialCharTok{+} \DecValTok{35}
+\NormalTok{    \}}
+    \ControlFlowTok{else}\NormalTok{ \{current }\OtherTok{\textless{}{-}}\NormalTok{ current }\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{\}}
+\NormalTok{    wealth }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(wealth,current)}
+\NormalTok{  \}}
+  \FunctionTok{max}\NormalTok{(wealth)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Let's again replicate the experiment and plot the result.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{experiment }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\FunctionTok{roulette3}\NormalTok{(}\DecValTok{15}\NormalTok{,}\DecValTok{8}\NormalTok{))}
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{table}\NormalTok{(experiment))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/roulette3-1} \end{center}
+
+We can then get an estimate of the maximum wealth as well as a range of plausible values as
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{median}\NormalTok{(experiment)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 14
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{c}\NormalTok{(}\FunctionTok{sort}\NormalTok{(experiment)[}\DecValTok{25}\NormalTok{],}\FunctionTok{sort}\NormalTok{(experiment)[}\DecValTok{975}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  14 331
+\end{verbatim}
+
+Since most often the game ends with no 8 appearing, the maximum wealth is most often 14.
+
+\hypertarget{is-annie-meeting-sam}{%
+\section{Is Annie meeting Sam?}\label{is-annie-meeting-sam}}
+
+Sleepless in Seattle is a 1993 American Romantic Comedy. Annie and Sam are supposed to meet on top of the Empire State Building where they would at last meet. However, their arrival time depends on a variety of factors and may actually not coincide and therefore never fall in love.
+
+We make the following assumptions:
+
+\begin{itemize}
+\item
+  Sam and Annie arrive independently;
+\item
+  Sam arrives between 10 pm and 11:30 pm uniformly;
+\item
+  Annie arrives between 10:30 pm and midnight uniformly.
+\end{itemize}
+
+We want to answer the following questions:
+
+\begin{itemize}
+\item
+  What is the probability that Annie arrives before Sam?
+\item
+  What is the expected difference in arrival time?
+\item
+  If they each wait only twenty minutes after their arrival, what is the probability that they meet?
+\item
+  How much should they wait (assuming they wait the same amount of time), so that the probability they meet is at least 50\%?
+\end{itemize}
+
+\hypertarget{question-1-1}{%
+\subsection{Question 1}\label{question-1-1}}
+
+\begin{itemize}
+\tightlist
+\item
+  What is the probability that Annie arrives before Sam?
+\end{itemize}
+
+The following function outputs \texttt{TRUE} if Annie arrives before Sam and \texttt{FALSE} otherwise.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sam\_annie1 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{()\{}
+\NormalTok{  sam }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{90}\NormalTok{)}
+\NormalTok{  annie }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{30}\NormalTok{,}\DecValTok{120}\NormalTok{)}
+\NormalTok{  annie }\SpecialCharTok{\textless{}}\NormalTok{ sam}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+If we run a single simulation for instance
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{sam\_annie1}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE
+\end{verbatim}
+
+We see that Annie does not arrive before Sam.
+
+We can simply adapt \texttt{sam\_annie1} to use 1000 random observations and give an estimate of this probability.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sam\_annie1 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{()\{}
+\NormalTok{  sam }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{90}\NormalTok{)}
+\NormalTok{  annie }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\DecValTok{30}\NormalTok{,}\DecValTok{120}\NormalTok{)}
+  \FunctionTok{sum}\NormalTok{(annie }\SpecialCharTok{\textless{}}\NormalTok{ sam)}\SpecialCharTok{/}\DecValTok{1000}
+\NormalTok{\}}
+
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{sam\_annie1}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.223
+\end{verbatim}
+
+If we want to have an estimate of the variability around this probability we can then replicate the experiment.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{experiment }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(}\DecValTok{1000}\NormalTok{, }\FunctionTok{sam\_annie1}\NormalTok{())}
+\FunctionTok{boxplot}\NormalTok{(experiment)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/unnamed-chunk-131-1} \end{center}
+
+The probability that Annie arrives before Sam is around 0.22.
+
+\hypertarget{question-2-1}{%
+\subsection{Question 2}\label{question-2-1}}
+
+\begin{itemize}
+\tightlist
+\item
+  What is the expected difference in arrival time?
+\end{itemize}
+
+The function \texttt{sam\_annie2} computes this expectation using 1000 random observations.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sam\_annie2 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{()\{}
+\NormalTok{  sam }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{90}\NormalTok{)}
+\NormalTok{  annie }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\DecValTok{30}\NormalTok{,}\DecValTok{120}\NormalTok{)}
+  \FunctionTok{mean}\NormalTok{(sam}\SpecialCharTok{{-}}\NormalTok{annie)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+We can replicate and create a boxplot.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{experiment }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\FunctionTok{sam\_annie2}\NormalTok{())}
+\FunctionTok{boxplot}\NormalTok{(experiment)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/unnamed-chunk-133-1} \end{center}
+
+So on average Sam arrives 30 minutes before Annie.
+
+\hypertarget{question-3-1}{%
+\subsection{Question 3}\label{question-3-1}}
+
+\begin{itemize}
+\tightlist
+\item
+  If they each wait only twenty minutes after their arrival, what is the probability that they meet?
+\end{itemize}
+
+The function \texttt{sleepless} below returns \texttt{TRUE} if Annie and Sam meets,\texttt{FALSE} otherwise.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sleepless }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(}\AttributeTok{waiting =} \DecValTok{20}\NormalTok{)\{}
+\NormalTok{  u1 }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{150}\NormalTok{)}
+\NormalTok{  u2 }\OtherTok{\textless{}{-}} \FunctionTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{50}\NormalTok{,}\DecValTok{200}\NormalTok{)}
+  \ControlFlowTok{if}\NormalTok{ (u1 }\SpecialCharTok{\textless{}}\NormalTok{ u2)\{}\ControlFlowTok{if}\NormalTok{(u1 }\SpecialCharTok{+}\NormalTok{ waiting }\SpecialCharTok{\textgreater{}}\NormalTok{ u2) }\FunctionTok{return}\NormalTok{(}\ConstantTok{TRUE}\NormalTok{)\}}
+  \ControlFlowTok{else}\NormalTok{\{}\ControlFlowTok{if}\NormalTok{ (u2 }\SpecialCharTok{+}\NormalTok{ waiting }\SpecialCharTok{\textgreater{}}\NormalTok{ u1) }\FunctionTok{return}\NormalTok{(}\ConstantTok{TRUE}\NormalTok{)\}}
+  \FunctionTok{return}\NormalTok{(}\ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Let's run it 10.000 times to get an estimate of the probability.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\FunctionTok{mean}\NormalTok{(}\FunctionTok{replicate}\NormalTok{(}\DecValTok{10000}\NormalTok{,}\FunctionTok{sleepless}\NormalTok{()))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.178
+\end{verbatim}
+
+So we see that if they each wait 20 minutes, they have a probability of meeting of 0.178.
+
+\hypertarget{question-4}{%
+\subsection{Question 4}\label{question-4}}
+
+\begin{itemize}
+\tightlist
+\item
+  How much should they wait (assuming they wait the same amount of time), so that the probability they meet is at least 50\%?
+\end{itemize}
+
+In order to answer this question we can use the \texttt{sapply} function. We already know that if they wait 20 minutes, the probability of meeting is 0.19. So we consider longer waiting times.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sapply}\NormalTok{(}\DecValTok{30}\SpecialCharTok{:}\DecValTok{60}\NormalTok{,}\ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{mean}\NormalTok{(}\FunctionTok{replicate}\NormalTok{(}\DecValTok{10000}\NormalTok{,}\FunctionTok{sleepless}\NormalTok{(x))))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 0.2754 0.2769 0.2811 0.2925 0.3055 0.3104 0.3147 0.3248 0.3400 0.3482
+## [11] 0.3571 0.3605 0.3746 0.3869 0.3958 0.4034 0.4104 0.4184 0.4237 0.4283
+## [21] 0.4444 0.4653 0.4664 0.4763 0.4831 0.4846 0.4929 0.5067 0.5091 0.5222
+## [31] 0.5312
+\end{verbatim}
+
+It's the 28th entry of the vector \texttt{30:60}, that is 57, the first one for which the probability is at least 0.50. So they should wait 57 minutes if they want to have a probability of at least 50\% to actually meet.
+
+\hypertarget{discrete-event-simulation}{%
+\chapter{Discrete Event Simulation}\label{discrete-event-simulation}}
+
+The complexity of many real-world systems involves unaffordable analytical models, and consequently, such systems are commonly studied by means of simulation. Different types of simulation apply depending on the nature of the system under consideration. In the last chapter we focused on static simulation, also called Monte Carlo simulation. In this chapter we discuss discrete-event simulation (DES) which is a specific technique for modelling stochastic, dynamic and discretely evolving systems. As opposed to continuous simulation, which typically uses smoothly-evolving equational models, DES is characterized by sudden state changes at precise points of (simulated) time.
+
+Customers arriving at a bank, products being manipulated in a supply chain, or packets traversing a network are common examples of such systems. The discrete nature of a given system arises as soon as its behavior can be described in terms of events, which is the most fundamental concept in DES. An event is an instantaneous occurrence that may change the state of the system, while, between events, all the state variables remain constant.
+
+To implement DES in R we will take advantage of the \texttt{simmer} package which provides capabilities to easily model a wide range of applications.
+
+\hypertarget{the-donut-shop}{%
+\section{The donut shop}\label{the-donut-shop}}
+
+You may recall that in Chapter 1 we discussed the example of a simple donut shop where we were interested in the waiting time of costumers depending on the number of employees in the shop. We will slowly build a more and more realistic implementation of the shop using \texttt{simmer}. First, if you have never done this, you need to install the package using the code
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{install.packages}\NormalTok{(}\StringTok{"simmer"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Once it is installed (that you only need to do once), you then need to load it at the beginning of every R session using the code
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(simmer)}
+\end{Highlighting}
+\end{Shaded}
+
+As we will see \texttt{simmer} takes advantage of the \texttt{magrittr} pipe operator.
+
+\hypertarget{a-single-customer-at-a-fixed-time}{%
+\subsection{A single customer at a fixed time}\label{a-single-customer-at-a-fixed-time}}
+
+We first model a single customer who arrives at the shop for a visit, looks around at the decor for a time and then leaves. There is no queueing. First we will assume his arrival time and the time he spends in the shop are fixed.
+
+The arrival time is fixed at 5, and the time spent in the shop is fixed at 10. We interpret `5' and `10' as `5 minutes' and `10 minutes'. The simulation runs for a maximum of 100 minutes, or until all the customers that are generated complete their visit to the shop.
+
+Let's define step by step the code that implements this. First we define a variable called \texttt{customer} which describes the evolution of the customer in the shop. The evolution of the customer is called the \texttt{trajectory} and it is given some name. The function \texttt{log\_} produces text which is shown as specific points during the simulation. Lastly, \texttt{timeout} specifies how long the customer will spend in the shop.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Here I am"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\DecValTok{10}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"I must leave"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Now that we have described how the customer behaves in the shop, we must create a variable specifying how the shop itself works. The code below creates the variable \texttt{shop} where first we create a \texttt{simmer} object called \texttt{shop} and then we specify via the function \texttt{add\_generator} that a customer arrives after 5 minutes.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\FunctionTok{at}\NormalTok{(}\DecValTok{5}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Now that the shop is created we have to run the simulation using the \texttt{run} command.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{run}\NormalTok{(}\AttributeTok{until =} \DecValTok{100}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 5: Customer0: Here I am
+## 15: Customer0: I must leave
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 15 | next: 
+## { Monitor: in memory }
+## { Source: Customer | monitored: 1 | n_generated: 1 }
+\end{verbatim}
+
+The output summarizes what happened during the simulation. A customer arrives at minute 5 and leaves at minute 15. The simulation then stops since there are no other events that can happen in this simple case.
+
+In order to have an overview of the events of the simulation we can also use the function \texttt{get\_mon\_arrivals}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{get\_mon\_arrivals}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        name start_time end_time activity_time finished replication
+## 1 Customer0          5       15            10     TRUE           1
+\end{verbatim}
+
+\hypertarget{a-customer-arriving-at-random}{%
+\subsection{A customer arriving at random}\label{a-customer-arriving-at-random}}
+
+Now we extend the model to allow our customer to arrive at a random simulated time though we will keep the time in the bank at 10, as before.
+
+The change occurs in the arguments to the \texttt{add\_generator} function. We will assume that the customer arrival time is generated from an Exponential distribution with parameter 1/5 (that is mean = 5).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Here I am"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\DecValTok{10}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"I must leave"}\NormalTok{)}
+
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\FunctionTok{at}\NormalTok{(}\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{)))}
+
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{run}\NormalTok{(}\AttributeTok{until =} \DecValTok{100}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 5.92531: Customer0: Here I am
+## 15.9253: Customer0: I must leave
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 15.925307087372 | next: 
+## { Monitor: in memory }
+## { Source: Customer | monitored: 1 | n_generated: 1 }
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{get\_mon\_arrivals}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        name start_time end_time activity_time finished replication
+## 1 Customer0   5.925307 15.92531            10     TRUE           1
+\end{verbatim}
+
+The trace shows that the customer now arrives at time 5.925307. Changing the seed value would change that time.
+
+\hypertarget{many-random-customers}{%
+\subsection{Many random customers}\label{many-random-customers}}
+
+We now extend this model to allow multiple arrivals at random. In simulation this is usually interpreted as meaning that the times between customer arrivals are distributed as exponential random variables (we will see later on why this is so). There is little change in our program: we need to adapt the \texttt{add\_generator} function. We will run the simulation a shorter time, since otherwise the output becomes massive.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Here I am"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\DecValTok{10}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"I must leave"}\NormalTok{)}
+
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{))}
+
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{run}\NormalTok{(}\AttributeTok{until =} \DecValTok{30}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 5.92531: Customer0: Here I am
+## 12.0259: Customer1: Here I am
+## 13.3892: Customer2: Here I am
+## 15.4026: Customer3: Here I am
+## 15.9253: Customer0: I must leave
+## 16.807: Customer4: Here I am
+## 20.6063: Customer5: Here I am
+## 22.0259: Customer1: I must leave
+## 23.3892: Customer2: I must leave
+## 23.7606: Customer6: Here I am
+## 23.8551: Customer7: Here I am
+## 24.5296: Customer8: Here I am
+## 25.4026: Customer3: I must leave
+## 26.807: Customer4: I must leave
+## 27.7301: Customer9: Here I am
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 30 | next: 30.6063456850162
+## { Monitor: in memory }
+## { Source: Customer | monitored: 1 | n_generated: 11 }
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{get\_mon\_arrivals}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        name start_time end_time activity_time finished replication
+## 1 Customer0   5.925307 15.92531            10     TRUE           1
+## 2 Customer1  12.025928 22.02593            10     TRUE           1
+## 3 Customer2  13.389166 23.38917            10     TRUE           1
+## 4 Customer3  15.402626 25.40263            10     TRUE           1
+## 5 Customer4  16.807015 26.80702            10     TRUE           1
+\end{verbatim}
+
+So we see that in the 30 minutes we simulated, 10 customers arrived at the shop and 5 of them left after staying there for 10 minutes.
+
+\hypertarget{the-donut-shop-with-a-service-counter}{%
+\subsection{The donut shop with a service counter}\label{the-donut-shop-with-a-service-counter}}
+
+So far, the model has been more like an art gallery, the customers entering, looking around, and leaving. Now they are going to require service from an employee. We extend the model to include a service counter that will be modelled as a `resource'. The actions of a Resource are simple: a customer requests a unit of the resource (an employee). If one is free, then the customer gets service (and the unit is no longer available to other customers). If there is no free employee, then the customer joins the queue until it is the customer's turn to be served. As each customer completes service and releases the unit, the employee can start serving the next in line.
+
+The service counter is created with the \texttt{add\_resource} function. Default arguments specify that it can serve one customer at a time, and has infinite queuing capacity.
+
+The \texttt{seize} function causes the customer to join the queue at the counter. If the queue is empty and the counter is available (not serving any customers), then the customer claims the counter for itself and moves onto the \texttt{timeout} step. Otherwise the customer must wait until the counter becomes available. Behaviour of the customer while in the queue is controlled by the arguments of the \texttt{seize} function. Once the \texttt{timeout} step is complete, the \texttt{release} function causes the customer to make the counter available to other customers in the queue.
+
+We will assume that serving time follows a Normal distribution with mean 10 and standard deviation 2.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Here I am"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Finished"}\NormalTok{)}
+
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{))}
+
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{run}\NormalTok{(}\AttributeTok{until =} \DecValTok{30}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 5.92531: Customer0: Here I am
+## 12.0259: Customer1: Here I am
+## 13.4303: Customer2: Here I am
+## 16.6226: Customer0: Finished
+## 17.2296: Customer3: Here I am
+## 28.4187: Customer1: Finished
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 30 | next: 36.6490003143151
+## { Monitor: in memory }
+## { Resource: counter | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 5 }
+\end{verbatim}
+
+So we see that 4 customers arrived in the shop and that 2 of them were served. Let's use the function \texttt{get\_mon\_arrivals} to have a summary of each customer. By default, the function does not tell us the waiting time for a customer, which we will need to compute.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{get\_mon\_arrivals}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{transform}\NormalTok{(}\AttributeTok{waiting\_time =}\NormalTok{ end\_time }\SpecialCharTok{{-}}\NormalTok{ start\_time }\SpecialCharTok{{-}}\NormalTok{ activity\_time)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        name start_time end_time activity_time finished replication
+## 1 Customer0   5.925307 16.62261      10.69730     TRUE           1
+## 2 Customer1  12.025928 28.41871      11.79611     TRUE           1
+##    waiting_time
+## 1 -1.776357e-15
+## 2  4.596678e+00
+\end{verbatim}
+
+\hypertarget{several-service-counters}{%
+\subsection{Several service counters}\label{several-service-counters}}
+
+Here we model a shop whose customers arrive randomly and are to be served at a group of counters, taking a random time for service, where we assume that waiting customers form a single first-in first-out queue.
+
+The only difference between this model and the single-server model is in the \texttt{add\_resource} function, where we have increased the capacity to two so that it can serve two customers at once.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Here I am"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Finished"}\NormalTok{)}
+
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter"}\NormalTok{,}\DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{))}
+
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{run}\NormalTok{(}\AttributeTok{until =} \DecValTok{30}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 5.92531: Customer0: Here I am
+## 12.0259: Customer1: Here I am
+## 13.4303: Customer2: Here I am
+## 13.5248: Customer3: Here I am
+## 14.1994: Customer4: Here I am
+## 16.6226: Customer0: Finished
+## 17.3999: Customer5: Here I am
+## 19.2911: Customer6: Here I am
+## 20.7802: Customer1: Finished
+## 25.2835: Customer2: Finished
+## 26.8058: Customer7: Here I am
+## 29.8574: Customer8: Here I am
+## 29.971: Customer9: Here I am
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 30 | next: 33.0973605697233
+## { Monitor: in memory }
+## { Resource: counter | monitored: TRUE | server status: 2(2) | queue status: 5(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 11 }
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{get\_mon\_arrivals}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{transform}\NormalTok{(}\AttributeTok{waiting\_time =}\NormalTok{ end\_time }\SpecialCharTok{{-}}\NormalTok{ start\_time }\SpecialCharTok{{-}}\NormalTok{ activity\_time)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        name start_time end_time activity_time finished replication
+## 1 Customer0   5.925307 16.62261     10.697299     TRUE           1
+## 2 Customer1  12.025928 20.78016      8.754228     TRUE           1
+## 3 Customer2  13.430317 25.28350      8.660893     TRUE           1
+##    waiting_time
+## 1 -1.776357e-15
+## 2  0.000000e+00
+## 3  3.192289e+00
+\end{verbatim}
+
+Now that we also have a counter we can get some summary statistics from it using the function \texttt{get\_mon\_resources}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{get\_mon\_resources}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    resource      time server queue capacity queue_size system limit replication
+## 1   counter  5.925307      1     0        2        Inf      1   Inf           1
+## 2   counter 12.025928      2     0        2        Inf      2   Inf           1
+## 3   counter 13.430317      2     1        2        Inf      3   Inf           1
+## 4   counter 13.524818      2     2        2        Inf      4   Inf           1
+## 5   counter 14.199351      2     3        2        Inf      5   Inf           1
+## 6   counter 16.622606      2     2        2        Inf      4   Inf           1
+## 7   counter 17.399880      2     3        2        Inf      5   Inf           1
+## 8   counter 19.291124      2     4        2        Inf      6   Inf           1
+## 9   counter 20.780156      2     3        2        Inf      5   Inf           1
+## 10  counter 25.283499      2     2        2        Inf      4   Inf           1
+## 11  counter 26.805825      2     3        2        Inf      5   Inf           1
+## 12  counter 29.857358      2     4        2        Inf      6   Inf           1
+## 13  counter 29.970950      2     5        2        Inf      7   Inf           1
+\end{verbatim}
+
+\hypertarget{simple-visualizations}{%
+\subsection{Simple visualizations}\label{simple-visualizations}}
+
+We have learned to implement various simple simulations of our donut shop. The output we get is informative and comprehensive but nor particularly appealing to present, for instance in a report. The package \texttt{simmer.plot} provides plotting capabilities to summarize the results of a simulation. At this stage we will see two simple capabilities of the package. We will learn more about it in the following sections.
+
+Before using \texttt{simmer.plot} you need to install it only once via
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{install.packages}\NormalTok{(}\StringTok{"simmer.plot"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+and then load it at the beginning of every R session where you plan to use it.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(}\StringTok{"simmer.plot"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+First, we can plot how much a resource, in this case our two employees, is utilized using the following code.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{resources }\OtherTok{\textless{}{-}} \FunctionTok{get\_mon\_resources}\NormalTok{(shop)}
+\FunctionTok{plot}\NormalTok{(resources, }\AttributeTok{metric =} \StringTok{"utilization"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=0.8\linewidth]{SimBook_files/figure-latex/unnamed-chunk-151-1} \end{center}
+
+So we see that our employees are busy around 90\% of the time. We can also see when they are busy as well as how many people are queuing at each moment during the simulation using the code below.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(resources, }\AttributeTok{metric =} \StringTok{"usage"}\NormalTok{,}\AttributeTok{steps=}\NormalTok{T)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=0.8\linewidth]{SimBook_files/figure-latex/unnamed-chunk-152-1} \end{center}
+
+The green line reports the number of employees busy and we can see that most of the time they are both busy. The red line reports the number of people queuing and waiting to be served. The blue line is the total number of customers in the system: those queuing plus those being served.
+
+\hypertarget{replication}{%
+\section{Replication}\label{replication}}
+
+For all previous examples, we ran a unique simulation and observed the results. As we have already learned, these results are affected by randomness and different runs will show different results.
+
+Consider the last simulation we implemented where customers arrive at the shop where we have two counters. We can simulate the system 1000 times using the following code. We will not include \texttt{log} since otherwise the output will become cluttered.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }
+
+
+\NormalTok{envs }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{100}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(i) \{}
+    \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter"}\NormalTok{,}\DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{run}\NormalTok{(}\AttributeTok{until=}\DecValTok{240}\NormalTok{)}
+\NormalTok{\}}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Now \texttt{envs} stores the output of simulating the behavior of the shop for 4 hours 100 times.
+
+We can summarize the results of these simulations using the \texttt{simmer.plot} package.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{get\_mon\_resources}\NormalTok{(envs), }\AttributeTok{metric =} \StringTok{"utilization"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=0.5\linewidth]{SimBook_files/figure-latex/unnamed-chunk-154-1} \end{center}
+
+Compared to previous plots we now notice that the output also has something that resembles a boxplot which tells us what was the utilization of the resource in different simulation runs.
+
+We can also assess how busy were the employees in different simulations. As the shop opens the two employees become more and more busy and at the end of the four hours they are busy almost all the time.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{get\_mon\_resources}\NormalTok{(envs), }\AttributeTok{metric =} \StringTok{"usage"}\NormalTok{, }\AttributeTok{items =} \StringTok{"server"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-155-1.pdf}
+
+Similarly, we can look at how long do customers queue in our shop.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{get\_mon\_arrivals}\NormalTok{(envs), }\AttributeTok{metric =} \StringTok{"waiting\_time"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+\end{verbatim}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-156-1.pdf}
+
+Each black line represents a single simulation and the blue line gives an overall representation of the simulation. We can see that the waiting time seems to be linearly increasing with time.
+
+\hypertarget{the-donut-shop---advanced-features}{%
+\section{The donut shop - advanced features}\label{the-donut-shop---advanced-features}}
+
+In many situations there is a system of priority service. Those customers with high priority are served first, those with low priority must wait. In some cases, preemptive priority will even allow a high-priority customer to interrupt the service of one with a lower priority.
+
+\texttt{Simmer} implements priority requests with an extra integer priority argument to \texttt{add\_generator()}. By default, priority is zero; higher integers have higher priority.
+
+\hypertarget{priority-customers-without-preemption}{%
+\subsection{Priority customers without preemption}\label{priority-customers-without-preemption}}
+
+Suppose the donut shop have priority customers that when arrive at the shop, are served as soon as possible. We make the assumption that they arrive
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Here I am"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+   \FunctionTok{log\_}\NormalTok{(}\StringTok{"Finished"}\NormalTok{)}
+
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+\FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Priority\_Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{15}\NormalTok{), }\AttributeTok{priority =} \DecValTok{1}\NormalTok{)}
+
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{run}\NormalTok{(}\AttributeTok{until =} \DecValTok{45}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 5.92531: Customer0: Here I am
+## 7.28854: Customer1: Here I am
+## 11.0879: Customer2: Here I am
+## 14.2421: Customer3: Here I am
+## 14.3366: Customer4: Here I am
+## 15.0111: Customer5: Here I am
+## 16.9819: Customer0: Finished
+## 18.2117: Customer6: Here I am
+## 18.3019: Priority_Customer0: Here I am
+## 20.1029: Customer7: Here I am
+## 21.0334: Customer8: Here I am
+## 21.7555: Customer9: Here I am
+## 24.807: Customer10: Here I am
+## 24.9206: Customer11: Here I am
+## 25.6428: Customer1: Finished
+## 28.047: Customer12: Here I am
+## 28.879: Customer13: Here I am
+## 32.9443: Customer14: Here I am
+## 35.9055: Priority_Customer0: Finished
+## 36.8793: Customer15: Here I am
+## 40.846: Priority_Customer1: Here I am
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 45 | next: 47.5452877648588
+## { Monitor: in memory }
+## { Resource: counter | monitored: TRUE | server status: 1(1) | queue status: 14(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 17 }
+## { Source: Priority_Customer | monitored: 1 | n_generated: 3 }
+\end{verbatim}
+
+From the output we can see that whenever a priority customer joins the queue he is sold donuts as soon as the employee becomes available.
+
+\hypertarget{priority-customers-with-preemption}{%
+\subsection{Priority customers with preemption}\label{priority-customers-with-preemption}}
+
+Now we allow priority customers to have preemptive priority. They will displace any customer in service when they arrive. That customer will resume when they finish (unless higher priority customers intervene). This requires only a change to one line of the program, adding the argument, \texttt{preemptive\ =\ TRUE} to the \texttt{add\_resource} function call.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter"}\NormalTok{, }\AttributeTok{preemptive =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+\FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Priority\_Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{15}\NormalTok{), }\AttributeTok{priority =} \DecValTok{1}\NormalTok{)}
+
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{run}\NormalTok{(}\AttributeTok{until =} \DecValTok{45}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 5.92531: Customer0: Here I am
+## 7.28854: Customer1: Here I am
+## 11.0879: Customer2: Here I am
+## 14.2421: Customer3: Here I am
+## 14.3366: Customer4: Here I am
+## 15.0111: Customer5: Here I am
+## 16.9819: Customer0: Finished
+## 18.2117: Customer6: Here I am
+## 18.3019: Priority_Customer0: Here I am
+## 20.1029: Customer7: Here I am
+## 23.9383: Customer8: Here I am
+## 24.6604: Customer9: Here I am
+## 27.7119: Customer10: Here I am
+## 27.8255: Customer11: Here I am
+## 30.9519: Customer12: Here I am
+## 31.4746: Customer13: Here I am
+## 31.6998: Priority_Customer0: Finished
+## 39.0407: Customer1: Finished
+## 39.2381: Customer14: Here I am
+## 40.846: Priority_Customer1: Here I am
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 45 | next: 45.2787752879948
+## { Monitor: in memory }
+## { Resource: counter | monitored: TRUE | server status: 1(1) | queue status: 13(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 16 }
+## { Source: Priority_Customer | monitored: 1 | n_generated: 3 }
+\end{verbatim}
+
+In this other case, priority customers are served straight away. The customer that was served when the priority customer arrived resumes is service as soon as the priority customer finishes.
+
+\hypertarget{balking-customers}{%
+\subsection{Balking customers}\label{balking-customers}}
+
+Balking occurs when a customer refuses to join a queue if it is too long. Suppose that if there is one customer queuing in our shop then customers do not join the queue and leave. We can implement this by setting the \texttt{queue\_size} option of \texttt{add\_resource} and by adding some options of the \texttt{seize} function. Let's consider the following code.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Here I am"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"counter"}\NormalTok{, }\AttributeTok{continue =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{reject =} 
+          \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Balked customer"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{log\_}\NormalTok{(}\StringTok{"Balking"}\NormalTok{) ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+   \FunctionTok{log\_}\NormalTok{(}\StringTok{"Finished"}\NormalTok{)}
+
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter"}\NormalTok{, }\AttributeTok{queue\_size =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer,}
+                \ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+The input \texttt{queue\_size} is self-explanatory and simply sets how many people can queue for the counter. In the \texttt{seize} function we set the inputs \texttt{continue} and \texttt{reject}. With \texttt{continue\ =\ FALSE} we are saying that a rejected customer does not follow the rest of the trajectory. With \texttt{reject} we are specifying what trajectory the rejected customer will follow.
+
+Let's run the simulation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{run}\NormalTok{(}\AttributeTok{until =} \DecValTok{45}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 5.92531: Customer0: Here I am
+## 12.0259: Customer1: Here I am
+## 13.4303: Customer2: Here I am
+## 13.4303: Customer2: Balking
+## 16.6226: Customer0: Finished
+## 17.2296: Customer3: Here I am
+## 28.4187: Customer1: Finished
+## 36.649: Customer4: Here I am
+## 38.7585: Customer3: Finished
+## 40.1462: Customer5: Here I am
+## 40.6299: Customer6: Here I am
+## 40.6299: Customer6: Balking
+## 41.5604: Customer7: Here I am
+## 41.5604: Customer7: Balking
+## 42.2825: Customer8: Here I am
+## 42.2825: Customer8: Balking
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 45 | next: 45.3340111165536
+## { Monitor: in memory }
+## { Resource: counter | monitored: TRUE | server status: 1(1) | queue status: 1(1) }
+## { Source: Customer | monitored: 1 | n_generated: 10 }
+\end{verbatim}
+
+So now we see that often customers just leave the shop because they decide not to queue. We can count how many of them left for balking using:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sum}\NormalTok{(}\FunctionTok{get\_mon\_arrivals}\NormalTok{(shop)}\SpecialCharTok{$}\NormalTok{activity\_time }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 4
+\end{verbatim}
+
+and the hourly rate at which they leave
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sum}\NormalTok{(}\FunctionTok{get\_mon\_arrivals}\NormalTok{(shop)}\SpecialCharTok{$}\NormalTok{activity\_time }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}\SpecialCharTok{/}\FunctionTok{now}\NormalTok{(shop)}\SpecialCharTok{*}\DecValTok{60}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5.333333
+\end{verbatim}
+
+\hypertarget{reneging-or-abandoning-customers}{%
+\subsection{Reneging (or abandoning) customers}\label{reneging-or-abandoning-customers}}
+
+Often in practice an impatient customer will leave the queue before being served. Simmer can model this reneging behaviour using the \texttt{renege\_in()} function in a trajectory. This defines the maximum time that a customer will wait before reneging, as well as an `out' trajectory for them to follow when they renege.
+
+If the customer reaches the server before reneging, then their impatience must be cancelled with the \texttt{renege\_abort()} function.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Here I am"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{renege\_in}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{1}\NormalTok{),}
+            \AttributeTok{out =} \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Reneging customer"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{log\_}\NormalTok{(}\StringTok{"I am off"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{renege\_abort}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+   \FunctionTok{log\_}\NormalTok{(}\StringTok{"Finished"}\NormalTok{)}
+
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{))}
+
+\FunctionTok{run}\NormalTok{(shop, }\AttributeTok{until =} \DecValTok{45}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 0.113593: Customer0: Here I am
+## 0.892989: Customer1: Here I am
+## 7.40631: Customer1: I am off
+## 9.74378: Customer2: Here I am
+## 10.2131: Customer3: Here I am
+## 13.0758: Customer0: Finished
+## 16.4212: Customer3: I am off
+## 24.9321: Customer2: Finished
+## 27.4101: Customer4: Here I am
+## 27.7221: Customer5: Here I am
+## 27.808: Customer6: Here I am
+## 32.6284: Customer5: I am off
+## 32.8674: Customer6: I am off
+## 34.1951: Customer7: Here I am
+## 36.7021: Customer4: Finished
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 45 | next: 45.8000847848882
+## { Monitor: in memory }
+## { Resource: counter | monitored: TRUE | server status: 1(1) | queue status: 0(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 9 }
+\end{verbatim}
+
+\hypertarget{several-counters-with-individual-queues}{%
+\subsection{Several counters with individual queues}\label{several-counters-with-individual-queues}}
+
+Each counter is now assumed to have its own queue. The programming is more complicated because the customer has to decide which queue to join. The obvious technique is to make each counter a separate resource.
+
+In practice, a customer might join the shortest queue. We implement this behaviour by first selecting the shortest queue, using the \texttt{select} function. Then we use \texttt{seize\_selected} to enter the chosen queue, and later \texttt{release\_selected}.
+
+The rest of the program is the same as before.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Here I am"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"counter1"}\NormalTok{, }\StringTok{"counter2"}\NormalTok{), }\AttributeTok{policy =} \StringTok{"shortest{-}queue"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize\_selected}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release\_selected}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+   \FunctionTok{log\_}\NormalTok{(}\StringTok{"Finished"}\NormalTok{)}
+
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter1"}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter2"}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{))}
+
+\FunctionTok{run}\NormalTok{(shop, }\AttributeTok{until =} \DecValTok{45}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 5.92531: Customer0: Here I am
+## 12.0259: Customer1: Here I am
+## 13.4303: Customer2: Here I am
+## 13.5248: Customer3: Here I am
+## 14.1994: Customer4: Here I am
+## 16.6226: Customer0: Finished
+## 17.3999: Customer5: Here I am
+## 19.2911: Customer6: Here I am
+## 20.7802: Customer1: Finished
+## 25.2835: Customer2: Finished
+## 26.8058: Customer7: Here I am
+## 29.8574: Customer8: Here I am
+## 29.971: Customer9: Here I am
+## 33.0974: Customer10: Here I am
+## 33.62: Customer11: Here I am
+## 34.0487: Customer4: Finished
+## 34.1781: Customer3: Finished
+## 41.3835: Customer12: Here I am
+## 42.2932: Customer6: Finished
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 45 | next: 45.3185680974989
+## { Monitor: in memory }
+## { Resource: counter1 | monitored: TRUE | server status: 1(1) | queue status: 3(Inf) }
+## { Resource: counter2 | monitored: TRUE | server status: 1(1) | queue status: 2(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 14 }
+\end{verbatim}
+
+There are several policies implemented internally
+that can be accessed by name:
+
+\begin{itemize}
+\item
+  \texttt{shortest-queue}: The resource with the shortest queue is selected.
+\item
+  \texttt{round-robin}: Resources will be selected in a cyclical nature.
+\item
+  \texttt{first-available}: The first available resource is selected.
+\item
+  \texttt{random} A resource is randomly selected.
+\end{itemize}
+
+\hypertarget{opening-times}{%
+\subsection{Opening times}\label{opening-times}}
+
+Customers arrive at random, some of them getting to the shop before the door is opened by a doorman. They wait for the door to be opened and then rush in and queue to be served.
+
+This model defines the door as a resource, just like the counter. The capacity of the door is defined according to the \texttt{schedule} function, so that it has zero capacity when it is shut, and infinite capacity when it is open. Customers `seize' the door and must then wait until it has capacity to `serve' them. Once it is available, all waiting customers are `served' immediately (i.e.~they pass through the door). There is no timeout between `seizing' and `releasing' the door.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\ControlFlowTok{function}\NormalTok{()}
+    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{get\_capacity}\NormalTok{(shop, }\StringTok{"door"}\NormalTok{) }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)}
+      \StringTok{"Here I am but the door is shut."}
+    \ControlFlowTok{else} \StringTok{"Here I am and the door is open."}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"door"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"I can go in!"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"door"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() \{}\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{10}\NormalTok{)\}) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"counter"}\NormalTok{)}
+
+\NormalTok{door\_schedule }\OtherTok{\textless{}{-}} \FunctionTok{schedule}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{7}\NormalTok{,}\DecValTok{9}\NormalTok{,}\DecValTok{13}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\ConstantTok{Inf}\NormalTok{,}\DecValTok{0}\NormalTok{,}\ConstantTok{Inf}\NormalTok{,}\DecValTok{0}\NormalTok{), }\AttributeTok{period =} \DecValTok{13}\NormalTok{)}
+
+\NormalTok{shop }\OtherTok{\textless{}{-}}
+  \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"door"}\NormalTok{, }\AttributeTok{capacity =}\NormalTok{ door\_schedule) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{, customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{))}
+
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{run}\NormalTok{(}\DecValTok{26}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 3.53354: Customer0: Here I am and the door is open.
+## 3.53354: Customer0: I can go in!
+## 6.97294: Customer1: Here I am and the door is open.
+## 6.97294: Customer1: I can go in!
+## 7.05686: Customer2: Here I am but the door is shut.
+## 9: Customer2: I can go in!
+## 9.30068: Customer3: Here I am and the door is open.
+## 9.30068: Customer3: I can go in!
+## 10.4405: Customer4: Here I am and the door is open.
+## 10.4405: Customer4: I can go in!
+## 11.3978: Customer5: Here I am and the door is open.
+## 11.3978: Customer5: I can go in!
+## 15.4491: Customer6: Here I am and the door is open.
+## 15.4491: Customer6: I can go in!
+## 17.7096: Customer7: Here I am and the door is open.
+## 17.7096: Customer7: I can go in!
+## 18.4016: Customer8: Here I am and the door is open.
+## 18.4016: Customer8: I can go in!
+## 19.1858: Customer9: Here I am and the door is open.
+## 19.1858: Customer9: I can go in!
+## 22.0271: Customer10: Here I am and the door is open.
+## 22.0271: Customer10: I can go in!
+## 22.9206: Customer11: Here I am and the door is open.
+## 22.9206: Customer11: I can go in!
+## 24.0738: Customer12: Here I am and the door is open.
+## 24.0738: Customer12: I can go in!
+## 24.9154: Customer13: Here I am and the door is open.
+## 24.9154: Customer13: I can go in!
+## 25.3469: Customer14: Here I am and the door is open.
+## 25.3469: Customer14: I can go in!
+## 25.7375: Customer15: Here I am and the door is open.
+## 25.7375: Customer15: I can go in!
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 26 | next: 26
+## { Monitor: in memory }
+## { Resource: door | monitored: TRUE | server status: 0(Inf) | queue status: 0(Inf) }
+## { Resource: counter | monitored: TRUE | server status: 1(1) | queue status: 0(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 17 }
+\end{verbatim}
+
+\hypertarget{batching-clients}{%
+\subsection{Batching clients}\label{batching-clients}}
+
+Customers arrive at random, some of them getting to the shop before the door is open. This is controlled by an automatic machine called the doorman which opens the door only at intervals of 30 minutes (it is a very secure shop). The customers wait for the door to be opened and all those waiting enter and proceed to the counter. The door is closed behind them.
+
+One possible solution is using batching. Customers can be collected into batches of a given size, or for a given time, or whichever occurs first. Here, they are collected for periods of 30, and the number of customers in each batch is unrestricted.
+
+After the batch is created with \texttt{batch} it is then separated with \texttt{separate}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{customer }\OtherTok{\textless{}{-}}
+  \FunctionTok{trajectory}\NormalTok{(}\StringTok{"Customer\textquotesingle{}s path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Here I am, but the door is shut."}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{batch}\NormalTok{(}\AttributeTok{n =} \ConstantTok{Inf}\NormalTok{, }\AttributeTok{timeout =} \DecValTok{30}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{separate}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"The door is open!"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() \{}\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{2}\NormalTok{)\}) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{log\_}\NormalTok{(}\StringTok{"Finished."}\NormalTok{)}
+
+\NormalTok{shop }\OtherTok{\textless{}{-}} \FunctionTok{simmer}\NormalTok{(}\StringTok{"shop"}\NormalTok{)}
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"door"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"counter"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"Customer"}\NormalTok{,}
+\NormalTok{                customer, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{20}\NormalTok{)) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## simmer environment: shop | now: 0 | next: 0
+## { Monitor: in memory }
+## { Resource: door | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }
+## { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 0 }
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{shop }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{run}\NormalTok{(}\DecValTok{65}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 23.7012: Customer0: Here I am, but the door is shut.
+## 48.1037: Customer1: Here I am, but the door is shut.
+## 53.5567: Customer2: Here I am, but the door is shut.
+## 53.7012: Customer0: The door is open!
+## 53.7012: Customer1: The door is open!
+## 53.7012: Customer2: The door is open!
+## 54.263: Customer0: Finished.
+## 55.7827: Customer1: Finished.
+## 57.0444: Customer2: Finished.
+## 61.6105: Customer3: Here I am, but the door is shut.
+## 61.9885: Customer4: Here I am, but the door is shut.
+## 64.6866: Customer5: Here I am, but the door is shut.
+\end{verbatim}
+
+\begin{verbatim}
+## simmer environment: shop | now: 65 | next: 77.4887534806737
+## { Monitor: in memory }
+## { Resource: door | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }
+## { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 7 }
+\end{verbatim}
+
+The function \texttt{balk} takes two inputs:
+
+\begin{itemize}
+\item
+  \texttt{n}: the batch size;
+\item
+  \texttt{timeout}: set an optional timer which triggers batches every \texttt{timeout} time units even if the batch size has not been fulfilled.
+\end{itemize}
+
+\hypertarget{simulating-a-simple-health-center}{%
+\section{Simulating a simple health center}\label{simulating-a-simple-health-center}}
+
+Let's say we want to simulate an ambulatory consultation where a patient is first seen by a nurse for an intake, next by two doctors for the consultation and finally by administrative staff to schedule a follow-up appointment.
+
+We can construct a patient trajectory which defines all these steps.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{patient }\OtherTok{\textless{}{-}} \FunctionTok{trajectory}\NormalTok{(}\StringTok{"patients\textquotesingle{} path"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \DocumentationTok{\#\# add an intake activity }
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"nurse"}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{15}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"nurse"}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \DocumentationTok{\#\# add a consultation activity}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"doctor"}\NormalTok{, }\DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{20}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"doctor"}\NormalTok{, }\DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \DocumentationTok{\#\# add a planning activity}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"administration"}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(}\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{5}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"administration"}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(patient)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-168-1.pdf}
+
+Once the trajectory is known, you may attach arrivals to it and define the resources needed. In the example below, three types of resources are added: the nurse and administration resources, each one with a capacity of 2, and the doctor resource, with a capacity of 4. The last method adds a generator of arrivals (patients) following the trajectory patient. The time between patients is about 5 minutes.
+
+Let's run the simulation using replication.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{envs }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{100}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(i) \{}
+\FunctionTok{simmer}\NormalTok{(}\StringTok{"health center"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"nurse"}\NormalTok{, }\DecValTok{3}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"doctor"}\NormalTok{, }\DecValTok{4}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"administration"}\NormalTok{, }\DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"patient"}\NormalTok{, patient, }\ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\SpecialCharTok{/}\DecValTok{5}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{run}\NormalTok{(}\AttributeTok{until=}\DecValTok{480}\NormalTok{)}
+\NormalTok{\}}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Let's observe the results.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{get\_mon\_resources}\NormalTok{(envs),}\AttributeTok{metric=} \StringTok{"utilization"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-170-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{get\_mon\_resources}\NormalTok{(envs), }\AttributeTok{metric =} \StringTok{"usage"}\NormalTok{, }\AttributeTok{items =} \StringTok{"server"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-171-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{get\_mon\_arrivals}\NormalTok{(envs), }\AttributeTok{metric =} \StringTok{"waiting\_time"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+\end{verbatim}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-172-1.pdf}
+
+\hypertarget{a-production-process-simulation}{%
+\section{A production process simulation}\label{a-production-process-simulation}}
+
+Consider a simple engineering job shop that consists of several identical machines. Each machine is able to process any job and there is a ready supply of jobs with no prospect of any shortages. Jobs are allocated to the first available machine. The time taken to complete a job is variable but is independent of the particular machine being used. The machine shop is staffed by operatives who have two tasks:
+
+\begin{itemize}
+\item
+  RESET machines between jobs if the cutting edges are still OK
+\item
+  RETOOL those machines with cutting edges that are too worn to be reset
+\end{itemize}
+
+In addition, an operator may be AWAY while attending to personal needs
+
+The figure below shows the activity cycle diagram for the considered system. Circles (READY, STOPPED, OK, WAITING) represent states of the machines or the operatives respectively, while rectangles (RUNNING, RETOOL, RESET, AWAY) represent activities that take some (random) time to complete. Two kind of processes can be identified: shop jobs, which use machines and degrade them, and personal tasks, which take operatives AWAY for some time.
+
+\begin{center}\includegraphics[width=0.5\linewidth]{images/cycle} \end{center}
+
+Notice that after a job is completed by a machine there may be two possible trajectories to follow:
+
+\begin{itemize}
+\item
+  either the machine needs only to be reset by an operator;
+\item
+  or it first needs to be retool and then reset by the operator.
+\end{itemize}
+
+We can implement such a situation using \texttt{branch}. A branch is a point in a trajectory in which one or more sub-trajectories may be followed. The \texttt{branch()} activity places the arrival in one of the sub-trajectories depending on some condition evaluated in a dynamical parameter called \texttt{option}. It is the equivalent of an if/else in programming, i.e., if the value of \texttt{option} is \texttt{i}, the i-th sub-trajectory will be executed.
+
+Let's implement the system. First of all, let us instantiate a new simulation environment and define the completion time for the different activities as random draws from exponential distributions. Likewise, the interarrival times for jobs and tasks are defined (\texttt{NEW\_JOB}, \texttt{NEW\_TASK}), and we consider a probability of 0.2 for a machine to be worn after running a job (\texttt{CHECK\_JOB}).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{2021}\NormalTok{)}
+\NormalTok{env }\OtherTok{\textless{}{-}} \FunctionTok{simmer}\NormalTok{(}\StringTok{"Job Shop"}\NormalTok{)}
+
+\NormalTok{RUNNING }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{RETOOL }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\NormalTok{RESET }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\NormalTok{AWAY }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{CHECK\_WORN }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{() }\FunctionTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\textless{}} \FloatTok{0.2}
+\NormalTok{NEW\_JOB }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{5}\NormalTok{)}
+\NormalTok{NEW\_TASK }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{() }\FunctionTok{rexp}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+The trajectory of an incoming job starts by seizing a machine in \texttt{READY} state. It takes some random time for \texttt{RUNNING} it after which the machine's serviceability is checked. An operative and some random time to \texttt{RETOOL} the machine may be needed, and either way an operative must \texttt{RESET} it. Finally, the trajectory releases the machine, so that it is \texttt{READY} again. On the other hand, personal tasks just seize operatives for some time.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{task }\OtherTok{\textless{}{-}} \FunctionTok{trajectory}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"operative"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(AWAY) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"operative"}\NormalTok{)}
+
+\NormalTok{job }\OtherTok{\textless{}{-}} \FunctionTok{trajectory}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"machine"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(RUNNING) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{branch}\NormalTok{(}
+\NormalTok{   CHECK\_WORN, }\AttributeTok{continue =} \ConstantTok{TRUE}\NormalTok{,}
+   \FunctionTok{trajectory}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+   \FunctionTok{seize}\NormalTok{(}\StringTok{"operative"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+   \FunctionTok{timeout}\NormalTok{(RETOOL) }\SpecialCharTok{\%\textgreater{}\%}
+   \FunctionTok{release}\NormalTok{(}\StringTok{"operative"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{seize}\NormalTok{(}\StringTok{"operative"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{timeout}\NormalTok{(RESET) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"operative"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{release}\NormalTok{(}\StringTok{"machine"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Once the processes' trajectories are defined, we append 10 identical machines and 5 operatives
+to the simulation environment, as well as two generators for jobs and tasks.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{env }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"machine"}\NormalTok{, }\DecValTok{10}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_resource}\NormalTok{(}\StringTok{"operative"}\NormalTok{, }\DecValTok{5}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"job"}\NormalTok{, job, NEW\_JOB) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_generator}\NormalTok{(}\StringTok{"task"}\NormalTok{, task, NEW\_TASK) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{run}\NormalTok{(}\AttributeTok{until=}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## simmer environment: Job Shop | now: 10 | next: 10.2238404207112
+## { Monitor: in memory }
+## { Resource: machine | monitored: TRUE | server status: 9(10) | queue status: 0(Inf) }
+## { Resource: operative | monitored: TRUE | server status: 3(5) | queue status: 0(Inf) }
+## { Source: job | monitored: 1 | n_generated: 49 }
+## { Source: task | monitored: 1 | n_generated: 11 }
+\end{verbatim}
+
+Let's extract a history of the resource's state to analyze the average number of machines/operatives in use as well as the average number of jobs/tasks waiting for an assignment.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{aggregate}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(server, queue) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ resource, }\FunctionTok{get\_mon\_resources}\NormalTok{(env), mean)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    resource   server      queue
+## 1   machine 5.839080 0.04597701
+## 2 operative 3.153153 0.30630631
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{get\_mon\_resources}\NormalTok{(env),}\StringTok{"utilization"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-178-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{get\_mon\_resources}\NormalTok{(env),}\StringTok{"usage"}\NormalTok{, }\AttributeTok{items =} \StringTok{"server"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{SimBook_files/figure-latex/unnamed-chunk-178-2.pdf}
+
+\hypertarget{queuing-theory}{%
+\chapter{Queuing Theory}\label{queuing-theory}}
+
+In the previous chapter we have learned to implement complex discrete-event simulations using the \texttt{Simmer} package. Basically all simulation models we implemented involved some queue of customers requiring a service. There is a whole area of probability called, \emph{queuing theory}, which studies the mathematical foundations and properties of such models. In this chapter we will define a bit more formally what queues are and how they work. We will also learn that we can actually already know a lot about the behavior of the queue by knowing a few key parameters.
+
+\hypertarget{poisson-process}{%
+\section{Poisson Process}\label{poisson-process}}
+
+Consider random events such as the arrival of customer at a shop, the arrival of emails to a mail server or the arrival of calls to a call-center. These events can be described by a counting function \(N(t)\) defined for all \(t\geq 0\). This counting function represents the number of events that occurred in \([0,t]\). For each interval \([0,t]\) the value \(N(t)\) is an observation of a random variable where the only possible values are the integers \(0,1,2,\dots\).
+
+The counting process \(\{N(t): t\geq 0\}\) is said to be a Poisson process with mean rate \(\lambda\) if the following assumptions are fulfilled:
+
+\begin{itemize}
+\item
+  \(N(0) = 0\);
+\item
+  it has independent increments: that is the number of arrivals during non-overlapping time intervals are independent random variables.
+\item
+  the number of events in any interval of length \(t\) is a Poisson random variable with parameter \(\lambda t\).
+\end{itemize}
+
+Therefore
+\[
+P(N(t)=n)=\frac{e^{-\lambda t}(\lambda t)^n}{n!}
+\]
+
+The last assumption implies that the distribution of the number of arrivals between, say, \(t\) and \(t+s\) depends only on the length of the interval \(s\) and not on the starting point \(t\). This property is usually called \emph{stationarity}. Consequently:
+
+\[
+P(N(t)-N(s)=n)=\frac{e^{-\lambda(t-s)}(\lambda(t-s))^n}{n!}
+\]
+and because of the properties of the Poisson distribution:
+\[
+E(N(t)-N(s))=V(N(t)-N(s))=\lambda(t-s).
+\]
+
+Now consider the time at which arrivals occurs in a Poisson process. Let the first arrival occur at time \(A_1\), the second occur at time \(A_1+ A_2\) and so on. Thus \(A_1,A_2,\dots\) are successive inter-arrival times. The first arrival occurs after time \(t\) if and only if there are no arrivals in the interval \([0,t]\) so it is seen that
+\[
+\{A_1>t\}=\{N(t)=0\}
+\]
+and consequently
+\[
+P(A_1>t)=P(N(t)=0)=e^{-\lambda t}
+\]
+Thus the probability that the first arrival will occur in \([0,t]\) is given by
+\[
+P(A_1\leq t)= 1- P(A_1>t)= 1- e^{-\lambda t}
+\]
+which is the cumulative density function of an exponential distribution with parameter \(\lambda\). Hence, \(A_1\) is distributed exponentially with mean \(E(A_1)=1/\lambda\). It can also be shown that all inter-arrival times \(A_1,A_2,\dots\) are exponentially distributed and independent with mean \(1/\lambda\).
+
+An alternative definition of a Poisson process is of a counting process whose inter-arrival times are distributed exponentially and independently.
+
+Exponential distributions have the property of being \emph{memoryless}, which is deeply connected to Poisson processes. For an exponential distribution \(X\) it holds that
+\[
+P(X> s+t|X>s)=P(X>t).
+\]
+Suppose \(X\) represents the life of a light bulb. The above equation states that the probability that the light bulb lives for at least \(s+t\) hours, given it has survived \(s\) hours, is that same as the initial probability that it lives for at least \(t\) hours. That is, the light bulb it does not remember that it has already been in use for a time \(s\). Let's show the equality is true:
+\begin{eqnarray*}
+P(X>s+t | X>s) &=& \frac{P(X > s + t, X >s)}{P(X>s)}\\
+&=& \frac{P(X > s + t)}{P(X>s)}\\
+&=&\frac{1- P(X \leq s + t)}{1 - P(X \leq s)}\\
+&=&\frac{e^{-\lambda(s+t)}}{e^{-\lambda s}}\\
+&=& e^{-\lambda t}\\
+&=& P(X>t)
+\end{eqnarray*}
+
+\hypertarget{characteristics-of-queuing-systems}{%
+\section{Characteristics of Queuing Systems}\label{characteristics-of-queuing-systems}}
+
+The key elements of queuing systems are customers and servers.
+
+\begin{itemize}
+\item
+  The term \emph{customer} can refer to people, machines, trucks, airplanes etc etc. Anything that arrive at a facility and requires service.
+\item
+  The term \emph{server} can refer to receptionist, repair personnel, runways in airport, washing machines etc etc. Any resource that provides the requested service.
+\end{itemize}
+
+Below we describe the elements of queuing systems in more details.
+
+\hypertarget{the-calling-population}{%
+\subsection{The Calling Population}\label{the-calling-population}}
+
+The population of potential customers, referred to as the \emph{calling population}, will be assumed to be infinite, even though the number of potential customers is actually finite. When the population of potential customers is large this assumption is innocuous and actually can simplify the model. This is especially true when we believe that at any given time the number of customers being served or waiting for service is a small proportion of the whole population.
+
+The assumption of an infinite population is such that the rate of arrival of customers is not affected by the number of customers that have already joined the queuing system. In addition, this will usually entail that the rate of arrival is constant throughout time.
+
+\hypertarget{system-capacity}{%
+\subsection{System Capacity}\label{system-capacity}}
+
+In many queuing systems there is a limit to the number of customers that may be in the waiting line or system. An arriving customer who finds the system full does not enter but returns immediately to the calling population. However, there are other systems that may simply have an infinite capacity. As we will see later, when a system has a limited capacity, a distinction is made between the arrival rate (i.e.~the number of arrivals per time unit) and the effective arrival rate (the number who arrive and enter the system per time unit).
+
+\hypertarget{the-arrival-process}{%
+\subsection{The Arrival Process}\label{the-arrival-process}}
+
+The arrival process for infinite population models is usually characterized in terms of inter-arrival times of successive customers. Arrivals may occur at scheduled times or random times. When at random times, the inter-arrival times are usually characterized by a probability distribution. In addition, customers may arrive one at a time or in batches. The batch may be of constant size or of random size.
+
+The most important model, and the only one we will consider, for random arrivals is the Poisson arrival process. If \(A_n\) represents the inter-arrival time between customer \(n-1\) and customer \(n\), then for a Poisson arrival process \(A_n\) is exponentially distributed with mean \(1/\lambda\) per time unite. The arrival rate is \(\lambda\) customers per time unit. The number of arrivals in a time interval of length \(t\) has the Poisson distribution with mean \(\lambda t\) customers.
+
+\hypertarget{queue-behavior-and-queue-discipline}{%
+\subsection{Queue Behavior and Queue Discipline}\label{queue-behavior-and-queue-discipline}}
+
+Queue behavior refers to the actions of customers while in a queue waiting for service to begin. In some situation, there is a possibility that incoming customers will balk, renege, or jockey (move from one line to another if they think they have chosen a slow line).
+
+Queue discipline refers to the logical ordering of customers in a queue and determines which customer will be chosen for service when a server becomes free. Common queue disciplines include first-in-first-out (FIFO), last-in-first-out (LIFO), service in random order (SIRO) etc. Notice that a FIFO queue discipline implies that services begin in the same order as arrivals, but that customers could leave the system in a different order because of different length service times.
+
+\hypertarget{service-times-and-service-mechanism}{%
+\subsection{Service Times and Service Mechanism}\label{service-times-and-service-mechanism}}
+
+The service times of successive arrivals are denoted by \(S_1,S_2,\dots\). They may be constant or of random duration. In the latter case \(\{S_1,S_2,S_3,...\}\) is usually characterized as a sequence of independent and identically distributed random variables. The Exponential, Normal etc. are often used to model service times. Sometimes services are identically distributed for all customers of a given type or class or priority, whereas customers of different types might have completely different service-time distributions. In addition in some systems service times depend upon the time of the day or upon the length of the waiting line.
+
+A queuing system consists of a number of service counters and interconnecting queues. Each service center consists of some number of server, \(c\), working in parallel; that is, upon getting to the head of the line, a customer takes the first available server. Parallel service mechanisms are either single server (\(c=1\)), multiple server (\(1<c<\infty\)), or unlimited servers \((c=\infty)\).
+
+\hypertarget{queuing-notation}{%
+\section{Queuing Notation}\label{queuing-notation}}
+
+Recognizing the diversity of queuing systems, a notational system was introduced in the 50's which has been widely adopted. The convention is based on the format \(A/B/c/N/K\), where the letters represent the following system characteristics:
+
+\begin{itemize}
+\item
+  \(A\) represents the inter-arrival time distribution
+\item
+  \(B\) represents the service-time distribution
+\item
+  \(c\) represents the number of parallel servers
+\item
+  \(N\) represents the system capacity
+\item
+  \(K\) represents the size of the calling population
+\end{itemize}
+
+Common symbols for \(A\) and \(B\) are include \(M\) (exponential or Markov), \(D\) (constant or deterministic) and \(G\) (arbitrary or general).
+
+For example, \(M/M/1/\infty/\infty\) indicates a single-server system that has unlimited queue capacity and infinite population of potential arrivals. The inter-arrival times and service times are exponentially distributed. When \(N\) and \(K\) are infinity, they may be dropped from the notation. For example \(M/M/1/\infty/\infty\) is often shorted to \(M/M/1\).
+
+All systems will be assumed to have a FIFO queue discipline.
+
+\hypertarget{measures-of-performance}{%
+\section{Measures of Performance}\label{measures-of-performance}}
+
+There are various measures that one can use to assess the quality of a queuing system. These are:
+
+\begin{itemize}
+\item
+  \(L\): the average number of customers in the system;
+\item
+  \(L_Q\): the average number of customers in the system;
+\item
+  \(w\): the average time spent in the system;
+\item
+  \(w_Q\): the average time spent in the queue;
+\item
+  \(\rho\): the server utilization; the proportion of time that a server is busy.
+\end{itemize}
+
+The term system refers to the waiting line plus the service mechanism, whilst the term queue refers to the waiting line alone.
+
+\hypertarget{average-number-of-customers-in-the-system-l}{%
+\subsection{\texorpdfstring{Average Number of Customers in the System \(L\)}{Average Number of Customers in the System L}}\label{average-number-of-customers-in-the-system-l}}
+
+Consider a queuing system over a period of time \(T\) and let \(L(t)\) denote the number of customers in the system at time \(t\). Let \(T_i\) be the total time in \([0,T]\) in which the system contained exactly \(i\) customers. In general \(\sum_{i=0}^{\infty}T_i = T\). The \emph{average number of customers in the system} is estimated by
+\[
+\hat{L}=\frac{1}{T}\sum_{i=0}^\infty iT_i=\sum_{i=0}^\infty i \frac{T_i}{T}.
+\]
+Notice that \(T_i/T\) is the proportion of time the system contains exactly \(i\) customers.
+
+Let's consider an example. Figure \ref{fig:system} gives a simulation of a queue in an interval of 20 time units. It can be seen that \(T_0= 3\), \(T_1 = 11\), \(T_2 = 5\) and \(T_3 =1\), and therefore \(\hat{L}= (0\cdot 3 + 1\cdot 11 + 2\cdot 5 + 3\cdot 1)/20 = 24/20 = 1.2\) customers.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.9\linewidth]{images/system} 
+
+}
+
+\caption{Number in system, L(t), at time t.}\label{fig:system}
+\end{figure}
+
+By looking at Figure \ref{fig:system} it can be seen that the total area under the function \(L(t)\) can be decomposed into rectangles of length \(T_i\) and height \(i\), thus having area \(iT_i\). It follows that the total area is given by \[
+\sum_{i=0}^{\infty}iT_i = \int_0^TL(t)dt
+\]
+and therefore
+\[
+\hat{L}= \frac{1}{T}\sum_{i=0}^{\infty}iT_i=\frac{1}{T}\int_{0}^TL(t)dt
+\]
+
+Many queuing systems exhibit some kind of long-run stability in terms of their average performance. For such systems, as time \(T\) gets large, the observed average number of customers in the system \(\hat{L}\) approaches a limiting value, say \(L\), which is called the \emph{long-run average number in system}. With probability 1 we have that
+\[
+\hat{L}=\frac{1}{T}\int_{0}^TL(t)dt \rightarrow L \mbox{ as } T \rightarrow \infty
+\]
+If a simulation run length \(T\) is sufficiently long, the estimator \(\hat{L}\) becomes arbitrarily close to \(L\).
+
+The above equations can be applied to any subsystem of a queuing system. If \(L_Q(t)\) denotes the number of customers waiting in queue, and \(T_i^Q\) denotes the total time in \([0,T]\) in which exactly \(i\) customers are waiting in queue, then
+\[
+\hat{L}_Q=\frac{1}{T}\sum_{i=0}^{\infty}iT_i^Q=\int_0^TL_Q(t)dt \rightarrow L_Q \mbox{ as } T \rightarrow \infty
+\]
+
+\hypertarget{average-time-spent-in-system-per-customer-w}{%
+\subsection{\texorpdfstring{Average Time Spent in System per Customer \(w\)}{Average Time Spent in System per Customer w}}\label{average-time-spent-in-system-per-customer-w}}
+
+If we simulate a queuing system for some period of time, say \(T\), then we can record the time that each customer spends in the system during \([0,T]\), say \(W_1,W_2,\dots,W_N\) where \(N\) is the number of arrivals in \([0,T]\). The average time spent in system per customer, called the \emph{average system time}, is given by
+\[
+\hat{w} = \frac{1}{N}\sum_{i=1}^N W_i
+\]
+For stable systems, as \(N\rightarrow \infty\)
+\[
+\hat{w} \rightarrow w
+\]
+with probability 1, where \(w\) is called the \emph{long-run average system time}.
+
+If the system under consideration is the queue alone, we can re-write the above equations as
+\[
+\hat{w}_Q=\frac{1}{N}\sum_{i=1}^NW_i^Q \rightarrow w_Q \mbox{ as } N \rightarrow \infty
+\]
+where \(W_i^Q\) is the total time customer \(i\) spends waiting in queue, \(\hat{w}_Q\) is the observed average time spend in queue (or delay) and \(w_Q\) is the long-run average delay per customer.
+
+Consider the system in Figure \ref{fig:system}. It can be seen that there are 5 customers who waited \(W_1 =2\), \(W_2 = 5\), \(W_3 = 6\), \(W_4 = 7\) and \(W_5 = 4\) and therefore
+\[
+\hat{w}=\frac{2+5 +6 + 7 + 4}{5}= 4.8 \mbox{ time units}
+\]
+Thus on average these customers spent 4.8 time units in the system. As for the time spent in the queue, it can be computed as \(W_1^Q=0\), \(W_2^Q = 0\), \(W_3^Q=3\), \(W_4^Q = 4\) and \(W_5^Q = 0\), thus:
+\[
+\hat{w}_Q=\frac{0 + 0 + 3 + 4 +0}{5}= 1.4 \mbox{ time units.}
+\]
+
+\hypertarget{littles-law}{%
+\subsection{Little's Law}\label{littles-law}}
+
+For the example in Figure \ref{fig:system} there were \(N=5\) arrivals in \(T=20\) time units, and thus the observed arrival rate was \(\hat{\lambda}= N/T=1/4\) customer per time unit. Recall that \(\hat{L}=1.2\) and \(\hat{w}=4.8\). Hence it follows that
+\[
+\hat{L}=\hat{\lambda}\hat{w},
+\]
+since \(1.2 = \frac{1}{4}4.8\).
+
+This relationship is not coincidental: it holds for almost all queuing systems. Allowing \(T\rightarrow \infty\) and \(N\rightarrow \infty\), the above expression becomes
+\[
+L=\lambda w,
+\]
+where \(\hat{\lambda}\rightarrow \lambda\) and \(\lambda\) is the long-run average arrival rate. This equality is usually called \emph{Little's law}. It says that the average number of customers in the system is equal to the average number of arrivals per time unit times the average time spent in the system. For Figure \ref{fig:system} there is one arrival every 4 minutes (on average) and each arrival spends 4.6 minutes in the system (on average), so at an arbitrary point in time there will be \((1/4)(4.9)=1.2\) customers present (on average).
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.9\linewidth]{images/system2} 
+
+}
+
+\caption{System times Wi for the example system.}\label{fig:system2}
+\end{figure}
+
+Little's law can also be derived reconsidering Figure \ref{fig:system} as follows. Figure \ref{fig:system2} shows the exact same system history, but reporting the waiting time of each customer in the system, \(W_i\). Again we can see that the area under the function \(L(t)\) can be decomposed into rectangles of height 1 and length \(W_i\), for each \(i=1,2,\dots,N\). Therefore
+\[
+\sum_{i=1}^NW_i=\int_{0}^TL(t)dt
+\]
+Therefore, by using that \(\hat{\lambda}=N/T\) we have that
+\[
+\hat{L}=\frac{1}{T}\int_{0}^TL(t)dt=\frac{1}{T}\sum_{i=1}^NW_i=\frac{N}{T}\frac{1}{N}\sum_{i=1}^NW_i=\hat\lambda\hat{w},
+\]
+which is indeed Little's law!
+
+\hypertarget{server-utilization}{%
+\subsection{Server Utilization}\label{server-utilization}}
+
+Server utilization is defined as the proportion of time that a server is busy. Observed served utilization, denoted by \(\hat{\rho}\), is defined over a specified time interval \([0,T]\). Long-run server utilization is denoted by \(\rho\). For systems that exhibit long-run stability,
+\[
+\hat{\rho}\rightarrow \rho \mbox{ as } T\rightarrow \infty
+\]
+
+\hypertarget{server-utilization-in-gg1-queues}{%
+\subsubsection{Server Utilization in G/G/1 Queues}\label{server-utilization-in-gg1-queues}}
+
+Consider any single-server queuing system with average arrival rate \(\lambda\) customers per time unit, average service time \(E(S)=1/\mu\) time units, and infinite queue capacity and calling population. Notice that \(E(S)=1/\mu\) implies that when busy the server is working at the rate \(\mu\) customers per time unit, on average: \(\mu\) is called the \emph{service rate}.
+
+Notice that the server alone is a subsystem that can be considered as a queuing system itself. hence, Little's law \(L=\lambda w\) can be applied to the server. For stable systems, the average arrival rate to the server, say \(\lambda_s\) must be identical to the average arrival rate to the system \(\lambda\) (certainly \(\lambda_s\leq \lambda\) since customers cannot be served faster than they arrive, but if \(\lambda_s<\lambda\) the the waiting line would tend to grow in length and so we would have an unstable system). For the server subsystem, the average system time is \(w=E(S)=1/\mu\). The actual number of customers in the server subsystem is either zero or one as shown in Figure \ref{fig:system3} for the system in Figure \ref{fig:system}. Hence the average number in the server subsystem \(\hat{L}_s\) is given by
+\[
+\hat{L}_s = \frac{T-T_0}{T}
+\]
+In the example \(\hat{L}_s=17/20=\hat{\rho}\).
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.9\linewidth]{images/system3} 
+
+}
+
+\caption{Number of customers being served at time t}\label{fig:system3}
+\end{figure}
+
+In general, for a single-server queue, the average number of customers being served at an arbitrary point in time is equal to server utilization. As \(T\rightarrow \infty\), \(\hat{L}_s=\hat{\rho}\rightarrow L_s=\rho\). Combining these results into \(L=\lambda w\) for the server subsystem yields
+\[
+\rho = \lambda E(S)=\frac{\lambda}{\mu}
+\]
+that is the long-run server utilization in a single-server queue is equal to the average arrival rate divided by the average service rate. For a single-server queue to be stable, the arrival-rate \(\lambda\) must be less then the service rate \(\mu\):
+\[
+\lambda < \mu
+\]
+or
+\[
+\rho =\frac{\lambda}{\mu} < 1
+\]
+If the arrival rate is greater than the service rate \((\lambda > \mu)\) the server will eventually get further and further behind. After time, the server will always be busy, and the waiting line will tend to grow in length. For stable single-server systems long-run measures of performance such as average queue length \(L_Q\) are well defined and have a meaning. For unstable systems long-run server utilization is 1 and the long-run average queue length is infinite.
+
+\hypertarget{server-utilization-in-ggc-queues}{%
+\subsubsection{Server Utilization in G/G/c Queues}\label{server-utilization-in-ggc-queues}}
+
+Consider now a queuing system with \(c\) identical servers in parallel. If an arriving customer finds more than one server idle, the customer chooses a server without favoring any particular server. Arrivals occur at rate \(\lambda\) from an infinite calling population and each server works at rate \(\mu\) customers per time unit.
+
+Using a similar argument as above, one can derive that long-run average server utilization is defined by
+\[
+\rho = \frac{\lambda}{c\mu}
+\]
+and the system is stable if \(\rho < 1\) or equivalently if
+\[
+\lambda < c\mu.
+\]
+The average number of busy servers is
+\[
+L_s=\frac{\lambda}{\mu}.
+\]
+
+\hypertarget{an-example}{%
+\subsubsection{An Example}\label{an-example}}
+
+Consider a doctor who schedules patients every 10 minutes and who spends \(S_i\) minutes with the i-th patient, where
+\[
+S_i = \left\{
+\begin{array}{l}
+9 \mbox{ minutes with probability } 0.9\\
+12 \mbox{ minutes with probability } 0.1
+\end{array}
+\right.
+\]
+Thus, arrivals are deterministic (every 10 minutes) but services are stochastic with mean and variance given by
+\[
+E(S_i)= 9\cdot 0.9 + 12\cdot 0.1 = 9.3 \mbox{ minutes}
+\]
+and
+\[
+V(S_i)=0.9\cdot(9-9.3)^2 + 0.1\cdot(12-9.3)^2 = 0.81 \mbox{ minutes}^2
+\]
+Here \(\rho=\lambda /\mu = 9.3/10=0.93 < 1\) and so the system is stable and the doctor will be busy 93\% of the time in the long-run. In the short-run, sometimes queues will build up temporarily because of the variability of the service distribution, as shown in Figure \ref{fig:system4}.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.9\linewidth]{images/system4} 
+
+}
+
+\caption{Number of patients in the doctor's office at time t}\label{fig:system4}
+\end{figure}
+
+\hypertarget{steady-state-behavior-of-the-mm1-model}{%
+\section{Steady-State Behavior of the M/M/1 Model}\label{steady-state-behavior-of-the-mm1-model}}
+
+Henceforth, we assume that the calling population is infinite, the arrivals are assumed to follow a Poisson process with rate \(\lambda\) arrivals per time unit - that is, the inter-arrival times are assumed to be exponentially distributed with mean \(1/\lambda\). We also assume that service times are exponentially distributed with mean \(1/\mu\). The queue discipline will be FIFO. Because of the exponential distribution assumption on the arrival process, these models are called \emph{Markovian}.
+
+A queuing system is said to be in \emph{statistical equilibrium} or in \emph{steady state} if the probability that the system is in a given state is not time-dependent: that is
+\[
+P(L(t)=n)= P_n(t) = P_n
+\]
+is independent of time \(t\). Two properties of such systems:
+
+\begin{itemize}
+\item
+  they approach statistical equilibrium from any starting state,
+\item
+  they remain in statistical equilibrium once it is reached.
+\end{itemize}
+
+For the models that we will consider next the steady-state parameter \(L\), the average number of customers in the system, can be computed as
+\[
+L= \sum_{n=0}^\infty nP_n
+\]
+where \(\{P_0,P_1,\dots\}\) are the steady-state probabilities of finding \(n\) customers in the system. Once \(L\) is given, the other steady-state parameters can be computed easily from Little's law:
+\begin{align*}
+w &= \frac{L}{\lambda}\\
+w_Q &= w - \frac{1}{\mu}\\
+L_Q &= \lambda w_Q, 
+\end{align*}
+where \(\lambda\) is the arrival rate and \(\mu\) is the service rate.
+
+Recall that for queues to reach statistical equilibrium a necessary and sufficient condition is that \$\lambda/c\mu \textless1 \$.
+
+For the M/M/1 model the steady-state parameters can be shown to be equal to:
+\begin{align*}
+\rho &= \frac{\lambda}{\mu} \\
+L &= \frac{\lambda}{\mu-\lambda}\\
+w &= \frac{1}{\mu-\lambda}\\
+w_Q &= \frac{\lambda}{\mu(\mu-\lambda)}\\
+L_Q &= \frac{\lambda^2}{\mu(\mu-\lambda)}\\
+P_n &= \left(1-\frac{\lambda}{\mu}\right)\left(\frac{\lambda}{\mu}\right)^n
+\end{align*}
+
+Let's consider an example. Suppose that the interarrival times and service times of a single-chair unisex hair-styling shop have been shown to be exponentially distributed. The values of \(\lambda\) and \(\mu\) are 2 per hour and 3 per hour, respectively: that is, the time between arrivals averages 1/2 hour and the service time averages 20 minutes. The server utilization and the probabilities for 0, 1, 2, 3, and 4 or more customers in the shop are computed as follows:
+\begin{align*}
+\rho &= \frac{\lambda}{\mu}=2/3\\
+P_0 &= 1- \frac{\lambda}{\mu} = 1/3\\
+P_1 &= \left(\frac{1}{3}\right) \left(\frac{2}{3}\right) =\frac{2}{9}\\
+P_2 &= \left(\frac{1}{3}\right) \left(\frac{2}{3}\right)^2 =\frac{4}{27}\\
+P_3 &= \left(\frac{1}{3}\right) \left(\frac{2}{3}\right)^3 =\frac{8}{81}\\
+P_{\geq 4}&= 1-\sum_{n=0}^3=\frac{16}{81}
+\end{align*}
+From the above calculations the probability that the hair stylist is busy is \(1-P_0=0.67\) and thus the probability that he is free is \(0.33\). The average number of customer in the system is
+\[
+L=\frac{\lambda}{\mu-\lambda}=\frac{2}{3-2}= 2 \mbox{ customers}
+\]
+The average time in the system is
+\[
+w = \frac{L}{\lambda}=\frac{1}{\mu-\lambda} = \frac{2}{2}=1 \mbox{ hour}
+\]
+The average time the customer spends in the queue is
+\[
+w_Q = w - \frac{1}{\mu}= 1- \frac{1}{3}= \frac{2}{3} \mbox{ hour}
+\]
+and the number of customer in the queue is
+\[
+L_Q = \frac{\lambda^2}{\mu(\mu-\lambda)}=\frac{4}{3} \mbox{ customers}
+\]
+
+Let's consider another example. Arrivals occur at rate \(\lambda = 10\) per hour and management has a choice of two servers, one who works at rate \(\mu_1=11\) customers per hour and the second at rate \(\mu_2 = 12\) customers per hour. The utilizations are \(\rho_1 = 10/11=0.909\) and \(\rho_2 = 10/12 = 0.833\). Assume a M/M/1 model, then
+\[
+L_1 = \frac{\lambda}{\mu_1-\lambda}=\frac{10}{11-10}=10
+\]
+whilst
+\[
+L_2 = \frac{\lambda}{\mu_2-\lambda}=\frac{10}{12-10}=5
+\]
+Thus an increase in service rate from 11 to 12 customers per hour, a mere 9.1\% increase, would result in a decrease in average number in system from 10 to 5, which is a 50\% decrease!
 
   \bibliography{book.bib,packages.bib}
 

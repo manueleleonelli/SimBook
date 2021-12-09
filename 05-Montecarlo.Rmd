@@ -335,3 +335,288 @@ experiment <- replicate(10000,peter.paul())
 length(experiment[experiment==0])/1000
 ```
  
+## Playing the roulette
+
+Consider a European-style roulette which includes numbers between 0 and 36. In roulette there are many different betting alternatives but we consider here the simplest case where we bet on a single number. If we pick the right number then we win 35 times what we bet.
+
+Consider the following scenario. We start playing roulette with a fixed `budget`. Every sping of the roulette costs one unit of `budget`. We play until we run out of budget and we always bet on the same number. The following function `roulette` implements this game.
+
+```{r}
+roulette <- function(budget, number){
+  current <- c()
+  while(budget > 0){
+    outcome <- sample(0:36,1)
+    if(outcome == number) {
+      budget <- budget + 35
+    }
+    else {budget <- budget -1}
+    current <- c(current,budget)
+  }
+  current
+}
+```
+It takes two inputs: the `budget` and the number we decided to play all the time. It outputs our budget throughout the whole game until it ends.
+
+Let's play one game with a budget of 15 and betting on the number 8.
+```{r}
+set.seed(2021)
+roulette(15,8)
+```
+In 15 spins the number 8 never comes up and therefore our game ends quite quickly.
+
+We can ask ourselves many questions about such a game. For instance:
+
+  1. What is the probability that the game last exactly 15 spins if I start with a budget of 15 and bet on the number 8?
+  
+  2. What is the average length of the game starting with a budget of 15 and betting on the number 8?
+  
+  3. What is the average maximum wealth I have during a game started with a budget of 15 and betting on the number 8?
+
+We will develop various Monte Carlo experiments to answer all the above questions. In each case, we simply need to modify the function `roulette` to output some summary about the game.
+
+### Question 1
+
+
+1. What is the probability that the game last exactly 15 spins if I start with a budget of 15 and bet on the number 8?
+
+If a game where I started with a budget of 15 ends after 15 spins, it means that the number 8 never showed up. We can adapt the function roulette to output `TRUE` if the length of the vector `wealth` is exactly equal to `budget`.
+
+```{r}
+roulette1 <- function(budget, number){
+  wealth <- c()
+  current <- budget
+  while(current > 0){
+    outcome <- sample(0:36,1)
+    if(outcome == number) {
+      current <- current + 35
+    }
+    else {current <- current -1}
+    wealth <- c(wealth,current)
+  }
+  if(length(wealth) == budget){return(TRUE)} else{return(FALSE)}
+}
+```
+Therefore for the previous example the function should output `TRUE`.
+```{r}
+set.seed(2021)
+roulette1(15,8)
+```
+Let's replicate the experiment 1000 times. The proportion of `TRUE` we observe is our estimate of this probability.
+```{r}
+set.seed(2021)
+experiment <- replicate(1000,roulette1(15,8))
+sum(experiment)/1000
+```
+
+Notice that actually we could have also computed this probability exactly. This is the probability that a Binomial random variable with parameter $n=15$ (15 spins of the roulette) and $\theta = 1/37$ (the number eight has probability 1/37 of appearing in a single spin) is equal to zero (no 8 can happen). This is equal to:
+```{r}
+dbinom(0,15,1/37)
+```
+Therefore the Monte Carlo experiment approximates well the probability.
+
+### Question 2
+
+  2. What is the average length of the game starting with a budget of 15 and betting on the number 8?
+
+We can answer this question by adapting the `roulette` function to output the length of the vector `wealth`.
+
+```{r}
+roulette2 <- function(budget, number){
+  wealth <- c()
+  current <- budget
+  while(current > 0){
+    outcome <- sample(0:36,1)
+    if(outcome == number) {
+      current <- current + 35
+    }
+    else {current <- current -1}
+    wealth <- c(wealth,current)
+  }
+  length(wealth)
+}
+```
+
+In our example, the output should be 15.
+```{r}
+set.seed(2021)
+roulette2(15,8)
+```
+
+Let's replicate the experiment 1000 times and summarize the results with a plot (it may take some time to run the code!).
+```{r roulette2, out.width = "50%",cache = TRUE, fig.align='center'}
+set.seed(2021)
+experiment <- replicate(1000,roulette2(15,8))
+plot(table(experiment))
+```
+
+We can see that the distribution is very skewed, most often the length is 15 spins, but then sometimes the game has a length which is much longer. Therefore, the median of the data is a much better option to summarize the average length of the game. We can compute it, together with a range of plausible values, as
+
+```{r}
+median(experiment)
+c(sort(experiment)[25],sort(experiment)[975])
+```
+
+So we can see that the median is indeed 15: most of the times the number 8 does not appear and therefore the game ends in 15 spins.
+
+### Question 3
+
+  3. What is the average maximum wealth I have during a game started with a budget of 15 and betting on the number 8?
+  
+  We can answer this question by adapting the `roulette` function to output the maximum of the vector `wealth`.
+  
+```{r}
+roulette3 <- function(budget, number){
+  wealth <- c()
+  current <- budget
+  while(current > 0){
+    outcome <- sample(0:36,1)
+    if(outcome == number) {
+      current <- current + 35
+    }
+    else {current <- current -1}
+    wealth <- c(wealth,current)
+  }
+  max(wealth)
+}
+```
+
+Let's again replicate the experiment and plot the result.
+
+```{r roulette3, cache = TRUE, out.width="50%", fig.align='center'}
+set.seed(2021)
+experiment <- replicate(1000,roulette3(15,8))
+plot(table(experiment))
+```
+
+We can then get an estimate of the maximum wealth as well as a range of plausible values as
+```{r}
+median(experiment)
+c(sort(experiment)[25],sort(experiment)[975])
+```
+
+Since most often the game ends with no 8 appearing, the maximum wealth is most often 14.
+
+## Is Annie meeting Sam?
+
+Sleepless in Seattle is a 1993 American Romantic Comedy. Annie and Sam are supposed to meet on top of the Empire State Building where they would at last meet. However, their arrival time depends on a variety of factors and may actually not coincide and therefore never fall in love. 
+
+We make the following assumptions:
+
+ - Sam and Annie arrive independently;
+ 
+ - Sam arrives between 10 pm and 11:30 pm uniformly;
+ 
+ - Annie arrives between 10:30 pm and midnight uniformly.
+ 
+We want to answer the following questions:
+
+ - What is the probability that Annie arrives before Sam?
+ 
+ - What is the expected difference in arrival time?
+ 
+ - If they each wait only twenty minutes after their arrival, what is the probability that they meet?
+ 
+ - How much should they wait (assuming they wait the same amount of time), so that the probability they meet is at least 50\%?
+ 
+### Question 1
+
+- What is the probability that Annie arrives before Sam?
+
+The following function outputs `TRUE` if Annie arrives before Sam and `FALSE` otherwise.
+
+```{r}
+sam_annie1 <- function(){
+  sam <- runif(1,0,90)
+  annie <- runif(1,30,120)
+  annie < sam
+}
+```
+
+If we run a single simulation for instance
+```{r}
+set.seed(2021)
+sam_annie1()
+```
+We see that Annie does not arrive before Sam. 
+
+We can simply adapt `sam_annie1` to use 1000 random observations and give an estimate of this probability.
+
+```{r}
+sam_annie1 <- function(){
+  sam <- runif(1000,0,90)
+  annie <- runif(1000,30,120)
+  sum(annie < sam)/1000
+}
+
+set.seed(2021)
+sam_annie1()
+```
+
+If we want to have an estimate of the variability around this probability we can then replicate the experiment.
+```{r out.width="50%", fig.align='center'}
+set.seed(2021)
+experiment <- replicate(1000, sam_annie1())
+boxplot(experiment)
+```
+The probability that Annie arrives before Sam is around 0.22.
+
+### Question 2
+
+ - What is the expected difference in arrival time?
+ 
+The function `sam_annie2` computes this expectation using 1000 random observations.
+
+```{r}
+sam_annie2 <- function(){
+  sam <- runif(1000,0,90)
+  annie <- runif(1000,30,120)
+  mean(sam-annie)
+}
+```
+
+We can replicate and create a boxplot.
+```{r out.width = "50%", fig.align='center'}
+set.seed(2021)
+experiment <- replicate(1000,sam_annie2())
+boxplot(experiment)
+```
+
+So on average Sam arrives 30 minutes before Annie.
+
+### Question 3
+
+ - If they each wait only twenty minutes after their arrival, what is the probability that they meet?
+
+The function `sleepless` below returns `TRUE` if Annie and Sam meets,`FALSE` otherwise.
+
+```{r}
+sleepless <- function(waiting = 20){
+  u1 <- runif(1,0,150)
+  u2 <- runif(1,50,200)
+  if (u1 < u2){if(u1 + waiting > u2) return(TRUE)}
+  else{if (u2 + waiting > u1) return(TRUE)}
+  return(FALSE)
+}
+```
+
+Let's run it 10.000 times to get an estimate of the probability.
+```{r}
+set.seed(2021)
+mean(replicate(10000,sleepless()))
+```
+
+So we see that if they each wait 20 minutes, they have a probability of meeting of 0.178.
+
+### Question 4
+
+- How much should they wait (assuming they wait the same amount of time), so that the probability they meet is at least 50\%?
+
+In order to answer this question we can use the `sapply` function. We already know that if they wait 20 minutes, the probability of meeting is 0.19. So we consider longer waiting times.
+
+```{r}
+sapply(30:60,function(x) mean(replicate(10000,sleepless(x))))
+```
+
+It's the 28th entry of the vector `30:60`, that is `r (30:60)[28]`, the first one for which the probability is at least 0.50. So they should wait `r (30:60)[28]` minutes if they want to have a probability of at least 50\% to actually meet.
+
+

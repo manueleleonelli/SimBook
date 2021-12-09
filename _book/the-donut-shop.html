@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>6.1 The donut shop | Simulation and Modelling to Understand Change</title>
+  <meta name="description" content="These are lecture notes for the module Simulation and Modelling to Understand Change given in the School of Human Sciences and Technology at IE University, Madrid, Spain. The module is given in the 2nd semester of the 1st year of the bachelor in Data and Business Analytics. Knowledge of basic elements of R programming as well as probability and statistics is assumed." />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="6.1 The donut shop | Simulation and Modelling to Understand Change" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:image" content="/images/Rplot.png" />
+  <meta property="og:description" content="These are lecture notes for the module Simulation and Modelling to Understand Change given in the School of Human Sciences and Technology at IE University, Madrid, Spain. The module is given in the 2nd semester of the 1st year of the bachelor in Data and Business Analytics. Knowledge of basic elements of R programming as well as probability and statistics is assumed." />
+  <meta name="github-repo" content="manueleleonelli/SimBook" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="6.1 The donut shop | Simulation and Modelling to Understand Change" />
+  
+  <meta name="twitter:description" content="These are lecture notes for the module Simulation and Modelling to Understand Change given in the School of Human Sciences and Technology at IE University, Madrid, Spain. The module is given in the 2nd semester of the 1st year of the bachelor in Data and Business Analytics. Knowledge of basic elements of R programming as well as probability and statistics is assumed." />
+  <meta name="twitter:image" content="/images/Rplot.png" />
+
+<meta name="author" content="Manuele Leonelli" />
+
+
+<meta name="date" content="2021-04-19" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="discrete-event-simulation.html"/>
+<link rel="next" href="replication.html"/>
+<script src="libs/header-attrs-2.6/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="libs/viz-1.8.2/viz.js"></script>
+<link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="libs/grViz-binding-1.0.6.1/grViz.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Simulation and Modelling to Understand Change</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="what-is-simulation.html"><a href="what-is-simulation.html"><i class="fa fa-check"></i><b>1.1</b> What is simulation</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="what-is-simulation.html"><a href="what-is-simulation.html#a-simple-simulation-model"><i class="fa fa-check"></i><b>1.1.1</b> A simple simulation model</a></li>
+<li class="chapter" data-level="1.1.2" data-path="what-is-simulation.html"><a href="what-is-simulation.html#why-simulate"><i class="fa fa-check"></i><b>1.1.2</b> Why simulate?</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="types-of-simulations.html"><a href="types-of-simulations.html"><i class="fa fa-check"></i><b>1.2</b> Types of simulations</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="types-of-simulations.html"><a href="types-of-simulations.html#stochastic-vs-deterministic-simulations"><i class="fa fa-check"></i><b>1.2.1</b> Stochastic vs deterministic simulations</a></li>
+<li class="chapter" data-level="1.2.2" data-path="types-of-simulations.html"><a href="types-of-simulations.html#static-vs-dynamic-simulations"><i class="fa fa-check"></i><b>1.2.2</b> Static vs dynamic simulations</a></li>
+<li class="chapter" data-level="1.2.3" data-path="types-of-simulations.html"><a href="types-of-simulations.html#discrete-vs-continuous-simulations"><i class="fa fa-check"></i><b>1.2.3</b> Discrete vs continuous simulations</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="elements-of-a-simulation-model.html"><a href="elements-of-a-simulation-model.html"><i class="fa fa-check"></i><b>1.3</b> Elements of a simulation model</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="elements-of-a-simulation-model.html"><a href="elements-of-a-simulation-model.html#objects-of-the-model"><i class="fa fa-check"></i><b>1.3.1</b> Objects of the model</a></li>
+<li class="chapter" data-level="1.3.2" data-path="elements-of-a-simulation-model.html"><a href="elements-of-a-simulation-model.html#organization-of-entities-and-resources"><i class="fa fa-check"></i><b>1.3.2</b> Organization of entities and resources</a></li>
+<li class="chapter" data-level="1.3.3" data-path="elements-of-a-simulation-model.html"><a href="elements-of-a-simulation-model.html#operations-of-the-objects"><i class="fa fa-check"></i><b>1.3.3</b> Operations of the objects</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="the-donut-shop-example.html"><a href="the-donut-shop-example.html"><i class="fa fa-check"></i><b>1.4</b> The donut shop example</a></li>
+<li class="chapter" data-level="1.5" data-path="simulating-a-little-health-center.html"><a href="simulating-a-little-health-center.html"><i class="fa fa-check"></i><b>1.5</b> Simulating a little health center</a></li>
+<li class="chapter" data-level="1.6" data-path="whats-next.html"><a href="whats-next.html"><i class="fa fa-check"></i><b>1.6</b> What’s next</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="r-programming.html"><a href="r-programming.html"><i class="fa fa-check"></i><b>2</b> R programming</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="why-r.html"><a href="why-r.html"><i class="fa fa-check"></i><b>2.1</b> Why R?</a></li>
+<li class="chapter" data-level="2.2" data-path="r-basics.html"><a href="r-basics.html"><i class="fa fa-check"></i><b>2.2</b> R basics</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="r-basics.html"><a href="r-basics.html#r-as-a-calculator"><i class="fa fa-check"></i><b>2.2.1</b> R as a calculator</a></li>
+<li class="chapter" data-level="2.2.2" data-path="r-basics.html"><a href="r-basics.html#variable-assignment"><i class="fa fa-check"></i><b>2.2.2</b> Variable assignment</a></li>
+<li class="chapter" data-level="2.2.3" data-path="r-basics.html"><a href="r-basics.html#data-types"><i class="fa fa-check"></i><b>2.2.3</b> Data types</a></li>
+<li class="chapter" data-level="2.2.4" data-path="r-basics.html"><a href="r-basics.html#vectors"><i class="fa fa-check"></i><b>2.2.4</b> Vectors</a></li>
+<li class="chapter" data-level="2.2.5" data-path="r-basics.html"><a href="r-basics.html#matrices"><i class="fa fa-check"></i><b>2.2.5</b> Matrices</a></li>
+<li class="chapter" data-level="2.2.6" data-path="r-basics.html"><a href="r-basics.html#dataframes"><i class="fa fa-check"></i><b>2.2.6</b> Dataframes</a></li>
+<li class="chapter" data-level="2.2.7" data-path="r-basics.html"><a href="r-basics.html#null-and-na"><i class="fa fa-check"></i><b>2.2.7</b> <code>NULL</code> and <code>NA</code></a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html"><i class="fa fa-check"></i><b>2.3</b> Accessing and manipulating variables</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html#accessing-a-single-element"><i class="fa fa-check"></i><b>2.3.1</b> Accessing a single element</a></li>
+<li class="chapter" data-level="2.3.2" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html#acessing-multiple-entries"><i class="fa fa-check"></i><b>2.3.2</b> Acessing multiple entries</a></li>
+<li class="chapter" data-level="2.3.3" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html#accessing-entries-with-logical-operators"><i class="fa fa-check"></i><b>2.3.3</b> Accessing entries with logical operators</a></li>
+<li class="chapter" data-level="2.3.4" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html#manipulating-dataframes"><i class="fa fa-check"></i><b>2.3.4</b> Manipulating dataframes</a></li>
+<li class="chapter" data-level="2.3.5" data-path="accessing-and-manipulating-variables.html"><a href="accessing-and-manipulating-variables.html#information-about-objects"><i class="fa fa-check"></i><b>2.3.5</b> Information about objects</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="loops-and-conditions.html"><a href="loops-and-conditions.html"><i class="fa fa-check"></i><b>2.4</b> Loops and conditions</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="loops-and-conditions.html"><a href="loops-and-conditions.html#if-statements"><i class="fa fa-check"></i><b>2.4.1</b> <code>if</code> statements</a></li>
+<li class="chapter" data-level="2.4.2" data-path="loops-and-conditions.html"><a href="loops-and-conditions.html#ifelse"><i class="fa fa-check"></i><b>2.4.2</b> <code>ifelse</code></a></li>
+<li class="chapter" data-level="2.4.3" data-path="loops-and-conditions.html"><a href="loops-and-conditions.html#loops"><i class="fa fa-check"></i><b>2.4.3</b> Loops</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="functions.html"><a href="functions.html"><i class="fa fa-check"></i><b>2.5</b> Functions</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="functions.html"><a href="functions.html#defining-your-own-function"><i class="fa fa-check"></i><b>2.5.1</b> Defining your own function</a></li>
+<li class="chapter" data-level="2.5.2" data-path="functions.html"><a href="functions.html#calling-functions"><i class="fa fa-check"></i><b>2.5.2</b> Calling functions</a></li>
+<li class="chapter" data-level="2.5.3" data-path="functions.html"><a href="functions.html#mathematical-and-statistical-functions"><i class="fa fa-check"></i><b>2.5.3</b> Mathematical and statistical functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="the-apply-family-of-functions.html"><a href="the-apply-family-of-functions.html"><i class="fa fa-check"></i><b>2.6</b> The <code>apply</code> family of functions</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="the-apply-family-of-functions.html"><a href="the-apply-family-of-functions.html#the-function-apply"><i class="fa fa-check"></i><b>2.6.1</b> The function <code>apply</code></a></li>
+<li class="chapter" data-level="2.6.2" data-path="the-apply-family-of-functions.html"><a href="the-apply-family-of-functions.html#the-function-sapply"><i class="fa fa-check"></i><b>2.6.2</b> The function <code>sapply</code></a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="the-pipe-operator.html"><a href="the-pipe-operator.html"><i class="fa fa-check"></i><b>2.7</b> The pipe operator</a></li>
+<li class="chapter" data-level="2.8" data-path="plotting.html"><a href="plotting.html"><i class="fa fa-check"></i><b>2.8</b> Plotting</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="probability-basics.html"><a href="probability-basics.html"><i class="fa fa-check"></i><b>3</b> Probability Basics</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="discrete-random-variables.html"><a href="discrete-random-variables.html"><i class="fa fa-check"></i><b>3.1</b> Discrete Random Variables</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="discrete-random-variables.html"><a href="discrete-random-variables.html#probability-mass-function"><i class="fa fa-check"></i><b>3.1.1</b> Probability Mass Function</a></li>
+<li class="chapter" data-level="3.1.2" data-path="discrete-random-variables.html"><a href="discrete-random-variables.html#cumulative-distribution-function"><i class="fa fa-check"></i><b>3.1.2</b> Cumulative Distribution Function</a></li>
+<li class="chapter" data-level="3.1.3" data-path="discrete-random-variables.html"><a href="discrete-random-variables.html#summaries"><i class="fa fa-check"></i><b>3.1.3</b> Summaries</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="notable-discrete-variables.html"><a href="notable-discrete-variables.html"><i class="fa fa-check"></i><b>3.2</b> Notable Discrete Variables</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="notable-discrete-variables.html"><a href="notable-discrete-variables.html#bernoulli-distribution"><i class="fa fa-check"></i><b>3.2.1</b> Bernoulli Distribution</a></li>
+<li class="chapter" data-level="3.2.2" data-path="notable-discrete-variables.html"><a href="notable-discrete-variables.html#binomial-distribution"><i class="fa fa-check"></i><b>3.2.2</b> Binomial Distribution</a></li>
+<li class="chapter" data-level="3.2.3" data-path="notable-discrete-variables.html"><a href="notable-discrete-variables.html#poisson-distribution"><i class="fa fa-check"></i><b>3.2.3</b> Poisson Distribution</a></li>
+<li class="chapter" data-level="3.2.4" data-path="notable-discrete-variables.html"><a href="notable-discrete-variables.html#some-examples"><i class="fa fa-check"></i><b>3.2.4</b> Some Examples</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="continuous-random-variables.html"><a href="continuous-random-variables.html"><i class="fa fa-check"></i><b>3.3</b> Continuous Random Variables</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="continuous-random-variables.html"><a href="continuous-random-variables.html#probability-density-function"><i class="fa fa-check"></i><b>3.3.1</b> Probability Density Function</a></li>
+<li class="chapter" data-level="3.3.2" data-path="continuous-random-variables.html"><a href="continuous-random-variables.html#cumulative-distribution-function-1"><i class="fa fa-check"></i><b>3.3.2</b> Cumulative Distribution Function</a></li>
+<li class="chapter" data-level="3.3.3" data-path="continuous-random-variables.html"><a href="continuous-random-variables.html#summaries-1"><i class="fa fa-check"></i><b>3.3.3</b> Summaries</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="notable-continuous-distribution.html"><a href="notable-continuous-distribution.html"><i class="fa fa-check"></i><b>3.4</b> Notable Continuous Distribution</a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="notable-continuous-distribution.html"><a href="notable-continuous-distribution.html#uniform-distribution"><i class="fa fa-check"></i><b>3.4.1</b> Uniform Distribution</a></li>
+<li class="chapter" data-level="3.4.2" data-path="notable-continuous-distribution.html"><a href="notable-continuous-distribution.html#exponential-distribution"><i class="fa fa-check"></i><b>3.4.2</b> Exponential Distribution</a></li>
+<li class="chapter" data-level="3.4.3" data-path="notable-continuous-distribution.html"><a href="notable-continuous-distribution.html#normal-distribution"><i class="fa fa-check"></i><b>3.4.3</b> Normal Distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="the-central-limit-theorem.html"><a href="the-central-limit-theorem.html"><i class="fa fa-check"></i><b>3.5</b> The Central Limit Theorem</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="random-number-generation.html"><a href="random-number-generation.html"><i class="fa fa-check"></i><b>4</b> Random Number Generation</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="properties-of-random-numbers.html"><a href="properties-of-random-numbers.html"><i class="fa fa-check"></i><b>4.1</b> Properties of Random Numbers</a></li>
+<li class="chapter" data-level="4.2" data-path="pseudo-random-numbers.html"><a href="pseudo-random-numbers.html"><i class="fa fa-check"></i><b>4.2</b> Pseudo Random Numbers</a></li>
+<li class="chapter" data-level="4.3" data-path="generating-pseudo-random-numbers.html"><a href="generating-pseudo-random-numbers.html"><i class="fa fa-check"></i><b>4.3</b> Generating Pseudo-Random Numbers</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="generating-pseudo-random-numbers.html"><a href="generating-pseudo-random-numbers.html#generating-pseudo-random-numbers-in-r"><i class="fa fa-check"></i><b>4.3.1</b> Generating Pseudo-Random Numbers in R</a></li>
+<li class="chapter" data-level="4.3.2" data-path="generating-pseudo-random-numbers.html"><a href="generating-pseudo-random-numbers.html#linear-congruential-method"><i class="fa fa-check"></i><b>4.3.2</b> Linear Congruential Method</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="testing-randomness.html"><a href="testing-randomness.html"><i class="fa fa-check"></i><b>4.4</b> Testing Randomness</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="testing-randomness.html"><a href="testing-randomness.html#testing-uniformity"><i class="fa fa-check"></i><b>4.4.1</b> Testing Uniformity</a></li>
+<li class="chapter" data-level="4.4.2" data-path="testing-randomness.html"><a href="testing-randomness.html#testing-independence"><i class="fa fa-check"></i><b>4.4.2</b> Testing Independence</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="random-variate-generation.html"><a href="random-variate-generation.html"><i class="fa fa-check"></i><b>4.5</b> Random Variate Generation</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="random-variate-generation.html"><a href="random-variate-generation.html#random-generation-in-r"><i class="fa fa-check"></i><b>4.5.1</b> Random Generation in R</a></li>
+<li class="chapter" data-level="4.5.2" data-path="random-variate-generation.html"><a href="random-variate-generation.html#the-inverse-transform-method"><i class="fa fa-check"></i><b>4.5.2</b> The Inverse Transform Method</a></li>
+<li class="chapter" data-level="4.5.3" data-path="random-variate-generation.html"><a href="random-variate-generation.html#simulating-bernoulli-and-binomial"><i class="fa fa-check"></i><b>4.5.3</b> Simulating Bernoulli and Binomial</a></li>
+<li class="chapter" data-level="4.5.4" data-path="random-variate-generation.html"><a href="random-variate-generation.html#simulating-other-distributions"><i class="fa fa-check"></i><b>4.5.4</b> Simulating Other Distributions</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="testing-generic-simulation-sequences.html"><a href="testing-generic-simulation-sequences.html"><i class="fa fa-check"></i><b>4.6</b> Testing Generic Simulation Sequences</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="testing-generic-simulation-sequences.html"><a href="testing-generic-simulation-sequences.html#testing-distribution-fit"><i class="fa fa-check"></i><b>4.6.1</b> Testing Distribution Fit</a></li>
+<li class="chapter" data-level="4.6.2" data-path="testing-generic-simulation-sequences.html"><a href="testing-generic-simulation-sequences.html#testing-independence-1"><i class="fa fa-check"></i><b>4.6.2</b> Testing Independence</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="monte-carlo-simulation.html"><a href="monte-carlo-simulation.html"><i class="fa fa-check"></i><b>5</b> Monte Carlo Simulation</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="what-does-monte-carlo-simulation-mean.html"><a href="what-does-monte-carlo-simulation-mean.html"><i class="fa fa-check"></i><b>5.1</b> What does Monte Carlo simulation mean?</a></li>
+<li class="chapter" data-level="5.2" data-path="a-bit-of-history.html"><a href="a-bit-of-history.html"><i class="fa fa-check"></i><b>5.2</b> A bit of history</a></li>
+<li class="chapter" data-level="5.3" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html"><i class="fa fa-check"></i><b>5.3</b> Steps of Monte Carlo simulation</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-step-1"><i class="fa fa-check"></i><b>5.3.1</b> Estimating <span class="math inline">\(\pi\)</span>: step 1</a></li>
+<li class="chapter" data-level="5.3.2" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-step-2"><i class="fa fa-check"></i><b>5.3.2</b> Estimating <span class="math inline">\(\pi\)</span>: step 2</a></li>
+<li class="chapter" data-level="5.3.3" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-step-3"><i class="fa fa-check"></i><b>5.3.3</b> Estimating <span class="math inline">\(\pi\)</span>: step 3</a></li>
+<li class="chapter" data-level="5.3.4" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-step-4"><i class="fa fa-check"></i><b>5.3.4</b> Estimating <span class="math inline">\(\pi\)</span>: step 4</a></li>
+<li class="chapter" data-level="5.3.5" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-step-5"><i class="fa fa-check"></i><b>5.3.5</b> Estimating <span class="math inline">\(\pi\)</span>: step 5</a></li>
+<li class="chapter" data-level="5.3.6" data-path="steps-of-monte-carlo-simulation.html"><a href="steps-of-monte-carlo-simulation.html#estimating-pi-conclusions"><i class="fa fa-check"></i><b>5.3.6</b> Estimating <span class="math inline">\(\pi\)</span>: conclusions</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="the-sample-function.html"><a href="the-sample-function.html"><i class="fa fa-check"></i><b>5.4</b> The <code>sample</code> function</a></li>
+<li class="chapter" data-level="5.5" data-path="a-game-of-chance.html"><a href="a-game-of-chance.html"><i class="fa fa-check"></i><b>5.5</b> A game of chance</a></li>
+<li class="chapter" data-level="5.6" data-path="playing-the-roulette.html"><a href="playing-the-roulette.html"><i class="fa fa-check"></i><b>5.6</b> Playing the roulette</a>
+<ul>
+<li class="chapter" data-level="5.6.1" data-path="playing-the-roulette.html"><a href="playing-the-roulette.html#question-1"><i class="fa fa-check"></i><b>5.6.1</b> Question 1</a></li>
+<li class="chapter" data-level="5.6.2" data-path="playing-the-roulette.html"><a href="playing-the-roulette.html#question-2"><i class="fa fa-check"></i><b>5.6.2</b> Question 2</a></li>
+<li class="chapter" data-level="5.6.3" data-path="playing-the-roulette.html"><a href="playing-the-roulette.html#question-3"><i class="fa fa-check"></i><b>5.6.3</b> Question 3</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="is-annie-meeting-sam.html"><a href="is-annie-meeting-sam.html"><i class="fa fa-check"></i><b>5.7</b> Is Annie meeting Sam?</a>
+<ul>
+<li class="chapter" data-level="5.7.1" data-path="is-annie-meeting-sam.html"><a href="is-annie-meeting-sam.html#question-1-1"><i class="fa fa-check"></i><b>5.7.1</b> Question 1</a></li>
+<li class="chapter" data-level="5.7.2" data-path="is-annie-meeting-sam.html"><a href="is-annie-meeting-sam.html#question-2-1"><i class="fa fa-check"></i><b>5.7.2</b> Question 2</a></li>
+<li class="chapter" data-level="5.7.3" data-path="is-annie-meeting-sam.html"><a href="is-annie-meeting-sam.html#question-3-1"><i class="fa fa-check"></i><b>5.7.3</b> Question 3</a></li>
+<li class="chapter" data-level="5.7.4" data-path="is-annie-meeting-sam.html"><a href="is-annie-meeting-sam.html#question-4"><i class="fa fa-check"></i><b>5.7.4</b> Question 4</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="discrete-event-simulation.html"><a href="discrete-event-simulation.html"><i class="fa fa-check"></i><b>6</b> Discrete Event Simulation</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="the-donut-shop.html"><a href="the-donut-shop.html"><i class="fa fa-check"></i><b>6.1</b> The donut shop</a>
+<ul>
+<li class="chapter" data-level="6.1.1" data-path="the-donut-shop.html"><a href="the-donut-shop.html#a-single-customer-at-a-fixed-time"><i class="fa fa-check"></i><b>6.1.1</b> A single customer at a fixed time</a></li>
+<li class="chapter" data-level="6.1.2" data-path="the-donut-shop.html"><a href="the-donut-shop.html#a-customer-arriving-at-random"><i class="fa fa-check"></i><b>6.1.2</b> A customer arriving at random</a></li>
+<li class="chapter" data-level="6.1.3" data-path="the-donut-shop.html"><a href="the-donut-shop.html#many-random-customers"><i class="fa fa-check"></i><b>6.1.3</b> Many random customers</a></li>
+<li class="chapter" data-level="6.1.4" data-path="the-donut-shop.html"><a href="the-donut-shop.html#the-donut-shop-with-a-service-counter"><i class="fa fa-check"></i><b>6.1.4</b> The donut shop with a service counter</a></li>
+<li class="chapter" data-level="6.1.5" data-path="the-donut-shop.html"><a href="the-donut-shop.html#several-service-counters"><i class="fa fa-check"></i><b>6.1.5</b> Several service counters</a></li>
+<li class="chapter" data-level="6.1.6" data-path="the-donut-shop.html"><a href="the-donut-shop.html#simple-visualizations"><i class="fa fa-check"></i><b>6.1.6</b> Simple visualizations</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="replication.html"><a href="replication.html"><i class="fa fa-check"></i><b>6.2</b> Replication</a></li>
+<li class="chapter" data-level="6.3" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html"><i class="fa fa-check"></i><b>6.3</b> The donut shop - advanced features</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#priority-customers-without-preemption"><i class="fa fa-check"></i><b>6.3.1</b> Priority customers without preemption</a></li>
+<li class="chapter" data-level="6.3.2" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#priority-customers-with-preemption"><i class="fa fa-check"></i><b>6.3.2</b> Priority customers with preemption</a></li>
+<li class="chapter" data-level="6.3.3" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#balking-customers"><i class="fa fa-check"></i><b>6.3.3</b> Balking customers</a></li>
+<li class="chapter" data-level="6.3.4" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#reneging-or-abandoning-customers"><i class="fa fa-check"></i><b>6.3.4</b> Reneging (or abandoning) customers</a></li>
+<li class="chapter" data-level="6.3.5" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#several-counters-with-individual-queues"><i class="fa fa-check"></i><b>6.3.5</b> Several counters with individual queues</a></li>
+<li class="chapter" data-level="6.3.6" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#opening-times"><i class="fa fa-check"></i><b>6.3.6</b> Opening times</a></li>
+<li class="chapter" data-level="6.3.7" data-path="the-donut-shop-advanced-features.html"><a href="the-donut-shop-advanced-features.html#batching-clients"><i class="fa fa-check"></i><b>6.3.7</b> Batching clients</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="simulating-a-simple-health-center.html"><a href="simulating-a-simple-health-center.html"><i class="fa fa-check"></i><b>6.4</b> Simulating a simple health center</a></li>
+<li class="chapter" data-level="6.5" data-path="a-production-process-simulation.html"><a href="a-production-process-simulation.html"><i class="fa fa-check"></i><b>6.5</b> A production process simulation</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="queuing-theory.html"><a href="queuing-theory.html"><i class="fa fa-check"></i><b>7</b> Queuing Theory</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="poisson-process.html"><a href="poisson-process.html"><i class="fa fa-check"></i><b>7.1</b> Poisson Process</a></li>
+<li class="chapter" data-level="7.2" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html"><i class="fa fa-check"></i><b>7.2</b> Characteristics of Queuing Systems</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html#the-calling-population"><i class="fa fa-check"></i><b>7.2.1</b> The Calling Population</a></li>
+<li class="chapter" data-level="7.2.2" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html#system-capacity"><i class="fa fa-check"></i><b>7.2.2</b> System Capacity</a></li>
+<li class="chapter" data-level="7.2.3" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html#the-arrival-process"><i class="fa fa-check"></i><b>7.2.3</b> The Arrival Process</a></li>
+<li class="chapter" data-level="7.2.4" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html#queue-behavior-and-queue-discipline"><i class="fa fa-check"></i><b>7.2.4</b> Queue Behavior and Queue Discipline</a></li>
+<li class="chapter" data-level="7.2.5" data-path="characteristics-of-queuing-systems.html"><a href="characteristics-of-queuing-systems.html#service-times-and-service-mechanism"><i class="fa fa-check"></i><b>7.2.5</b> Service Times and Service Mechanism</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="queuing-notation.html"><a href="queuing-notation.html"><i class="fa fa-check"></i><b>7.3</b> Queuing Notation</a></li>
+<li class="chapter" data-level="7.4" data-path="measures-of-performance.html"><a href="measures-of-performance.html"><i class="fa fa-check"></i><b>7.4</b> Measures of Performance</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="measures-of-performance.html"><a href="measures-of-performance.html#average-number-of-customers-in-the-system-l"><i class="fa fa-check"></i><b>7.4.1</b> Average Number of Customers in the System <span class="math inline">\(L\)</span></a></li>
+<li class="chapter" data-level="7.4.2" data-path="measures-of-performance.html"><a href="measures-of-performance.html#average-time-spent-in-system-per-customer-w"><i class="fa fa-check"></i><b>7.4.2</b> Average Time Spent in System per Customer <span class="math inline">\(w\)</span></a></li>
+<li class="chapter" data-level="7.4.3" data-path="measures-of-performance.html"><a href="measures-of-performance.html#littles-law"><i class="fa fa-check"></i><b>7.4.3</b> Little’s Law</a></li>
+<li class="chapter" data-level="7.4.4" data-path="measures-of-performance.html"><a href="measures-of-performance.html#server-utilization"><i class="fa fa-check"></i><b>7.4.4</b> Server Utilization</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="steady-state-behavior-of-the-mm1-model.html"><a href="steady-state-behavior-of-the-mm1-model.html"><i class="fa fa-check"></i><b>7.5</b> Steady-State Behavior of the M/M/1 Model</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Simulation and Modelling to Understand Change</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="the-donut-shop" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> The donut shop</h2>
+<p>You may recall that in Chapter 1 we discussed the example of a simple donut shop where we were interested in the waiting time of costumers depending on the number of employees in the shop. We will slowly build a more and more realistic implementation of the shop using <code>simmer</code>. First, if you have never done this, you need to install the package using the code</p>
+<div class="sourceCode" id="cb289"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb289-1"><a href="the-donut-shop.html#cb289-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;simmer&quot;</span>)</span></code></pre></div>
+<p>Once it is installed (that you only need to do once), you then need to load it at the beginning of every R session using the code</p>
+<div class="sourceCode" id="cb290"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb290-1"><a href="the-donut-shop.html#cb290-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span></code></pre></div>
+<p>As we will see <code>simmer</code> takes advantage of the <code>magrittr</code> pipe operator.</p>
+<div id="a-single-customer-at-a-fixed-time" class="section level3" number="6.1.1">
+<h3><span class="header-section-number">6.1.1</span> A single customer at a fixed time</h3>
+<p>We first model a single customer who arrives at the shop for a visit, looks around at the decor for a time and then leaves. There is no queueing. First we will assume his arrival time and the time he spends in the shop are fixed.</p>
+<p>The arrival time is fixed at 5, and the time spent in the shop is fixed at 10. We interpret ‘5’ and ‘10’ as ‘5 minutes’ and ‘10 minutes.’ The simulation runs for a maximum of 100 minutes, or until all the customers that are generated complete their visit to the shop.</p>
+<p>Let’s define step by step the code that implements this. First we define a variable called <code>customer</code> which describes the evolution of the customer in the shop. The evolution of the customer is called the <code>trajectory</code> and it is given some name. The function <code>log_</code> produces text which is shown as specific points during the simulation. Lastly, <code>timeout</code> specifies how long the customer will spend in the shop.</p>
+<div class="sourceCode" id="cb291"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb291-1"><a href="the-donut-shop.html#cb291-1" aria-hidden="true" tabindex="-1"></a>customer <span class="ot">&lt;-</span></span>
+<span id="cb291-2"><a href="the-donut-shop.html#cb291-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">trajectory</span>(<span class="st">&quot;Customer&#39;s path&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb291-3"><a href="the-donut-shop.html#cb291-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;Here I am&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb291-4"><a href="the-donut-shop.html#cb291-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">timeout</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb291-5"><a href="the-donut-shop.html#cb291-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;I must leave&quot;</span>)</span></code></pre></div>
+<p>Now that we have described how the customer behaves in the shop, we must create a variable specifying how the shop itself works. The code below creates the variable <code>shop</code> where first we create a <code>simmer</code> object called <code>shop</code> and then we specify via the function <code>add_generator</code> that a customer arrives after 5 minutes.</p>
+<div class="sourceCode" id="cb292"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb292-1"><a href="the-donut-shop.html#cb292-1" aria-hidden="true" tabindex="-1"></a>shop <span class="ot">&lt;-</span></span>
+<span id="cb292-2"><a href="the-donut-shop.html#cb292-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simmer</span>(<span class="st">&quot;shop&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb292-3"><a href="the-donut-shop.html#cb292-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_generator</span>(<span class="st">&quot;Customer&quot;</span>, customer, <span class="fu">at</span>(<span class="dv">5</span>))</span></code></pre></div>
+<p>Now that the shop is created we have to run the simulation using the <code>run</code> command.</p>
+<div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb293-1"><a href="the-donut-shop.html#cb293-1" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span> <span class="fu">run</span>(<span class="at">until =</span> <span class="dv">100</span>)</span></code></pre></div>
+<pre><code>## 5: Customer0: Here I am
+## 15: Customer0: I must leave</code></pre>
+<pre><code>## simmer environment: shop | now: 15 | next: 
+## { Monitor: in memory }
+## { Source: Customer | monitored: 1 | n_generated: 1 }</code></pre>
+<p>The output summarizes what happened during the simulation. A customer arrives at minute 5 and leaves at minute 15. The simulation then stops since there are no other events that can happen in this simple case.</p>
+<p>In order to have an overview of the events of the simulation we can also use the function <code>get_mon_arrivals</code>.</p>
+<div class="sourceCode" id="cb296"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb296-1"><a href="the-donut-shop.html#cb296-1" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span> <span class="fu">get_mon_arrivals</span>()</span></code></pre></div>
+<pre><code>##        name start_time end_time activity_time finished replication
+## 1 Customer0          5       15            10     TRUE           1</code></pre>
+</div>
+<div id="a-customer-arriving-at-random" class="section level3" number="6.1.2">
+<h3><span class="header-section-number">6.1.2</span> A customer arriving at random</h3>
+<p>Now we extend the model to allow our customer to arrive at a random simulated time though we will keep the time in the bank at 10, as before.</p>
+<p>The change occurs in the arguments to the <code>add_generator</code> function. We will assume that the customer arrival time is generated from an Exponential distribution with parameter 1/5 (that is mean = 5).</p>
+<div class="sourceCode" id="cb298"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb298-1"><a href="the-donut-shop.html#cb298-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb298-2"><a href="the-donut-shop.html#cb298-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb298-3"><a href="the-donut-shop.html#cb298-3" aria-hidden="true" tabindex="-1"></a>customer <span class="ot">&lt;-</span></span>
+<span id="cb298-4"><a href="the-donut-shop.html#cb298-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">trajectory</span>(<span class="st">&quot;Customer&#39;s path&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb298-5"><a href="the-donut-shop.html#cb298-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;Here I am&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb298-6"><a href="the-donut-shop.html#cb298-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">timeout</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb298-7"><a href="the-donut-shop.html#cb298-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;I must leave&quot;</span>)</span>
+<span id="cb298-8"><a href="the-donut-shop.html#cb298-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb298-9"><a href="the-donut-shop.html#cb298-9" aria-hidden="true" tabindex="-1"></a>shop <span class="ot">&lt;-</span></span>
+<span id="cb298-10"><a href="the-donut-shop.html#cb298-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simmer</span>(<span class="st">&quot;shop&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb298-11"><a href="the-donut-shop.html#cb298-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_generator</span>(<span class="st">&quot;Customer&quot;</span>, customer, <span class="fu">at</span>(<span class="fu">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">5</span>)))</span>
+<span id="cb298-12"><a href="the-donut-shop.html#cb298-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb298-13"><a href="the-donut-shop.html#cb298-13" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span> <span class="fu">run</span>(<span class="at">until =</span> <span class="dv">100</span>)</span></code></pre></div>
+<pre><code>## 5.92531: Customer0: Here I am
+## 15.9253: Customer0: I must leave</code></pre>
+<pre><code>## simmer environment: shop | now: 15.925307087372 | next: 
+## { Monitor: in memory }
+## { Source: Customer | monitored: 1 | n_generated: 1 }</code></pre>
+<div class="sourceCode" id="cb301"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb301-1"><a href="the-donut-shop.html#cb301-1" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span> <span class="fu">get_mon_arrivals</span>()</span></code></pre></div>
+<pre><code>##        name start_time end_time activity_time finished replication
+## 1 Customer0   5.925307 15.92531            10     TRUE           1</code></pre>
+<p>The trace shows that the customer now arrives at time 5.925307. Changing the seed value would change that time.</p>
+</div>
+<div id="many-random-customers" class="section level3" number="6.1.3">
+<h3><span class="header-section-number">6.1.3</span> Many random customers</h3>
+<p>We now extend this model to allow multiple arrivals at random. In simulation this is usually interpreted as meaning that the times between customer arrivals are distributed as exponential random variables (we will see later on why this is so). There is little change in our program: we need to adapt the <code>add_generator</code> function. We will run the simulation a shorter time, since otherwise the output becomes massive.</p>
+<div class="sourceCode" id="cb303"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb303-1"><a href="the-donut-shop.html#cb303-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb303-2"><a href="the-donut-shop.html#cb303-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb303-3"><a href="the-donut-shop.html#cb303-3" aria-hidden="true" tabindex="-1"></a>customer <span class="ot">&lt;-</span></span>
+<span id="cb303-4"><a href="the-donut-shop.html#cb303-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">trajectory</span>(<span class="st">&quot;Customer&#39;s path&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb303-5"><a href="the-donut-shop.html#cb303-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;Here I am&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb303-6"><a href="the-donut-shop.html#cb303-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">timeout</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb303-7"><a href="the-donut-shop.html#cb303-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;I must leave&quot;</span>)</span>
+<span id="cb303-8"><a href="the-donut-shop.html#cb303-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb303-9"><a href="the-donut-shop.html#cb303-9" aria-hidden="true" tabindex="-1"></a>shop <span class="ot">&lt;-</span></span>
+<span id="cb303-10"><a href="the-donut-shop.html#cb303-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simmer</span>(<span class="st">&quot;shop&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb303-11"><a href="the-donut-shop.html#cb303-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_generator</span>(<span class="st">&quot;Customer&quot;</span>, customer, <span class="cf">function</span>() <span class="fu">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">5</span>))</span>
+<span id="cb303-12"><a href="the-donut-shop.html#cb303-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb303-13"><a href="the-donut-shop.html#cb303-13" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span> <span class="fu">run</span>(<span class="at">until =</span> <span class="dv">30</span>)</span></code></pre></div>
+<pre><code>## 5.92531: Customer0: Here I am
+## 12.0259: Customer1: Here I am
+## 13.3892: Customer2: Here I am
+## 15.4026: Customer3: Here I am
+## 15.9253: Customer0: I must leave
+## 16.807: Customer4: Here I am
+## 20.6063: Customer5: Here I am
+## 22.0259: Customer1: I must leave
+## 23.3892: Customer2: I must leave
+## 23.7606: Customer6: Here I am
+## 23.8551: Customer7: Here I am
+## 24.5296: Customer8: Here I am
+## 25.4026: Customer3: I must leave
+## 26.807: Customer4: I must leave
+## 27.7301: Customer9: Here I am</code></pre>
+<pre><code>## simmer environment: shop | now: 30 | next: 30.6063456850162
+## { Monitor: in memory }
+## { Source: Customer | monitored: 1 | n_generated: 11 }</code></pre>
+<div class="sourceCode" id="cb306"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb306-1"><a href="the-donut-shop.html#cb306-1" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span> <span class="fu">get_mon_arrivals</span>()</span></code></pre></div>
+<pre><code>##        name start_time end_time activity_time finished replication
+## 1 Customer0   5.925307 15.92531            10     TRUE           1
+## 2 Customer1  12.025928 22.02593            10     TRUE           1
+## 3 Customer2  13.389166 23.38917            10     TRUE           1
+## 4 Customer3  15.402626 25.40263            10     TRUE           1
+## 5 Customer4  16.807015 26.80702            10     TRUE           1</code></pre>
+<p>So we see that in the 30 minutes we simulated, 10 customers arrived at the shop and 5 of them left after staying there for 10 minutes.</p>
+</div>
+<div id="the-donut-shop-with-a-service-counter" class="section level3" number="6.1.4">
+<h3><span class="header-section-number">6.1.4</span> The donut shop with a service counter</h3>
+<p>So far, the model has been more like an art gallery, the customers entering, looking around, and leaving. Now they are going to require service from an employee. We extend the model to include a service counter that will be modelled as a ‘resource.’ The actions of a Resource are simple: a customer requests a unit of the resource (an employee). If one is free, then the customer gets service (and the unit is no longer available to other customers). If there is no free employee, then the customer joins the queue until it is the customer’s turn to be served. As each customer completes service and releases the unit, the employee can start serving the next in line.</p>
+<p>The service counter is created with the <code>add_resource</code> function. Default arguments specify that it can serve one customer at a time, and has infinite queuing capacity.</p>
+<p>The <code>seize</code> function causes the customer to join the queue at the counter. If the queue is empty and the counter is available (not serving any customers), then the customer claims the counter for itself and moves onto the <code>timeout</code> step. Otherwise the customer must wait until the counter becomes available. Behaviour of the customer while in the queue is controlled by the arguments of the <code>seize</code> function. Once the <code>timeout</code> step is complete, the <code>release</code> function causes the customer to make the counter available to other customers in the queue.</p>
+<p>We will assume that serving time follows a Normal distribution with mean 10 and standard deviation 2.</p>
+<div class="sourceCode" id="cb308"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb308-1"><a href="the-donut-shop.html#cb308-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb308-2"><a href="the-donut-shop.html#cb308-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb308-3"><a href="the-donut-shop.html#cb308-3" aria-hidden="true" tabindex="-1"></a>customer <span class="ot">&lt;-</span></span>
+<span id="cb308-4"><a href="the-donut-shop.html#cb308-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">trajectory</span>(<span class="st">&quot;Customer&#39;s path&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb308-5"><a href="the-donut-shop.html#cb308-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;Here I am&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb308-6"><a href="the-donut-shop.html#cb308-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">seize</span>(<span class="st">&quot;counter&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb308-7"><a href="the-donut-shop.html#cb308-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">timeout</span>(<span class="cf">function</span>() <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb308-8"><a href="the-donut-shop.html#cb308-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">release</span>(<span class="st">&quot;counter&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb308-9"><a href="the-donut-shop.html#cb308-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;Finished&quot;</span>)</span>
+<span id="cb308-10"><a href="the-donut-shop.html#cb308-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb308-11"><a href="the-donut-shop.html#cb308-11" aria-hidden="true" tabindex="-1"></a>shop <span class="ot">&lt;-</span></span>
+<span id="cb308-12"><a href="the-donut-shop.html#cb308-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simmer</span>(<span class="st">&quot;shop&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb308-13"><a href="the-donut-shop.html#cb308-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_resource</span>(<span class="st">&quot;counter&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb308-14"><a href="the-donut-shop.html#cb308-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_generator</span>(<span class="st">&quot;Customer&quot;</span>, customer, <span class="cf">function</span>() <span class="fu">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">5</span>))</span>
+<span id="cb308-15"><a href="the-donut-shop.html#cb308-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb308-16"><a href="the-donut-shop.html#cb308-16" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span> <span class="fu">run</span>(<span class="at">until =</span> <span class="dv">30</span>)</span></code></pre></div>
+<pre><code>## 5.92531: Customer0: Here I am
+## 12.0259: Customer1: Here I am
+## 13.4303: Customer2: Here I am
+## 16.6226: Customer0: Finished
+## 17.2296: Customer3: Here I am
+## 28.4187: Customer1: Finished</code></pre>
+<pre><code>## simmer environment: shop | now: 30 | next: 36.6490003143151
+## { Monitor: in memory }
+## { Resource: counter | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 5 }</code></pre>
+<p>So we see that 4 customers arrived in the shop and that 2 of them were served. Let’s use the function <code>get_mon_arrivals</code> to have a summary of each customer. By default, the function does not tell us the waiting time for a customer, which we will need to compute.</p>
+<div class="sourceCode" id="cb311"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb311-1"><a href="the-donut-shop.html#cb311-1" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span></span>
+<span id="cb311-2"><a href="the-donut-shop.html#cb311-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_mon_arrivals</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb311-3"><a href="the-donut-shop.html#cb311-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(<span class="at">waiting_time =</span> end_time <span class="sc">-</span> start_time <span class="sc">-</span> activity_time)</span></code></pre></div>
+<pre><code>##        name start_time end_time activity_time finished replication
+## 1 Customer0   5.925307 16.62261      10.69730     TRUE           1
+## 2 Customer1  12.025928 28.41871      11.79611     TRUE           1
+##    waiting_time
+## 1 -1.776357e-15
+## 2  4.596678e+00</code></pre>
+</div>
+<div id="several-service-counters" class="section level3" number="6.1.5">
+<h3><span class="header-section-number">6.1.5</span> Several service counters</h3>
+<p>Here we model a shop whose customers arrive randomly and are to be served at a group of counters, taking a random time for service, where we assume that waiting customers form a single first-in first-out queue.</p>
+<p>The only difference between this model and the single-server model is in the <code>add_resource</code> function, where we have increased the capacity to two so that it can serve two customers at once.</p>
+<div class="sourceCode" id="cb313"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb313-1"><a href="the-donut-shop.html#cb313-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
+<span id="cb313-2"><a href="the-donut-shop.html#cb313-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb313-3"><a href="the-donut-shop.html#cb313-3" aria-hidden="true" tabindex="-1"></a>customer <span class="ot">&lt;-</span></span>
+<span id="cb313-4"><a href="the-donut-shop.html#cb313-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">trajectory</span>(<span class="st">&quot;Customer&#39;s path&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb313-5"><a href="the-donut-shop.html#cb313-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;Here I am&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb313-6"><a href="the-donut-shop.html#cb313-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">seize</span>(<span class="st">&quot;counter&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb313-7"><a href="the-donut-shop.html#cb313-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">timeout</span>(<span class="cf">function</span>() <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb313-8"><a href="the-donut-shop.html#cb313-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">release</span>(<span class="st">&quot;counter&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb313-9"><a href="the-donut-shop.html#cb313-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;Finished&quot;</span>)</span>
+<span id="cb313-10"><a href="the-donut-shop.html#cb313-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb313-11"><a href="the-donut-shop.html#cb313-11" aria-hidden="true" tabindex="-1"></a>shop <span class="ot">&lt;-</span></span>
+<span id="cb313-12"><a href="the-donut-shop.html#cb313-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simmer</span>(<span class="st">&quot;shop&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb313-13"><a href="the-donut-shop.html#cb313-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_resource</span>(<span class="st">&quot;counter&quot;</span>,<span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb313-14"><a href="the-donut-shop.html#cb313-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_generator</span>(<span class="st">&quot;Customer&quot;</span>, customer, <span class="cf">function</span>() <span class="fu">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">5</span>))</span>
+<span id="cb313-15"><a href="the-donut-shop.html#cb313-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb313-16"><a href="the-donut-shop.html#cb313-16" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span> <span class="fu">run</span>(<span class="at">until =</span> <span class="dv">30</span>)</span></code></pre></div>
+<pre><code>## 5.92531: Customer0: Here I am
+## 12.0259: Customer1: Here I am
+## 13.4303: Customer2: Here I am
+## 13.5248: Customer3: Here I am
+## 14.1994: Customer4: Here I am
+## 16.6226: Customer0: Finished
+## 17.3999: Customer5: Here I am
+## 19.2911: Customer6: Here I am
+## 20.7802: Customer1: Finished
+## 25.2835: Customer2: Finished
+## 26.8058: Customer7: Here I am
+## 29.8574: Customer8: Here I am
+## 29.971: Customer9: Here I am</code></pre>
+<pre><code>## simmer environment: shop | now: 30 | next: 33.0973605697233
+## { Monitor: in memory }
+## { Resource: counter | monitored: TRUE | server status: 2(2) | queue status: 5(Inf) }
+## { Source: Customer | monitored: 1 | n_generated: 11 }</code></pre>
+<div class="sourceCode" id="cb316"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb316-1"><a href="the-donut-shop.html#cb316-1" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span></span>
+<span id="cb316-2"><a href="the-donut-shop.html#cb316-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_mon_arrivals</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb316-3"><a href="the-donut-shop.html#cb316-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(<span class="at">waiting_time =</span> end_time <span class="sc">-</span> start_time <span class="sc">-</span> activity_time)</span></code></pre></div>
+<pre><code>##        name start_time end_time activity_time finished replication
+## 1 Customer0   5.925307 16.62261     10.697299     TRUE           1
+## 2 Customer1  12.025928 20.78016      8.754228     TRUE           1
+## 3 Customer2  13.430317 25.28350      8.660893     TRUE           1
+##    waiting_time
+## 1 -1.776357e-15
+## 2  0.000000e+00
+## 3  3.192289e+00</code></pre>
+<p>Now that we also have a counter we can get some summary statistics from it using the function <code>get_mon_resources</code>.</p>
+<div class="sourceCode" id="cb318"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb318-1"><a href="the-donut-shop.html#cb318-1" aria-hidden="true" tabindex="-1"></a>shop <span class="sc">%&gt;%</span> <span class="fu">get_mon_resources</span>()</span></code></pre></div>
+<pre><code>##    resource      time server queue capacity queue_size system limit replication
+## 1   counter  5.925307      1     0        2        Inf      1   Inf           1
+## 2   counter 12.025928      2     0        2        Inf      2   Inf           1
+## 3   counter 13.430317      2     1        2        Inf      3   Inf           1
+## 4   counter 13.524818      2     2        2        Inf      4   Inf           1
+## 5   counter 14.199351      2     3        2        Inf      5   Inf           1
+## 6   counter 16.622606      2     2        2        Inf      4   Inf           1
+## 7   counter 17.399880      2     3        2        Inf      5   Inf           1
+## 8   counter 19.291124      2     4        2        Inf      6   Inf           1
+## 9   counter 20.780156      2     3        2        Inf      5   Inf           1
+## 10  counter 25.283499      2     2        2        Inf      4   Inf           1
+## 11  counter 26.805825      2     3        2        Inf      5   Inf           1
+## 12  counter 29.857358      2     4        2        Inf      6   Inf           1
+## 13  counter 29.970950      2     5        2        Inf      7   Inf           1</code></pre>
+</div>
+<div id="simple-visualizations" class="section level3" number="6.1.6">
+<h3><span class="header-section-number">6.1.6</span> Simple visualizations</h3>
+<p>We have learned to implement various simple simulations of our donut shop. The output we get is informative and comprehensive but nor particularly appealing to present, for instance in a report. The package <code>simmer.plot</code> provides plotting capabilities to summarize the results of a simulation. At this stage we will see two simple capabilities of the package. We will learn more about it in the following sections.</p>
+<p>Before using <code>simmer.plot</code> you need to install it only once via</p>
+<div class="sourceCode" id="cb320"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb320-1"><a href="the-donut-shop.html#cb320-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;simmer.plot&quot;</span>)</span></code></pre></div>
+<p>and then load it at the beginning of every R session where you plan to use it.</p>
+<div class="sourceCode" id="cb321"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb321-1"><a href="the-donut-shop.html#cb321-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;simmer.plot&quot;</span>)</span></code></pre></div>
+<p>First, we can plot how much a resource, in this case our two employees, is utilized using the following code.</p>
+<div class="sourceCode" id="cb322"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb322-1"><a href="the-donut-shop.html#cb322-1" aria-hidden="true" tabindex="-1"></a>resources <span class="ot">&lt;-</span> <span class="fu">get_mon_resources</span>(shop)</span>
+<span id="cb322-2"><a href="the-donut-shop.html#cb322-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(resources, <span class="at">metric =</span> <span class="st">&quot;utilization&quot;</span>)</span></code></pre></div>
+<p><img src="SimBook_files/figure-html/unnamed-chunk-151-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p>So we see that our employees are busy around 90% of the time. We can also see when they are busy as well as how many people are queuing at each moment during the simulation using the code below.</p>
+<div class="sourceCode" id="cb323"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb323-1"><a href="the-donut-shop.html#cb323-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(resources, <span class="at">metric =</span> <span class="st">&quot;usage&quot;</span>,<span class="at">steps=</span>T)</span></code></pre></div>
+<p><img src="SimBook_files/figure-html/unnamed-chunk-152-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p>The green line reports the number of employees busy and we can see that most of the time they are both busy. The red line reports the number of people queuing and waiting to be served. The blue line is the total number of customers in the system: those queuing plus those being served.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="discrete-event-simulation.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="replication.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["SimBook.pdf", "SimBook.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
